@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Paytone+One&family=Rock+Salt&display=swap');
+
+@import 'bulma.css';
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Paytone One', sans-serif;
+}
+
+.d-test {
+  display: none;
+}
+
+.popover, .tooltip {
+  pointer-events: none;
+}
+
+input, textarea {
+  font-family: monospace;
+}
+
+.alert, .btn, .btn-sm, .card, .form-control, .input-group-text, .progress {
+  border-radius: 0;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@media print {
+  * {
+    font-size: 10pt;
+  }
+
+  pre {
+    border: none !important;
+  }
+
+  .grecaptcha-badge, .offcanvas {
+    visibility: hidden;
+  }
+
+}
