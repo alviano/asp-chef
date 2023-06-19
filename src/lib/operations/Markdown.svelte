@@ -75,7 +75,7 @@
                                         atom.functor = '';
                                         atom.terms = [atom];
                                     }
-                                    const terms = atom.terms.map(term => term.str);
+                                    const terms = atom.terms.map(term => term.string || term.str);
                                     if (atom.functor === '') {
                                         replacement.push(prefix + terms.join(term_separator) + suffix);
                                     } else if (atom.predicate === 'prefix') {
@@ -170,7 +170,30 @@
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Markdown-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
     </InputGroup>
-    <div class="p-2" data-testid="Markdown-output">
+    <div class="p-2 output" data-testid="Markdown-output">
         {@html Utils.render_markdown(output)}
     </div>
 </Operation>
+
+<style >
+    .output :global(td), .output :global(th) {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    .output :global(tr:nth-child(even)) {
+        background-color: #f2f2f2;
+    }
+
+    .output :global(tr:hover) {
+        background-color: #ddd;
+    }
+
+    .output :global(th) {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #777;
+        color: white;
+    }
+</style>
