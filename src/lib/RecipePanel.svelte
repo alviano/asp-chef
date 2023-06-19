@@ -24,6 +24,7 @@
     import Filter from "$lib/operations/Filter.svelte";
     import SelectPredicates from "$lib/operations/SelectPredicates.svelte";
     import Encode from "$lib/operations/Encode.svelte";
+    import Markdown from "$lib/operations/Markdown.svelte";
     import {onDestroy, onMount} from "svelte";
     import SelectModel from "$lib/operations/SelectModel.svelte";
     import Operations from "$lib/operations/Operations.svelte";
@@ -321,6 +322,8 @@
                         <Store id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Restore'}
                         <Restore id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                    {:else if item.operation === 'Markdown'}
+                        <Markdown id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else}
                         <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                         <Alert color="danger">

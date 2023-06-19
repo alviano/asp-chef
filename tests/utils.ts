@@ -94,6 +94,19 @@ export class TestRecipe {
 		});
 	}
 
+	async markdown(callback, {
+		predicate = '__base64__',
+		echo = false,
+	} = {}) {
+		return this.ingredient('Markdown', async ingredient => {
+			await ingredient.getByTestId('Markdown-predicate').fill(predicate);
+			if (echo) {
+				await ingredient.getByRole('button').filter({ hasText: 'Echo' }).click();
+			}
+			await callback(await ingredient.getByTestId("Markdown-output"));
+		});
+	}
+
 	async encode(content: string, trim = true, predicate = '__base64__') {
 		return await this.ingredient('Encode', async ingredient => {
 			await ingredient.getByTestId('Encode-content').getByRole('textbox').fill(trim ? content.trim() : content);
