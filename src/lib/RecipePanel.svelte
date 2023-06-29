@@ -1,7 +1,7 @@
 <script>
     import {flip} from "svelte/animate";
     import {dndzone} from "svelte-dnd-action";
-    import {pause_baking, recipe, show_ingredient_details} from "$lib/stores";
+    import {drag_disabled, pause_baking, recipe, show_ingredient_details} from "$lib/stores";
     import {Alert, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import SearchModels from "$lib/operations/SearchModels.svelte";
     import RemoveErrors from "$lib/operations/RemoveErrors.svelte";
@@ -87,6 +87,8 @@
     }
 
     let items = [];
+    let dragDisabled;
+    $: dragDisabled = $drag_disabled;
     const flipDurationMs = 300;
     async function handleDndConsider(e) {
         items = e.detail.items;
@@ -203,7 +205,7 @@
         </CardTitle>
     </CardHeader>
     <CardBody class="p-0" style="background-color: lightgray;">
-        <section style="padding-bottom: 20em;" use:dndzone="{{items, flipDurationMs}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
+        <section style="padding-bottom: 20em;" use:dndzone="{{items, dragDisabled, flipDurationMs}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
             {#each items as item, index (item.id)}
                 <div animate:flip="{{duration: flipDurationMs}}" class="mt-1">
                     {#if item.operation === 'Search Models'}

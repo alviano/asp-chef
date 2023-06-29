@@ -61,12 +61,13 @@
                 let suffix = '';
                 for (let atom of model.filter(atom => atom.predicate === options.predicate)) {
                     let md = Base64.decode(atom.terms[0].string);
-                    const matches = md.match(/\{\{((?!}}).)*}}/g);
+                    const matches = md.matchAll(/\{\{(((?!}}).)*)}}/gs);
                     if (matches !== null) {
                         for (let the_match of matches) {
-                            const match = the_match.substring(2, the_match.length - 2);
-                            const program = model.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n#show ' + match + '.';
+                            const match = the_match[1].trim();
+                            const program = model.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n#show ' + match + (match.endsWith('.') ? '' : '.');
                             const query_answer = await Utils.search_models(program, 1, true);
+                            let matrix = null;
 
                             const replacement = [];
                             if (query_answer.length === 1) {
@@ -78,6 +79,26 @@
                                     const terms = atom.terms.map(term => term.string || term.str);
                                     if (atom.functor === '') {
                                         replacement.push(prefix + terms.join(term_separator) + suffix);
+                                    } else if (atom.predicate === 'matrix') {
+                                        if (matrix === null) {
+                                            matrix = [];
+                                        }
+                                        if (atom.terms.length < 3) {
+                                            Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`)
+                                        } else {
+                                            const row = atom.terms[0].number;
+                                            const col = atom.terms[1].number;
+                                            const value = prefix + terms.slice(2).join(term_separator) + suffix;
+
+                                            while (matrix.length < row) {
+                                                matrix.push([]);
+                                            }
+                                            while (matrix[row-1].length < col) {
+                                                matrix[row-1].push("");
+                                            }
+
+                                            matrix[row-1][col-1] = value;
+                                        }
                                     } else if (atom.predicate === 'prefix') {
                                         if (check_one_term_string(atom)) {
                                             prefix = atom.terms[0].string;
@@ -126,8 +147,10 @@
                                     }
                                 });
                             }
-                            query_answer[0]
-                            md = md.replace(the_match, replacement.join(separator));
+                            if (matrix !== null) {
+                                replacement.push(matrix.map(row => "|" + row.join("|") + "|").join("\n"));
+                            }
+                            md = md.replace(the_match[0], replacement.join(separator));
                         }
                     }
                     output_part.push(md);
