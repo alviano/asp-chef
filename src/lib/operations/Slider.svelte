@@ -32,8 +32,8 @@
     export let add_to_recipe;
     export let keybinding;
 
-    let min = 1;
-    let max = 10;
+    let min = -999_999;
+    let max = 999_999;
 
     function edit() {
         Recipe.edit_operation(index, options);
@@ -77,6 +77,7 @@
                on:input={edit}
                data-testid="Slider-min"
         />
+        <InputGroupText style="width: 5em;"><code class="text-end w-100">{min}</code></InputGroupText>
     </InputGroup>
     <InputGroup>
         <InputGroupText style="width: 10em;">Maximum value</InputGroupText>
@@ -86,6 +87,7 @@
                on:input={edit}
                data-testid="Slider-max"
         />
+        <InputGroupText style="width: 5em;"><code class="text-end w-100">{max}</code></InputGroupText>
     </InputGroup>
     <InputGroup>
         <InputGroupText style="width: 10em;">Output predicate</InputGroupText>
@@ -95,9 +97,10 @@
                on:input={edit}
                data-testid="Slider-output-predicate"
         />
+        <InputGroupText style="width: 5em;"><code class="text-end w-100">{options.value}</code></InputGroupText>
     </InputGroup>
     <div class="m-3">
-        <Tooltip value="{options.value}" placement="top">
+        <Tooltip value="{options.value} (range {min}..{max})" placement="top">
             <Input type="range"
                    min="{min}"
                    max="{max}"
@@ -106,11 +109,5 @@
                    />
             <Input type="number" class="d-test" bind:value={options.value} data-testid="Slider-value" />
         </Tooltip>
-        <code class="float-start">
-            {min}
-        </code>
-        <code class="float-end">
-            {max}
-        </code>
     </div>
 </Operation>

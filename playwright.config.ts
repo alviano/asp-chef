@@ -7,7 +7,8 @@ const config: PlaywrightTestConfig = {
 		port: 5188,
 		reuseExistingServer: true,
 	},
-	testDir: 'tests'
+	testDir: 'tests',
+	testMatch: /test\..*.ts/,
 };
 
 export default config;
