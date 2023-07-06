@@ -72,9 +72,8 @@
                 atom.functor = '';
                 atom.terms = [atom];
             }
-            if (atom.functor === '') {
-                output_atoms.push(atom);
-            } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
+            if (atom.functor === '' || atom.predicate === 'base64' ||
+                atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 output_atoms.push(atom);
             } else if (atom.predicate === 'matrix') {
                 output_atoms.push(atom);
@@ -155,6 +154,8 @@
             const terms = atom.terms.map(term => term.string !== undefined ? term.string : term.str);
             if (atom.functor === '') {
                 replacement.push(prefix + terms.join(term_separator) + suffix);
+            } else if (atom.predicate === 'base64') {
+                replacement.push(`${prefix}${terms.map(term => Base64.decode(term)).join(term_separator)}${suffix}`);
             } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
