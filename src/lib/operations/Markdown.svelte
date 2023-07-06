@@ -278,7 +278,7 @@
     </div>
 </Operation>
 
-<style >
+<style>
     .output :global(td), .output :global(th) {
         border: 1px solid #ddd;
         padding: 8px;
