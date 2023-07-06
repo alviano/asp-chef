@@ -20,11 +20,12 @@
 <script>
     import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/operations/Operation.svelte";
-    import {onDestroy, onMount} from "svelte";
+    import {onDestroy, onMount, tick} from "svelte";
     import {consts} from "$lib/consts";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils";
     import _ from "lodash";
+    import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 
 
     export let id;
@@ -34,6 +35,7 @@
     export let keybinding;
 
     let output = '';
+    let output_div;
 
     function edit() {
         Recipe.edit_operation(index, options);
@@ -162,19 +164,28 @@
                     const col = atom.terms[1].number;
                     const value = prefix + terms.slice(2).join(term_separator) + suffix;
 
-                    while (matrix.length < row) {
+                    while (matrix.length <= row) {
                         matrix.push([]);
                     }
-                    while (matrix[row-1].length < col) {
-                        matrix[row-1].push("");
+                    while (matrix[row].length < col) {
+                        matrix[row].push("");
+                    }
+                    while (matrix[0].length < col) {
+                        matrix[0].push("");
                     }
 
-                    matrix[row-1][col-1] = value;
+                    matrix[row][col-1] = value;
                 }
             }
         });
         if (matrix !== null) {
-            replacement.push(matrix.map(row => "|" + row.join("|") + "|").join("\n"));
+            replacement.push(matrix.map((row, index) => {
+                let res = "|" + row.join("|") + "|";
+                if (index === 0) {
+                    res += "\n|" + row.map(() => "---").join("|") + "|";
+                }
+                return res;
+            }).join("\n"));
         }
         return replacement.join(separator);
     }
@@ -202,6 +213,13 @@
                 the_output.push(output_part.join('\n'));
             }
             output = the_output.join(consts.SYMBOLS.MODELS_SEPARATOR);
+            await tick();
+            renderMathInElement(output_div,  {
+                delimiters: [
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true },
+                ],
+            });
         });
     });
 
@@ -214,6 +232,7 @@
     <div slot="description">
         <p>
             The <strong>{operation}</strong> operation shows the markdown encoded content in each model in input.
+            Latex math expressions are supported; e.g., <code>\\(x = 4\\)</code> or <code>\\[x = \frac{1}{2}\\]</code>.
         </p>
         <p>
             Models can be queried with the mustache syntax
@@ -231,6 +250,8 @@
         </p>
         <p>
             Additionally, <code>matrix/3</code> can be used to produce a table by specifying values for each cell.
+            Row 0 can be used to provide header cells.
+            Columns are indexed by 1.
         </p>
         <p>
             The input is echoed in output.
@@ -241,7 +262,7 @@
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Markdown-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
     </InputGroup>
-    <div class="p-2 output" data-testid="Markdown-output">
+    <div bind:this="{output_div}" class="p-2 output" data-testid="Markdown-output">
         {@html Utils.render_markdown(output)}
     </div>
 </Operation>
