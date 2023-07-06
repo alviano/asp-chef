@@ -152,7 +152,7 @@
             output_atoms = _.orderBy(output_atoms, comparator, terms.map(sort_index => sort_index > 0 ? "asc" : "desc"));
         });
         output_atoms.forEach(atom => {
-            const terms = atom.terms.map(term => term.string || term.str);
+            const terms = atom.terms.map(term => term.string !== undefined ? term.string : term.str);
             if (atom.functor === '') {
                 replacement.push(prefix + terms.join(term_separator) + suffix);
             } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
