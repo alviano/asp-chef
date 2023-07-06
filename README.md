@@ -206,6 +206,95 @@ async def process(request: Request):
 The above script interprets the encoded content as a MiniZinc model (the analogous of a program in ASP),
 instances of predicate `constant/2` as integer constants, and the content of options as the name of the variable to return in output.
 
+
+As yet another example, a single graph can be obtained by [clingraph](https://clingraph.readthedocs.io/en/latest/) via the following server:
+```python
+import base64
+import os
+import tempfile
+
+from clingraph.orm import Factbase
+from clingraph.graphviz import compute_graphs, render
+from IPython.display import Image
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+
+
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5188", "https://asp-chef.alviano.net"],
+    allow_credentials=False,
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
+
+
+@app.post("/")
+async def process(request: Request):
+    json = await request.json()
+    input_part = json["input_part"]
+    decoded_input = json["decoded_input"]
+    options = json["options"].strip()
+    predicate = options if options else "png"
+        
+    fb = Factbase()
+    program = '\n'.join([f"{atom}." for atom in input_part]) + '\n'.join(decoded_input)
+    fb.add_fact_string(program)
+    graphs = compute_graphs(fb)
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".png") as tmp_file:
+        directory, filename = os.path.split(tmp_file.name)
+        render(graphs, directory=directory, format="png", name_format=os.path.splitext(filename)[0])
+        encoded = base64.b64encode(open(tmp_file.name, "rb").read())
+
+    return {"models" : [[f"{predicate}(\"{encoded.decode()}\")"]]}
+```
+The graph is Base64-encoded in the predicate `png/1` (unless a different name is given in the options), and it can be shown in a Markdown ingredient (using `{{= png(X) : png(X) }}`).
+
+The same approach is suitable to obtain a graph with [ASPECT](https://aspect-docs.readthedocs.io/en/latest/index.html) (here using _graph mode_):
+```python
+import base64
+import os
+import subprocess
+import tempfile
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+
+
+DIRNAME = os.path.dirname(os.path.realpath(__file__))
+
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5188", "https://asp-chef.alviano.net"],
+    allow_credentials=False,
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
+
+
+@app.post("/")
+async def process(request: Request):
+    json = await request.json()
+    input_part = json["input_part"]
+    decoded_input = json["decoded_input"]
+    options = json["options"].strip()
+    predicate = options if options else "png"
+        
+    program = '\n'.join([f"{atom}." for atom in input_part]) + '\n'.join(decoded_input)
+    
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        with open(f"{tmp_dir}/program.lp", "w") as program_file:
+            program_file.write(program)
+        subprocess.run(["java", "-jar", f"{DIRNAME}/ASPECT.jar", "--graph", "program.lp"], cwd=tmp_dir)
+        subprocess.run(["pdftocairo", "aspect_out_program1.pdf", "-png"], cwd=tmp_dir)
+        encoded = base64.b64encode(open(f"{tmp_dir}/aspect_out_program1-1.png", "rb").read())
+
+    return {"models" : [[f"{predicate}(\"{encoded.decode()}\")"]]}
+```
+
 ## Contributors
 
 * [Mario Alviano](https://alviano.net)

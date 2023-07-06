@@ -74,6 +74,8 @@
             }
             if (atom.functor === '') {
                 output_atoms.push(atom);
+            } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
+                output_atoms.push(atom);
             } else if (atom.predicate === 'matrix') {
                 output_atoms.push(atom);
             } else if (atom.predicate === 'prefix') {
@@ -153,6 +155,12 @@
             const terms = atom.terms.map(term => term.string || term.str);
             if (atom.functor === '') {
                 replacement.push(prefix + terms.join(term_separator) + suffix);
+            } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
+                if (atom.terms.length !== 1) {
+                    Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
+                } else {
+                    replacement.push(`${prefix}![](data:image/${atom.predicate};base64,${terms.join(term_separator)})${suffix}`);
+                }
             } else if (atom.predicate === 'matrix') {
                 if (matrix === null) {
                     matrix = [];
@@ -252,6 +260,9 @@
             Additionally, <code>matrix/3</code> can be used to produce a table by specifying values for each cell.
             Row 0 can be used to provide header cells.
             Columns are indexed by 1.
+        </p>
+        <p>
+            Predicates <code>png/1</code>, <code>gif/1</code> and <code>jpeg/1</code> can be used to show a Base64-encoded PNG image.
         </p>
         <p>
             The input is echoed in output.
