@@ -53,7 +53,7 @@
         {/if}
     </Card>
 {:else}
-    <Popover block placement="right" title="Add {operation} Operation">
+    <Popover block placement="right" title="Add {operation} Operation" class="mw-70">
         <div slot="value">
             <slot name="description" />
             {#if keybinding !== undefined}
@@ -69,3 +69,9 @@
         </Button>
     </Popover>
 {/if}
+
+<style>
+    :global(.mw-70) {
+        max-width: 70%!important;
+    }
+</style>

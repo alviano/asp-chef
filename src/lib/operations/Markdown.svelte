@@ -75,50 +75,27 @@
             if (atom.functor === '' || atom.predicate === 'base64' ||
                 atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 output_atoms.push(atom);
+            } else if (atom.predicate === 'th' || atom.predicate === 'tr') {
+                output_atoms.push(atom);
+            } else if (atom.predicate === 'ol' || atom.predicate === 'ul') {
+                output_atoms.push(atom);
             } else if (atom.predicate === 'matrix') {
                 output_atoms.push(atom);
             } else if (atom.predicate === 'prefix') {
                 if (check_one_term_string(atom)) {
-                    prefix = atom.terms[0].string;
+                    prefix = atom.terms[0].string.replaceAll('\\n', '\n');
                 }
             } else if (atom.predicate === 'suffix') {
                 if (check_one_term_string(atom)) {
-                    suffix = atom.terms[0].string;
+                    suffix = atom.terms[0].string.replaceAll('\\n', '\n');
                 }
             } else if (atom.predicate === 'separator') {
                 if (check_one_term_string(atom)) {
-                    separator = atom.terms[0].string;
+                    separator = atom.terms[0].string.replaceAll('\\n', '\n');
                 }
             } else if (atom.predicate === 'term_separator') {
                 if (check_one_term_string(atom)) {
-                    term_separator = atom.terms[0].string;
-                }
-            } else if (atom.predicate === 'table') {
-                if (atom.terms.length !== 0) {
-                    Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
-                } else {
-                    prefix = '|';
-                    term_separator = '|'
-                    suffix = '|';
-                    separator = '\n';
-                }
-            } else if (atom.predicate === 'list') {
-                if (atom.terms.length !== 0) {
-                    Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
-                } else {
-                    prefix = '- ';
-                    term_separator = ', '
-                    suffix = '';
-                    separator = '\n';
-                }
-            } else if (atom.predicate === 'default') {
-                if (atom.terms.length !== 0) {
-                    Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
-                } else {
-                    prefix = '';
-                    term_separator = ', '
-                    suffix = '';
-                    separator = '\n';
+                    term_separator = atom.terms[0].string.replaceAll('\\n', '\n');
                 }
             } else if (atom.predicate === 'sort') {
                 if (atom.terms.length === 0) {
@@ -135,7 +112,7 @@
         sort.forEach(terms => {
             const comparator = terms.map(sort_index => {
                 return atom => {
-                    if (atom.functor !== '') {
+                    if (atom.functor !== '' && atom.predicate !== 'tr' && atom.predicate !== 'ul' && atom.predicate !== 'ol') {
                         return undefined;
                     }
                     const term = atom.terms[Math.abs(sort_index) - 1];
@@ -150,6 +127,13 @@
             });
             output_atoms = _.orderBy(output_atoms, comparator, terms.map(sort_index => sort_index > 0 ? "asc" : "desc"));
         });
+        output_atoms = _.orderBy(output_atoms, [ atom => {
+            if (atom.predicate === 'th') {
+                return 0;
+            } else if (atom.predicate === 'tr') {
+                return 1;
+            }
+        }]);
         output_atoms.forEach(atom => {
             const terms = atom.terms.map(term => term.string !== undefined ? term.string : term.str);
             if (atom.functor === '') {
@@ -162,6 +146,22 @@
                 } else {
                     replacement.push(`${prefix}![](data:image/${atom.predicate};base64,${terms.join(term_separator)})${suffix}`);
                 }
+            } else if (atom.predicate === 'th') {
+                replacement.push('|' + atom.terms.map((term, index) =>
+                    term.terms === undefined ? terms[index] :
+                        term.terms[0].string !== undefined ? term.terms[0].string : term.terms[0].str
+                ).join('|') + '|');
+                replacement.push('|' + atom.terms.map((term) =>
+                    term.terms === undefined ? ":-" :
+                        term.functor === 'center' ? ":-:" :
+                            term.functor === 'right' ? "-:" : "-"
+                ).join('|') + '|');
+            } else if (atom.predicate === 'tr') {
+                replacement.push(`|${terms.join('|')}|`);
+            } else if (atom.predicate === 'ul') {
+                replacement.push(`- ${prefix}${terms.join(term_separator)}${suffix}`);
+            } else if (atom.predicate === 'ol') {
+                replacement.push(`1. ${prefix}${terms.join(term_separator)}${suffix}`);
             } else if (atom.predicate === 'matrix') {
                 if (matrix === null) {
                     matrix = [];
@@ -191,7 +191,7 @@
             replacement.push(matrix.map((row, index) => {
                 let res = "|" + row.join("|") + "|";
                 if (index === 0) {
-                    res += "\n|" + row.map(() => "---").join("|") + "|";
+                    res += "\n|" + row.map(() => "-").join("|") + "|";
                 }
                 return res;
             }).join("\n"));
@@ -244,7 +244,7 @@
     <div slot="description">
         <p>
             The <strong>{operation}</strong> operation shows the markdown encoded content in each model in input.
-            Latex math expressions are supported; e.g., <code>\\(x = 4\\)</code> or <code>\\[x = \frac{1}{2}\\]</code>.
+            Latex math expressions are supported; e.g., <code>\\(x = 4\\)</code> or <code>\\[x = 4\\]</code>.
         </p>
         <p>
             Models can be queried with the mustache syntax
@@ -255,18 +255,25 @@
             Output can be ordered via the varadics predicate <code>sort</code>, specifying the indices of the terms to use (positive for ascending, negative for descending).
         </p>
         <p>
-            The separator of obtained substitutions can be specified with
-            <code>{`{{ separator("\n") }}`}</code>.
+            The separator of the obtained substitutions can be specified with
+            <code>separator("\n")</code>.
             Similarly, <code>term_separator/1</code>, <code>prefix/1</code> and <code>suffix/1</code> can be used to customize the print of each obtained substitution.
-            Moreover, <code>table/0</code>, <code>list/0</code> and <code>default/0</code> can be used to set the above four parameters to accommodate specific common output formats.
         </p>
         <p>
-            Additionally, <code>matrix/3</code> can be used to produce a table by specifying values for each cell.
+            Tables can be specified by the varadics predicates <code>th</code> and <code>tr</code>.
+            Alignment of columns (by default left) can be specified in <code>th</code> by terms <code>left("column header")</code>, <code>center("col")</code>, <code>right("col")</code>.
+            Alternatively, <code>matrix/3</code> can be used to produce a table by specifying values for each cell.
             Row 0 can be used to provide header cells.
             Columns are indexed by 1.
         </p>
         <p>
+            Ordered and unordered lists can be specified by the varadics predicates <code>ol</code> and <code>ul</code>.
+        </p>
+        <p>
             Predicates <code>png/1</code>, <code>gif/1</code> and <code>jpeg/1</code> can be used to show a Base64-encoded PNG image.
+        </p>
+        <p>
+            Predicate <code>base64/1</code> decodes Base64-encoded content.
         </p>
         <p>
             The input is echoed in output.
