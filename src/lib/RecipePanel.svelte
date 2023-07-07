@@ -1,7 +1,7 @@
 <script>
     import {flip} from "svelte/animate";
     import {dndzone} from "svelte-dnd-action";
-    import {drag_disabled, pause_baking, recipe, show_ingredient_details} from "$lib/stores";
+    import {drag_disabled, errors_at_index, pause_baking, recipe, show_ingredient_details} from "$lib/stores";
     import {Alert, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import SearchModels from "$lib/operations/SearchModels.svelte";
     import RemoveErrors from "$lib/operations/RemoveErrors.svelte";
@@ -83,6 +83,8 @@
 
     function toggle_pause_baking() {
         $pause_baking = !$pause_baking;
+        $errors_at_index.length = 0;
+        Recipe.invalidate_cached_output(0);
         Utils.snackbar("Baking " + ($pause_baking ? "disabled" : "enabled"));
     }
 

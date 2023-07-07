@@ -201,6 +201,9 @@
 
     onMount(() => {
         listeners.set(id, async (input) => {
+            if (!output_div) {
+                return;
+            }
             const the_output = [];
             for (let model of input) {
                 const output_part = [];
