@@ -6,7 +6,7 @@ export const consts = {
     'https://ssd2020.pythonanywhere.com/',
     'https://cod.alviano.org/',
   ],
-  PURIFY_ALLOWED_TAGS: 'a body code em h1 h2 h3 h4 h5 h6 img li ol p pre strong table tbody td th thead tr ul #text'.split(' '),
+  PURIFY_ALLOWED_TAGS: 'a blockquote body br code em h1 h2 h3 h4 h5 h6 hr img li ol p pre span strong table tbody td th thead tr ul #text'.split(' '),
   PURIFY_ALLOWED_ATTR: 'alt class href src style title'.split(' '),
   SYMBOLS: {
     CHECK_MARK: '✔',

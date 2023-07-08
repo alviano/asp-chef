@@ -27,6 +27,23 @@ input, textarea {
   border-radius: 0;
 }
 
+blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 0;
+  padding: 0.5em 10px;
+}
+
+blockquote p:last-child {
+  display: inline;
+}
+
+pre {
+  background: #f9f9f9;
+  border: 2px solid #ccc;
+  padding: 0.5em;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
