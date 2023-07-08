@@ -232,6 +232,7 @@
                     { left: '\\[', right: '\\]', display: true },
                 ],
             });
+            [...output_div.getElementsByTagName('pre')].forEach(Utils.add_copy_button);
         });
     });
 
