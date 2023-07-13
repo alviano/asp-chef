@@ -12,6 +12,7 @@
         input_as_constraints: false,
         decode_predicate: '__base64__',
         echo_encoded_content: false,
+        cost_predicate: '__costs__',
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
@@ -27,7 +28,7 @@
                     }
                     return mapper(atom);
                 }).join('\n') + options.rules;
-                const models = await Utils.search_optimal_models(program, options.number, options.raises);
+                const models = await Utils.search_optimal_models(program, options.number, options.raises, options.cost_predicate);
                 models.forEach(model => {
                     res.push(Utils.parse_atoms(model));
                 });
@@ -63,6 +64,7 @@
         <p>
             Each model in input is used as the input of a program given in the recipe, either as facts (the defaults) or as constraints.
             An optimization function is expected to be specified by means of weak constraints.
+            Costs are mapped to the varadics predicate <code>__costs__</code>.
         </p>
         <p>
             A unary predicate is decoded as part of the program (default <code>__base64__/1</code>).
@@ -99,6 +101,12 @@
         <pre class="d-test">{options.content}</pre>
     </div>
     <InputGroup>
+        <InputGroupText>Costs</InputGroupText>
+        <Input type="text"
+               bind:value={options.cost_predicate}
+               on:input={edit}
+               data-testid="Optimize-cost-predicate"
+        />
         <InputGroupText># of models</InputGroupText>
         <Input type="number"
                bind:value={options.number}

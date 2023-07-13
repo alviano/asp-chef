@@ -101,7 +101,7 @@ export class Utils extends BaseUtils {
         }
     }
 
-    static async search_optimal_models(program: string, number: number, raises: boolean) {
+    static async search_optimal_models(program: string, number: number, raises: boolean, cost_predicate = '__costs__') {
         const result = await this.clingo_run(program, number, [
             '--opt-mode=optN',
         ]);
@@ -117,6 +117,9 @@ export class Utils extends BaseUtils {
                 while (res.length > number) {
                     res.shift()
                 }
+            }
+            if (result.Models.Costs) {
+                res.forEach(model => model.push(`${cost_predicate}(${result.Models.Costs.join(',')})`));
             }
             return res;
         }

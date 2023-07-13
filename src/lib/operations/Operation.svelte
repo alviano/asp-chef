@@ -46,7 +46,7 @@
             {#if $errors_at_index[index]}
                 <div class="alert-danger p-3" style="color: white">
                     <h5 class="alert-heading">Errors</h5>
-                    <pre>{$errors_at_index[index]}</pre>
+                    <div class="font-monospace">{$errors_at_index[index]}</div>
                 </div>
             {/if}
         </CardBody>
