@@ -64,7 +64,7 @@
         <p>
             Each model in input is used as the input of a program given in the recipe, either as facts (the defaults) or as constraints.
             An optimization function is expected to be specified by means of weak constraints.
-            Costs are mapped to the varadics predicate <code>__costs__</code>.
+            Costs are mapped to the predicate <code>__costs__</code> (as a tuple).
         </p>
         <p>
             A unary predicate is decoded as part of the program (default <code>__base64__/1</code>).

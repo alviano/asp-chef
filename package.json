@@ -1,6 +1,6 @@
 {
 	"name": "asp-chef",
-	"version": "1.0.17",
+	"version": "1.0.18",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --port 5188",

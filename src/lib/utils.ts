@@ -115,11 +115,13 @@ export class Utils extends BaseUtils {
                 .map(witness => witness.Value);
             if (number !== 0) {
                 while (res.length > number) {
-                    res.shift()
+                    res.shift();
                 }
             }
             if (result.Models.Costs) {
-                res.forEach(model => model.push(`${cost_predicate}(${result.Models.Costs.join(',')})`));
+                res.forEach(model => model.push(`${cost_predicate}((${result.Models.Costs.join(',')},))`));
+            } else {
+                res.forEach(model => model.push(`${cost_predicate}((,))`));
             }
             return res;
         }
@@ -221,6 +223,9 @@ term
 / the_string:quoted_string { return { string : the_string, str : '"' + the_string + '"' }; }
 / the_number:number { return { number : the_number, str : '' + the_number }; }
 / "(" space? args:terms space? ")" { return { functor : '', terms : args, str : '(' + args.map(term => term.str).join(',') + ')' }; }
+/ "(" space? the_term:term space? "," space? ")" { return { functor : '', terms : [the_term], str : '(' + the_term.str + ',)' }; }
+/ "(" space? "," space? ")" { return { functor : '', terms : [], str : '()' }; }
+/ "(" space? ")" { return { functor : '', terms : [], str : '()' }; }
 
 string_id
 = prefix:[_]* head:[a-z] tail:[A-Za-z0-9_]* { return prefix.join("") + head + tail.join(""); }
