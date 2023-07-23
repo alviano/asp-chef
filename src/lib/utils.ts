@@ -63,7 +63,7 @@ export class Utils extends BaseUtils {
             return new Promise((resolve, reject) => {
                 this._clingo_reject = reject;
                 const timeout = setTimeout(async () => {
-                    await this.clingo_terminate(`Error: TIMEOUT ${the_timeout} seconds`);
+                    await this.clingo_terminate(`Error: TIMEOUT ${the_timeout} seconds (it can be increased with a Set Timeout ingredient)`);
                 }, the_timeout * 1000);
                 this._clingo_worker.onmessage = ({data}) => {
                     clearTimeout(timeout);

@@ -13,7 +13,7 @@ test.describe("Markdown", () => {
 		await recipe.input(`
 foo(a,b).
 foo(c,d).
-__base64__("IyBGaXJzdCBsZXZlbCB0aXRsZQoKe3sgKFksWCkgOiBmb28oWSxYKSB9fSAKCnwgRm9vIHwgQmFyIHwKfCAtLS0gfCAtLS0gfAp7eyB0YWJsZSB9fSB7eyAoWCxZKSA6IGZvbyhYLFkpIH19CgpNeSBsaXN0Ogp7eyBsaXN0IH19IHt7IHRlcm1fc2VwYXJhdG9yKCIgdG8gIikgfX0ge3sgKFgsWSkgOiBmb28oWCxZKSB9fQoKe3sgcHJlZml4KCItICIpIH19Cnt7IChYLFkpIDogZm9vKFgsWSkgfX0=").
+__base64__("IyBGaXJzdCBsZXZlbCB0aXRsZQoKe3s9IChZLFgpIDogZm9vKFksWCkgfX0gCgp8IEZvbyB8IEJhciB8CnwgLS0tIHwgLS0tIHwKe3sKICAjc2hvdyB0cigiRm9vIiwgIkJhciIpLgogICNzaG93IHRyKFgsWSkgOiBmb28oWCxZKS4KfX0KCk15IGxpc3Q6Cnt7IAogICNzaG93IHVsKFgsWSkgOiBmb28oWCxZKS4KICAjc2hvdyB0ZXJtX3NlcGFyYXRvcigiIHRvICIpLgp9fQoKCk15IGxpc3Q6Cnt7IAogICNzaG93IChYLFkpIDogZm9vKFgsWSkuCiAgI3Nob3cgdGVybV9zZXBhcmF0b3IoIiB0byAiKS4KICAjc2hvdyBwcmVmaXgoIi0gIikuCn19Cg==").
 		`.trim());
 		await recipe.markdown(async output => {
 			await expect(output.getByRole("heading", { name: "First level title" })).toBeVisible();
@@ -24,7 +24,7 @@ __base64__("IyBGaXJzdCBsZXZlbCB0aXRsZQoKe3sgKFksWCkgOiBmb28oWSxYKSB9fSAKCnwgRm9v
 		await recipe.input(`
 foo(a,b).
 foo(c,d).
-__base64__("IyBGaXJzdCBsZXZlbCB0aXRsZQoKe3sgKFksWCkgOiBmb28oWSxYKSB9fSAKCnwgRm9vIHwgQmFyIHwKfCAtLS0gfCAtLS0gfAp7eyB0YWJsZSB9fSB7eyAoWCxZKSA6IGZvbyhYLFkpIH19CgpNeSBsaXN0Ogp7eyBsaXN0IH19IHt7IHRlcm1fc2VwYXJhdG9yKCIgdG8gIikgfX0ge3sgKFgsWSkgOiBmb28oWCxZKSB9fQoKe3sgcHJlZml4KCItICIpIH19Cnt7IChYLFkpIDogZm9vKFgsWSkgfX0=").
+__base64__("IyBGaXJzdCBsZXZlbCB0aXRsZQoKe3s9IChZLFgpIDogZm9vKFksWCkgfX0gCgp8IEZvbyB8IEJhciB8CnwgLS0tIHwgLS0tIHwKe3sKICAjc2hvdyB0cigiRm9vIiwgIkJhciIpLgogICNzaG93IHRyKFgsWSkgOiBmb28oWCxZKS4KfX0KCk15IGxpc3Q6Cnt7IAogICNzaG93IHVsKFgsWSkgOiBmb28oWCxZKS4KICAjc2hvdyB0ZXJtX3NlcGFyYXRvcigiIHRvICIpLgp9fQoKCk15IGxpc3Q6Cnt7IAogICNzaG93IChYLFkpIDogZm9vKFgsWSkuCiAgI3Nob3cgdGVybV9zZXBhcmF0b3IoIiB0byAiKS4KICAjc2hvdyBwcmVmaXgoIi0gIikuCn19Cg==").
 		`.trim());
 		await recipe.markdown(async output => {
 			await expect(output.getByText('a, b c, d')).toBeVisible();
