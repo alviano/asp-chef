@@ -74,12 +74,12 @@ export class Recipe {
         const json = Utils.uncompress(serialized_data.slice(0, -1));
         recipe.set(json.recipe);
         if (!json.encode_input) {
-            json.input = json.input.join(consts.SYMBOLS.MODELS_SEPARATOR);
+            json.input = json.input ? json.input.join(consts.SYMBOLS.MODELS_SEPARATOR) : "";
         }
         return {
             input: json.input,
-            encode_input: json.encode_input,
-            decode_output: json.decode_output,
+            encode_input: json.encode_input || false,
+            decode_output: json.decode_output || false,
         };
     }
 
