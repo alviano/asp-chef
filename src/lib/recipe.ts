@@ -138,6 +138,7 @@ export class Recipe {
 
     static invalidate_cached_output(index: number) {
         while (index < this.cached_output.length) {
+            this.set_errors_at_index(index, undefined);
             this.cached_output[index++] = undefined;
         }
     }
