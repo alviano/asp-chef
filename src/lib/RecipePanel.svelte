@@ -48,6 +48,7 @@
     import Index from "$lib/operations/Index.svelte";
     import SortCanonical from "$lib/operations/SortCanonical.svelte";
     import Unique from "$lib/operations/Unique.svelte";
+    import UniqueConsecutive from "$lib/operations/UniqueConsecutive.svelte";
     import SortModelsCanonically from "$lib/operations/SortModelsCanonically.svelte";
     import RecipeOperation from "$lib/operations/Recipe.svelte";
     import EncodeInput from "$lib/operations/EncodeInput.svelte";
@@ -292,6 +293,8 @@
                         <SortModelsCanonically id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Unique'}
                         <Unique id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                    {:else if item.operation === 'Unique Consecutive'}
+                        <UniqueConsecutive id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Recipe'}
                         <RecipeOperation id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Encode Input'}
