@@ -118,12 +118,11 @@ export class Utils extends BaseUtils {
                     res.shift();
                 }
             }
-            if (cost_predicate) {
-                const costs = result.Models.Costs ? result.Models.Costs.join(',') : "";
+            if (cost_predicate && result.Models.Costs) {
+                const costs = result.Models.Costs.join(',');
                 const end = result.Models.Costs.length <= 1 ? "," : "";
                 const cost_atom = `${cost_predicate}((${costs}${end}))`;
                 res.forEach(model => model.push(cost_atom));
-                console.log(cost_atom)
             }
             return res;
         }
