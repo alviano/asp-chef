@@ -8,6 +8,8 @@
         value: 1,
         min: 1,
         max: 10,
+        label: "",
+        show_options: true,
     };
 
     const listeners = new Map();
@@ -21,7 +23,7 @@
 </script>
 
 <script>
-    import {Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/operations/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Tooltip} from "dumbo-svelte";
@@ -37,6 +39,11 @@
 
     function edit() {
         Recipe.edit_operation(index, options);
+    }
+
+    function toggle_show_options() {
+        options.show_options = !options.show_options;
+        edit();
     }
 
     onMount(() => {
@@ -70,35 +77,50 @@
         </p>
     </div>
     <InputGroup>
-        <InputGroupText style="width: 10em;">Minimum value</InputGroupText>
+        {#if options.show_options}
+            <InputGroupText style="width: 10em;">Label</InputGroupText>
+        {/if}
         <Input type="text"
-               bind:value={options.min}
-               placeholder="min"
+               bind:value={options.label}
+               placeholder="Your custom label here"
                on:input={edit}
-               data-testid="Slider-min"
+               readonly={!options.show_options}
+               data-testid="Slider-label"
         />
-        <InputGroupText style="width: 5em;"><code class="text-end w-100">{min}</code></InputGroupText>
+        <Button outline={!options.show_options} on:click={toggle_show_options}>Options</Button>
     </InputGroup>
-    <InputGroup>
-        <InputGroupText style="width: 10em;">Maximum value</InputGroupText>
-        <Input type="text"
-               bind:value={options.max}
-               placeholder="max"
-               on:input={edit}
-               data-testid="Slider-max"
-        />
-        <InputGroupText style="width: 5em;"><code class="text-end w-100">{max}</code></InputGroupText>
-    </InputGroup>
-    <InputGroup>
-        <InputGroupText style="width: 10em;">Output predicate</InputGroupText>
-        <Input type="text"
-               bind:value={options.output_predicate}
-               placeholder="output predicate"
-               on:input={edit}
-               data-testid="Slider-output-predicate"
-        />
-        <InputGroupText style="width: 5em;"><code class="text-end w-100">{options.value}</code></InputGroupText>
-    </InputGroup>
+    {#if options.show_options}
+        <InputGroup>
+            <InputGroupText style="width: 10em;">Minimum value</InputGroupText>
+            <Input type="text"
+                   bind:value={options.min}
+                   placeholder="min"
+                   on:input={edit}
+                   data-testid="Slider-min"
+            />
+            <InputGroupText style="width: 5em;"><code class="text-end w-100">{min}</code></InputGroupText>
+        </InputGroup>
+        <InputGroup>
+            <InputGroupText style="width: 10em;">Maximum value</InputGroupText>
+            <Input type="text"
+                   bind:value={options.max}
+                   placeholder="max"
+                   on:input={edit}
+                   data-testid="Slider-max"
+            />
+            <InputGroupText style="width: 5em;"><code class="text-end w-100">{max}</code></InputGroupText>
+        </InputGroup>
+        <InputGroup>
+            <InputGroupText style="width: 10em;">Output predicate</InputGroupText>
+            <Input type="text"
+                   bind:value={options.output_predicate}
+                   placeholder="output predicate"
+                   on:input={edit}
+                   data-testid="Slider-output-predicate"
+            />
+            <InputGroupText style="width: 5em;"><code class="text-end w-100">{options.value}</code></InputGroupText>
+        </InputGroup>
+    {/if}
     <div class="m-3">
         <Tooltip value="{options.value} (range {min}..{max})" placement="top">
             <Input type="range"
