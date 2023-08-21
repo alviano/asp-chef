@@ -195,13 +195,26 @@ export class Recipe {
             options: JSON.parse(JSON.stringify(options)),
         };
         const the_recipe = this.recipe;
+        const INTERCEPTOR_OPERATOR = "Interceptor";
+        const interceptor_index = the_recipe.findIndex(ingredient => ingredient.operation === INTERCEPTOR_OPERATOR);
         if (index === undefined) {
+            index = operation !== INTERCEPTOR_OPERATOR ? interceptor_index : -1;
+        }
+        if (index === -1) {
+            index = this.number_of_ingredients;
             the_recipe.push(ingredient);
         } else {
             this.invalidate_cached_output(index);
             the_recipe.splice(index, 0, ingredient);
         }
-        recipe.set(the_recipe);
+        if (operation === INTERCEPTOR_OPERATOR) {
+            if (interceptor_index !== -1) {
+                this.invalidate_cached_output(interceptor_index);
+            }
+            recipe.set(the_recipe.filter((ingredient, _index) => ingredient.operation !== INTERCEPTOR_OPERATOR || _index === index));
+        } else {
+            recipe.set(the_recipe);
+        }
     }
 
     static edit_operation(index: number, options: object) {

@@ -1,8 +1,8 @@
 <script>
-    import {Alert, Button, Card, CardBody} from "sveltestrap";
+    import {Button, Card, CardBody} from "sveltestrap";
     import IngredientHeader from "$lib/operations/IngredientHeader.svelte";
     import {Recipe} from "$lib/recipe";
-    import {Popover} from "dumbo-svelte";
+    import Popover from "$lib/Popover.svelte";
     import {drag_disabled, errors_at_index, show_ingredient_details} from "$lib/stores";
 
     function default_options() {

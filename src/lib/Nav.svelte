@@ -1,6 +1,6 @@
 <script>
   import { Collapse, Icon, Nav, Navbar, NavbarBrand, NavItem, NavLink, NavbarToggler } from 'sveltestrap/src';
-  import {Popover} from "dumbo-svelte";
+  import Popover from "$lib/Popover.svelte";
 
   let isOpen = false;
 

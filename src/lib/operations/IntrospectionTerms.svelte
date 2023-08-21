@@ -83,7 +83,6 @@ end
 <script>
     import {Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/operations/Operation.svelte";
-    import {Popover} from "dumbo-svelte";
 
     export let id;
     export let options;

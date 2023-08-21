@@ -1,7 +1,8 @@
 <script>
     import {Button, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import {consts} from "$lib/consts";
-    import {keydown, Popover} from "dumbo-svelte";
+    import {keydown} from "dumbo-svelte";
+    import Popover from "$lib/Popover.svelte";
     import {Utils} from "$lib/utils";
     import CodeMirror from "svelte-codemirror-editor";
     import {onDestroy, onMount} from "svelte";

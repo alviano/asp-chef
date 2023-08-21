@@ -1,7 +1,7 @@
 <script>
     import {Badge, Button, ButtonGroup, CardHeader, CardTitle, Icon} from "sveltestrap";
     import {recipe, errors_at_index, processing_index} from "$lib/stores";
-    import {Popover} from "dumbo-svelte";
+    import Popover from "$lib/Popover.svelte";
     import {Recipe} from "$lib/recipe";
 
     export let id;
@@ -33,13 +33,23 @@
                 <Button size="sm" color="danger" on:click={() => Recipe.remove_operation(index)} data-testid="IngredientHeader-remove"><Icon name="trash" /></Button>
             </Popover>
             <ButtonGroup>
-                <Popover title="Duplicate operation" value="Add a copy of ingredient #{index + 1} below it.">
-                    <Button size="sm" on:click={() => Recipe.duplicate_operation(index)}><Icon name="box-arrow-down" /></Button>
-                </Popover>
                 <Popover title="Operations" value="Add Operations ingredient above ingredient #{index + 1}.">
                     <Button size="sm" on:click={() => Recipe.add_operation('Operations', Recipe.common_default_options(), index)}>
                         <Icon name="box-arrow-up" />
                     </Button>
+                </Popover>
+                <Popover title="Interceptor above" value="Add Interceptor ingredient above ingredient #{index + 1}.">
+                    <Button size="sm" on:click={() => Recipe.add_operation('Interceptor', Recipe.common_default_options(), index)}>
+                        <Icon name="box-arrow-in-up" />
+                    </Button>
+                </Popover>
+                <Popover title="Interceptor below" value="Add Interceptor ingredient below ingredient #{index + 1}.">
+                    <Button size="sm" on:click={() => Recipe.add_operation('Interceptor', Recipe.common_default_options(), index + 1)}>
+                        <Icon name="box-arrow-in-down" />
+                    </Button>
+                </Popover>
+                <Popover title="Duplicate operation" value="Add a copy of ingredient #{index + 1} below it.">
+                    <Button size="sm" on:click={() => Recipe.duplicate_operation(index)}><Icon name="box-arrow-down" /></Button>
                 </Popover>
             </ButtonGroup>
             <Popover title="Control execution of the recipe">

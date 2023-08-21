@@ -1,7 +1,7 @@
 <script>
     import {flip} from "svelte/animate";
     import {dndzone} from "svelte-dnd-action";
-    import {drag_disabled, errors_at_index, pause_baking, recipe, show_ingredient_details} from "$lib/stores";
+    import {drag_disabled, errors_at_index, pause_baking, recipe, show_help, show_ingredient_details} from "$lib/stores";
     import {Alert, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import SearchModels from "$lib/operations/SearchModels.svelte";
     import RemoveErrors from "$lib/operations/RemoveErrors.svelte";
@@ -12,7 +12,8 @@
     import InputIntersection from "$lib/operations/InputIntersection.svelte";
     import InputUnion from "$lib/operations/InputUnion.svelte";
     import Table from "$lib/operations/Table.svelte";
-    import {keydown, Popover} from "dumbo-svelte";
+    import {keydown} from "dumbo-svelte";
+    import Popover from "$lib/Popover.svelte";
     import {Recipe} from "$lib/recipe";
     import Unwrap from "$lib/operations/Unwrap.svelte";
     import Split from "$lib/operations/Split.svelte";
@@ -21,6 +22,7 @@
     import Show from "$lib/operations/Show.svelte";
     import Output from "$lib/operations/Output.svelte";
     import Nop from "$lib/operations/Nop.svelte";
+    import Interceptor from "$lib/operations/Interceptor.svelte";
     import Filter from "$lib/operations/Filter.svelte";
     import SelectPredicates from "$lib/operations/SelectPredicates.svelte";
     import Encode from "$lib/operations/Encode.svelte";
@@ -78,6 +80,10 @@
         Utils.snackbar("URL ready to be pasted!");
     }
 
+    function toggle_show_help() {
+        $show_help = !$show_help;
+    }
+
     function toggle_show_details() {
         $show_ingredient_details = !$show_ingredient_details;
     }
@@ -124,6 +130,9 @@
             } else if (event.uKey === 'P') {
                 toggle_pause_baking();
                 return true;
+            } else if (event.uKey === 'H') {
+                toggle_show_help();
+                return true;
             }
         }]);
 
@@ -143,6 +152,19 @@
                 <ButtonGroup>
                     <Popover title="Remove operation" value="Remove all ingredients from the recipe.">
                         <Button size="sm" color="danger" on:click={() => Recipe.remove_all_operations()}><Icon name="trash" /></Button>
+                    </Popover>
+                </ButtonGroup>
+                <ButtonGroup>
+                    <Popover title="Show help">
+                        <div slot="value">
+                            <p>Enable/disable inline help (pop-ups on top of operations and main controls).</p>
+                            <p>Keybinding: <code>H</code></p>
+                        </div>
+                        <Button size="sm"
+                                outline={!$show_help}
+                                on:click={() => toggle_show_help()}>
+                            <Icon name="question-square" />
+                        </Button>
                     </Popover>
                 </ButtonGroup>
                 <ButtonGroup>
@@ -241,6 +263,8 @@
                         <Output id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} on:change_input />
                     {:else if item.operation === 'Nop'}
                         <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                    {:else if item.operation === 'Interceptor'}
+                        <Interceptor id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Operations'}
                         <Operations id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Filter'}

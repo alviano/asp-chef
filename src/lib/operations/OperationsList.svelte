@@ -2,7 +2,8 @@
     import {Recipe} from "$lib/recipe";
     import {Input} from "sveltestrap";
     import {onDestroy, onMount, tick} from "svelte";
-    import {keydown, Popover} from "dumbo-svelte";
+    import {keydown} from "dumbo-svelte";
+    import Popover from "$lib/Popover.svelte";
     import {Utils} from "$lib/utils";
     import {consts} from "$lib/consts";
     import {v4 as uuidv4} from "uuid";

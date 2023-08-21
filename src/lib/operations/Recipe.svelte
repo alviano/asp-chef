@@ -43,8 +43,8 @@
     import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/operations/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import {Popover} from "dumbo-svelte";
     import {Utils} from "$lib/utils";
+    import Popover from "$lib/Popover.svelte";
 
     export let id;
     export let options;
