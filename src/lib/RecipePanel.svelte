@@ -95,6 +95,15 @@
         Utils.snackbar("Baking " + ($pause_baking ? "disabled" : "enabled"));
     }
 
+    function remove_all() {
+        Utils.confirm({
+            message: "Remove all ingredients from the recipe?",
+            onconfirm: () => {
+                Recipe.remove_all_operations();
+            }
+        });
+    }
+
     let items = [];
     let dragDisabled;
     $: dragDisabled = $drag_disabled;
@@ -151,7 +160,7 @@
             <span class="float-end">
                 <ButtonGroup>
                     <Popover title="Remove operation" value="Remove all ingredients from the recipe.">
-                        <Button size="sm" color="danger" on:click={() => Recipe.remove_all_operations()}><Icon name="trash" /></Button>
+                        <Button size="sm" color="danger" on:click={remove_all}><Icon name="trash" /></Button>
                     </Popover>
                 </ButtonGroup>
                 <ButtonGroup>

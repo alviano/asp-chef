@@ -4,7 +4,7 @@
     import {Recipe} from "$lib/recipe";
     import InputPanel from "$lib/InputPanel.svelte";
     import OutputPanel from "$lib/OutputPanel.svelte";
-    import {pause_baking, recipe} from "$lib/stores";
+    import {pause_baking, recipe, show_help, show_ingredient_details} from "$lib/stores";
     import RecipePanel from "$lib/RecipePanel.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Utils} from "$lib/utils";
@@ -20,11 +20,21 @@
     let process_timeout = null;
     let processing = false;
 
+    async function update_url(input_value, encode_input, decode_output) {
+        if (recipe_unsubscribe !== null) {
+            location.hash = Recipe.serialize(input_value, {
+                encode_input,
+                decode_output,
+                show_help: $show_help,
+                show_operations: show_operations,
+                show_io_panel: show_io_panel,
+            });
+        }
+    }
+
     async function process(input_value, encode_input, decode_output) {
         output_value = await Recipe.process(input_value, encode_input);
-        if (recipe_unsubscribe !== null) {
-            location.hash = Recipe.serialize(input_value, encode_input, decode_output);
-        }
+        await update_url(input_value, encode_input, decode_output);
     }
 
     const lock = new AsyncLock();
@@ -75,6 +85,14 @@
 
     const keydown_uuid = uuidv4();
 
+    show_help.subscribe(() => {
+        update_url(input_value, encode_input, decode_output);
+    });
+    pause_baking.subscribe(() => {
+        update_url(input_value, encode_input, decode_output);
+    })
+    $: show_operations, show_io_panel, show_ingredient_details, update_url(input_value, encode_input, decode_output);
+
     onMount(() => {
         const recipe_panel = document.getElementById('recipe_panel_column');
 
@@ -84,6 +102,9 @@
                 input_value = data.input;
                 encode_input = data.encode_input;
                 decode_output = data.decode_output;
+                $show_help = data.show_help;
+                show_operations = data.show_operations;
+                show_io_panel = data.show_io_panel;
             }
         }
         recipe_unsubscribe = recipe.subscribe(() => {

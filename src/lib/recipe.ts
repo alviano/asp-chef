@@ -51,11 +51,20 @@ export class Recipe {
         };
     }
 
-    static serialize(input: string, encode_input: boolean, decode_output: boolean) {
+    static serialize(input: string, {
+        encode_input = false,
+        decode_output = false,
+        show_help = true,
+        show_operations = true,
+        show_io_panel = true,
+    } = {}) {
         const json = {
             input: encode_input ? input : input.split(consts.SYMBOLS.MODELS_SEPARATOR),
-            encode_input: encode_input,
-            decode_output: decode_output,
+            encode_input,
+            decode_output,
+            show_help,
+            show_operations,
+            show_io_panel,
             recipe: this.recipe,
         };
         this.last_serialization = Utils.compress(json) + '%21';
@@ -80,6 +89,9 @@ export class Recipe {
             input: json.input,
             encode_input: json.encode_input || false,
             decode_output: json.decode_output || false,
+            show_help: json.show_help !== false,
+            show_operations: json.show_operations !== false,
+            show_io_panel: json.show_io_panel !== false,
         };
     }
 
