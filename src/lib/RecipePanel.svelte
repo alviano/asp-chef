@@ -173,6 +173,9 @@
             } else if (event.uKey === 'O') {
                 set_options = true;
                 return true;
+            } else if (event.uKey === 'S') {
+                safely_open_recipe = true;
+                return true;
             }
         }]);
 
