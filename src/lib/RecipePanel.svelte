@@ -79,9 +79,12 @@
     import SetTimeout from "$lib/operations/SetTimeout.svelte";
     import Store from "$lib/operations/Store.svelte";
     import Restore from "$lib/operations/Restore.svelte";
+    import OptionsModal from "$lib/OptionsModal.svelte";
 
     export let show_operations;
     export let show_io_panel;
+
+    let set_options = false;
 
     async function copy_to_clipboard() {
         const url = Recipe.as_url();
@@ -165,6 +168,9 @@
             } else if (event.uKey === 'B') {
                 toggle_show_ingredient_headers();
                 return true;
+            } else if (event.uKey === 'O') {
+                set_options = true;
+                return true;
             }
         }]);
 
@@ -196,6 +202,16 @@
                                 outline={!$show_help}
                                 on:click={() => toggle_show_help()}>
                             <Icon name="question-square" />
+                        </Button>
+                    </Popover>
+                    <Popover title="Options">
+                        <div slot="value">
+                            <p>Set options of ASP Chef (saved in the local storage of your browser).</p>
+                            <p>Keybinding: <code>O</code></p>
+                        </div>
+                        <Button size="sm"
+                                on:click={() => set_options = true}>
+                            <Icon name="gear" />
                         </Button>
                     </Popover>
                 </ButtonGroup>
@@ -424,3 +440,5 @@
         </section>
     </CardBody>
 </Card>
+
+<OptionsModal bind:open="{set_options}" />

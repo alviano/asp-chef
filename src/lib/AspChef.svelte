@@ -5,6 +5,8 @@
     import InputPanel from "$lib/InputPanel.svelte";
     import OutputPanel from "$lib/OutputPanel.svelte";
     import {
+        io_panel_width,
+        operations_panel_width,
         pause_baking,
         processing_index,
         readonly_ingredients,
@@ -168,7 +170,7 @@
 
 <Row class="vw-100 vh-100" style="overflow: hidden;">
     {#if show_operations}
-        <Col class="p-0 vh-100" style="max-width: 20em; overflow-x: hidden; overflow-y: scroll;">
+        <Col class="p-0 vh-100" style="max-width: {$operations_panel_width}%; overflow-x: hidden; overflow-y: scroll;">
             <Operations />
         </Col>
     {/if}
@@ -180,7 +182,7 @@
         />
     </Col>
     {#if show_io_panel}
-        <Col class="p-0 vh-100" style="max-width: 40em; overflow: hidden;">
+        <Col class="p-0 vh-100" style="max-width: {$io_panel_width}%; overflow: hidden;">
             <div bind:this={input_panel_div} style="height: 50vh; overflow-x: hidden; overflow-y: scroll;">
                 <InputPanel bind:value={input_value} bind:encode={encode_input} />
             </div>
