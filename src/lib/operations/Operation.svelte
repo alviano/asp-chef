@@ -3,7 +3,13 @@
     import IngredientHeader from "$lib/operations/IngredientHeader.svelte";
     import {Recipe} from "$lib/recipe";
     import Popover from "$lib/Popover.svelte";
-    import {drag_disabled, errors_at_index, readonly_ingredients, show_ingredient_details} from "$lib/stores";
+    import {
+        drag_disabled,
+        errors_at_index,
+        readonly_ingredients,
+        show_ingredient_details,
+        show_ingredient_headers
+    } from "$lib/stores";
 
     function default_options() {
         return {
@@ -35,11 +41,13 @@
 </script>
 
 {#if id !== undefined}
-    <Card style="border-top: 3px solid black; {options.stop ? 'border-bottom: 3px solid red;' : ''} {options.apply ? '' : 'border-left: 3px dashed #f47c3c; border-right: 3px dashed #f47c3c;'}"
+    <Card style="{$show_ingredient_headers ? 'border-top: 3px solid black;' : 'border: 0px; '} {options.stop ? 'border-bottom: 3px solid red;' : ''} {options.apply ? '' : 'border-left: 3px dashed #f47c3c; border-right: 3px dashed #f47c3c;'}"
           data-testid="Operation">
-        <div on:mouseenter={mouse_in_draggable_area} on:mouseleave={mouse_out_of_draggable_area}>
-            <IngredientHeader {id} {operation} {index} {options} />
-        </div>
+        {#if $show_ingredient_headers}
+            <div on:mouseenter={mouse_in_draggable_area} on:mouseleave={mouse_out_of_draggable_area}>
+                <IngredientHeader {id} {operation} {index} {options} />
+            </div>
+        {/if}
         {#if $show_ingredient_details && options.show}
             <CardBody class="p-0" style="cursor: auto;">
                 {#if !$readonly_ingredients && !options.readonly}

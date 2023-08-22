@@ -10,6 +10,7 @@ export const processing_index = writable(1);
 export const drag_disabled = writable(true);
 export const show_help = writable(true);
 export const readonly_ingredients = writable(false);
+export const show_ingredient_headers = writable(true);
 
 
 privacy_policy.subscribe(value => {

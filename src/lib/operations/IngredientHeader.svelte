@@ -54,13 +54,13 @@
             </ButtonGroup>
             <Popover title="Control execution of the recipe">
                 <div slot="value">
-                    <p>Activate <Badge color="success"><Icon name="binoculars" /></Badge> to show the ingredient.</p>
+                    <p>Activate <Badge color="secondary"><Icon name="binoculars" /></Badge> to show the ingredient.</p>
                     <p>Activate <Badge color="secondary"><Icon name="pencil" /></Badge> to modify the ingredient.</p>
                     <p>Activate <Badge color="warning"><Icon name="skip-forward" /></Badge> to skip the ingredient.</p>
                     <p>The recipe is terminated after applying an ingredient with the <strong>pause button</strong> <Badge color="danger"><Icon name="pause-fill" /></Badge> active.</p>
                 </div>
                 <ButtonGroup>
-                    <Button size="sm" color={options.show ? "success" : "secondary"} outline={!options.show} on:click={() => Recipe.toggle_show_operation(index)}>
+                    <Button size="sm" color="secondary" outline={!options.show} on:click={() => Recipe.toggle_show_operation(index)}>
                         <Icon name="binoculars" />
                     </Button>
                     <Button size="sm" color="secondary" outline={options.readonly} on:click={() => Recipe.toggle_readonly_operation(index)}>

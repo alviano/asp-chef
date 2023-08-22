@@ -10,7 +10,7 @@
         readonly_ingredients,
         recipe,
         show_help,
-        show_ingredient_details
+        show_ingredient_details, show_ingredient_headers
     } from "$lib/stores";
     import RecipePanel from "$lib/RecipePanel.svelte";
     import {onDestroy, onMount} from "svelte";
@@ -37,6 +37,7 @@
                 show_io_panel: show_io_panel,
                 show_ingredient_details: $show_ingredient_details,
                 readonly_ingredients: $readonly_ingredients,
+                show_ingredient_headers: $show_ingredient_headers,
                 pause_baking: $pause_baking,
             });
         }
@@ -100,7 +101,8 @@
 
     const keydown_uuid = uuidv4();
 
-    $: $show_help, show_operations, show_io_panel, $show_ingredient_details, $readonly_ingredients, $pause_baking,
+    $: $show_help, show_operations, show_io_panel,
+        $show_ingredient_details, $readonly_ingredients, $show_ingredient_headers, $pause_baking,
         update_url(input_value, encode_input, decode_output);
 
     onMount(() => {
@@ -117,6 +119,7 @@
                 show_io_panel = data.show_io_panel;
                 $show_ingredient_details = data.show_ingredient_details;
                 $readonly_ingredients = data.readonly_ingredients;
+                $show_ingredient_headers = data.show_ingredient_headers;
                 $pause_baking = data.pause_baking;
             }
         }

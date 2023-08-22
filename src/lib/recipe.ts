@@ -60,6 +60,7 @@ export class Recipe {
         show_io_panel = true,
         show_ingredient_details = true,
         readonly_ingredients = false,
+        show_ingredient_headers = true,
         pause_baking = false,
     } = {}) {
         const json = {
@@ -71,6 +72,7 @@ export class Recipe {
             show_io_panel,
             show_ingredient_details,
             readonly_ingredients,
+            show_ingredient_headers,
             pause_baking,
             recipe: this.recipe,
         };
@@ -101,6 +103,7 @@ export class Recipe {
             show_io_panel: json.show_io_panel !== false,
             show_ingredient_details: json.show_ingredient_details !== false,
             readonly_ingredients: json.readonly_ingredients || false,
+            show_ingredient_headers: json.show_ingredient_headers !== false,
             pause_baking: json.pause_baking || false,
         };
     }

@@ -1,7 +1,16 @@
 <script>
     import {flip} from "svelte/animate";
     import {dndzone} from "svelte-dnd-action";
-    import {drag_disabled, errors_at_index, pause_baking, recipe, show_help, show_ingredient_details, readonly_ingredients} from "$lib/stores";
+    import {
+        drag_disabled,
+        errors_at_index,
+        pause_baking,
+        recipe,
+        show_help,
+        show_ingredient_details,
+        readonly_ingredients,
+        show_ingredient_headers
+    } from "$lib/stores";
     import {Alert, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import SearchModels from "$lib/operations/SearchModels.svelte";
     import RemoveErrors from "$lib/operations/RemoveErrors.svelte";
@@ -88,6 +97,10 @@
         $readonly_ingredients = !$readonly_ingredients;
     }
 
+    function toggle_show_ingredient_headers() {
+        $show_ingredient_headers = !$show_ingredient_headers;
+    }
+
     function toggle_show_details() {
         $show_ingredient_details = !$show_ingredient_details;
     }
@@ -148,6 +161,9 @@
                 return true;
             } else if (event.uKey === 'E') {
                 toggle_readonly_ingredients();
+                return true;
+            } else if (event.uKey === 'B') {
+                toggle_show_ingredient_headers();
                 return true;
             }
         }]);
@@ -212,7 +228,7 @@
                             <p>Keybinding: <code>D</code></p>
                         </div>
                         <Button size="sm"
-                                color={$show_ingredient_details ? "success" : "secondary"}
+                                color="secondary"
                                 outline={!$show_ingredient_details}
                                 on:click={() => toggle_show_details()}>
                             <Icon name="binoculars" />
@@ -229,6 +245,19 @@
                                 outline={$readonly_ingredients}
                                 on:click={() => toggle_readonly_ingredients()}>
                             <Icon name="pencil" />
+                        </Button>
+                    </Popover>
+                    <Popover title="Show ingredient header bars">
+                        <div slot="value">
+                            <p>Show/hide ingredient header bars, and consequently enable/disable ingredient movement in the recipe.</p>
+                            <p>You may want to hide ingredient header bars (and disable editing) when distributing your final recipe.</p>
+                            <p>Keybinding: <code>B</code></p>
+                        </div>
+                        <Button size="sm"
+                                color="secondary"
+                                outline={!$show_ingredient_headers}
+                                on:click={() => toggle_show_ingredient_headers()}>
+                            <Icon name="arrow-down-up" />
                         </Button>
                     </Popover>
                     <Popover title="Pause baking">
@@ -261,7 +290,7 @@
     <CardBody class="p-0" style="background-color: lightgray;">
         <section style="padding-bottom: 20em;" use:dndzone="{{items, dragDisabled, flipDurationMs}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
             {#each items as item, index (item.id)}
-                <div animate:flip="{{duration: flipDurationMs}}" class="mt-1">
+                <div animate:flip="{{duration: flipDurationMs}}" class:mt-1={$show_ingredient_headers}>
                     {#if item.operation === 'Search Models'}
                         <SearchModels id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Remove Errors'}
