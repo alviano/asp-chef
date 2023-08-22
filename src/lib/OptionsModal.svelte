@@ -28,8 +28,8 @@
             <Input
                     type="range"
                     name="io"
-                    min={10}
-                    max={33}
+                    min={20}
+                    max={66}
                     bind:value={$io_panel_width}
                     step={1}
             />
