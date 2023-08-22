@@ -15,6 +15,15 @@
 
     const keydown_uuid = uuidv4();
 
+    function clear_input() {
+        Utils.confirm({
+            message: "Remove input content?",
+            onconfirm: () => {
+                value = '';
+            }
+        })
+    }
+
     onMount(() => {
         $keydown.push([keydown_uuid, (event) => {
             if (event.uKey === 'I') {
@@ -36,8 +45,8 @@
             Input
             <span class="float-end">
                 <code class="h6 me-3">models: {value.split(consts.SYMBOLS.MODELS_SEPARATOR).length}</code>
-                <Popover title="Remove operation" value="Remove input content.">
-                    <Button size="sm" color="danger" on:click={() => value = ''}><Icon name="trash" /></Button>
+                <Popover title="Clear input" value="Remove input content.">
+                    <Button size="sm" color="danger" on:click={clear_input}><Icon name="trash" /></Button>
                 </Popover>
                 <Popover title="Encode input" value="If active, the input is Base64 encoded as a single fact.">
                     <Button size="sm" outline="{!encode}" on:click={() => encode = !encode}>Encode</Button>

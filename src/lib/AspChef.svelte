@@ -4,7 +4,14 @@
     import {Recipe} from "$lib/recipe";
     import InputPanel from "$lib/InputPanel.svelte";
     import OutputPanel from "$lib/OutputPanel.svelte";
-    import {pause_baking, recipe, show_help, show_ingredient_details} from "$lib/stores";
+    import {
+        pause_baking,
+        processing_index,
+        readonly_ingredients,
+        recipe,
+        show_help,
+        show_ingredient_details
+    } from "$lib/stores";
     import RecipePanel from "$lib/RecipePanel.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Utils} from "$lib/utils";
@@ -28,6 +35,9 @@
                 show_help: $show_help,
                 show_operations: show_operations,
                 show_io_panel: show_io_panel,
+                show_ingredient_details: $show_ingredient_details,
+                readonly_ingredients: $readonly_ingredients,
+                pause_baking: $pause_baking,
             });
         }
     }
@@ -50,6 +60,11 @@
         }
         if (pause_baking) {
             await Utils.clingo_terminate();
+            $processing_index = Recipe.number_of_ingredients;
+            if (process_timeout) {
+                clearTimeout(process_timeout);
+                process_timeout = null;
+            }
             return;
         }
         for (let count_attempt = 0; processing; count_attempt++) {
@@ -85,13 +100,8 @@
 
     const keydown_uuid = uuidv4();
 
-    show_help.subscribe(() => {
+    $: $show_help, show_operations, show_io_panel, $show_ingredient_details, $readonly_ingredients, $pause_baking,
         update_url(input_value, encode_input, decode_output);
-    });
-    pause_baking.subscribe(() => {
-        update_url(input_value, encode_input, decode_output);
-    })
-    $: show_operations, show_io_panel, show_ingredient_details, update_url(input_value, encode_input, decode_output);
 
     onMount(() => {
         const recipe_panel = document.getElementById('recipe_panel_column');
@@ -105,6 +115,9 @@
                 $show_help = data.show_help;
                 show_operations = data.show_operations;
                 show_io_panel = data.show_io_panel;
+                $show_ingredient_details = data.show_ingredient_details;
+                $readonly_ingredients = data.readonly_ingredients;
+                $pause_baking = data.pause_baking;
             }
         }
         recipe_unsubscribe = recipe.subscribe(() => {

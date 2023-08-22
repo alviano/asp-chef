@@ -58,6 +58,9 @@ export class Recipe {
         show_help = true,
         show_operations = true,
         show_io_panel = true,
+        show_ingredient_details = true,
+        readonly_ingredients = false,
+        pause_baking = false,
     } = {}) {
         const json = {
             input: encode_input ? input : input.split(consts.SYMBOLS.MODELS_SEPARATOR),
@@ -66,6 +69,9 @@ export class Recipe {
             show_help,
             show_operations,
             show_io_panel,
+            show_ingredient_details,
+            readonly_ingredients,
+            pause_baking,
             recipe: this.recipe,
         };
         this.last_serialization = Utils.compress(json) + '%21';
@@ -93,6 +99,9 @@ export class Recipe {
             show_help: json.show_help !== false,
             show_operations: json.show_operations !== false,
             show_io_panel: json.show_io_panel !== false,
+            show_ingredient_details: json.show_ingredient_details !== false,
+            readonly_ingredients: json.readonly_ingredients || false,
+            pause_baking: json.pause_baking || false,
         };
     }
 
