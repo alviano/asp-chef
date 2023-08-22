@@ -1,7 +1,7 @@
 <script>
     import {flip} from "svelte/animate";
     import {dndzone} from "svelte-dnd-action";
-    import {drag_disabled, errors_at_index, pause_baking, recipe, show_help, show_ingredient_details} from "$lib/stores";
+    import {drag_disabled, errors_at_index, pause_baking, recipe, show_help, show_ingredient_details, readonly_ingredients} from "$lib/stores";
     import {Alert, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import SearchModels from "$lib/operations/SearchModels.svelte";
     import RemoveErrors from "$lib/operations/RemoveErrors.svelte";
@@ -84,6 +84,10 @@
         $show_help = !$show_help;
     }
 
+    function toggle_readonly_ingredients() {
+        $readonly_ingredients = !$readonly_ingredients;
+    }
+
     function toggle_show_details() {
         $show_ingredient_details = !$show_ingredient_details;
     }
@@ -141,6 +145,9 @@
                 return true;
             } else if (event.uKey === 'H') {
                 toggle_show_help();
+                return true;
+            } else if (event.uKey === 'E') {
+                toggle_readonly_ingredients();
                 return true;
             }
         }]);
@@ -209,6 +216,18 @@
                                 outline={!$show_ingredient_details}
                                 on:click={() => toggle_show_details()}>
                             <Icon name="binoculars" />
+                        </Button>
+                    </Popover>
+                    <Popover title="Edit ingredients">
+                        <div slot="value">
+                            <p>Enable/disable editing of ingredients.</p>
+                            <p>Keybinding: <code>E</code></p>
+                        </div>
+                        <Button size="sm"
+                                color="secondary"
+                                outline={$readonly_ingredients}
+                                on:click={() => toggle_readonly_ingredients()}>
+                            <Icon name="pencil" />
                         </Button>
                     </Popover>
                     <Popover title="Pause baking">

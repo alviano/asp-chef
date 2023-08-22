@@ -48,6 +48,7 @@ export class Recipe {
             stop: false,
             apply: true,
             show: true,
+            readonly: false,
         };
     }
 
@@ -304,6 +305,12 @@ export class Recipe {
     static toggle_show_operation(index: number) {
         const the_recipe = this.recipe;
         the_recipe[index].options.show = !the_recipe[index].options.show;
+        recipe.set(the_recipe);
+    }
+
+    static toggle_readonly_operation(index: number) {
+        const the_recipe = this.recipe;
+        the_recipe[index].options.readonly = !the_recipe[index].options.readonly;
         recipe.set(the_recipe);
     }
 }

@@ -9,7 +9,6 @@
         min: 1,
         max: 10,
         label: "",
-        show_options: true,
     };
 
     const listeners = new Map();
@@ -23,10 +22,11 @@
 </script>
 
 <script>
-    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/operations/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Tooltip} from "dumbo-svelte";
+    import {readonly_ingredients} from "$lib/stores";
 
     export let id;
     export let options;
@@ -39,11 +39,6 @@
 
     function edit() {
         Recipe.edit_operation(index, options);
-    }
-
-    function toggle_show_options() {
-        options.show_options = !options.show_options;
-        edit();
     }
 
     onMount(() => {
@@ -77,19 +72,18 @@
         </p>
     </div>
     <InputGroup>
-        {#if options.show_options}
+        {#if !(options.readonly || $readonly_ingredients)}
             <InputGroupText style="width: 10em;">Label</InputGroupText>
         {/if}
         <Input type="text"
                bind:value={options.label}
                placeholder="Your custom label here"
                on:input={edit}
-               readonly={!options.show_options}
+               readonly={options.readonly || $readonly_ingredients}
                data-testid="Slider-label"
         />
-        <Button outline={!options.show_options} on:click={toggle_show_options}>Options</Button>
     </InputGroup>
-    {#if options.show_options}
+    {#if !(options.readonly || $readonly_ingredients)}
         <InputGroup>
             <InputGroupText style="width: 10em;">Minimum value</InputGroupText>
             <Input type="text"
