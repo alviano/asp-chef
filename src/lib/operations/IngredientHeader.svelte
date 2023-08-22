@@ -54,17 +54,16 @@
             </ButtonGroup>
             <Popover title="Control execution of the recipe">
                 <div slot="value">
-                    <p>Enabled ingredients <Badge color="success"><Icon name="eye" /></Badge> are applied.</p>
-                    <p>Disabled ingredients <Badge><Icon name="eye-slash" /></Badge> are skipped.</p>
-                    <p>The recipe is terminated after applying an ingredient with the <strong>pause button</strong> <Badge><Icon name="pause-fill" /></Badge> active.</p>
-                    <p>Ingredient details can be shown <Badge color="success"><Icon name="binoculars" /></Badge> or hidden <Badge><Icon name="binoculars" /></Badge> </p>
+                    <p>Activate <Badge color="success"><Icon name="binoculars" /></Badge> to show the ingredient.</p>
+                    <p>Activate <Badge color="warning"><Icon name="skip-forward" /></Badge> to skip the ingredient.</p>
+                    <p>The recipe is terminated after applying an ingredient with the <strong>pause button</strong> <Badge color="danger"><Icon name="pause-fill" /></Badge> active.</p>
                 </div>
                 <ButtonGroup>
                     <Button size="sm" color={options.show ? "success" : "secondary"} outline={!options.show} on:click={() => Recipe.toggle_show_operation(index)}>
                         <Icon name="binoculars" />
                     </Button>
-                    <Button size="sm" color={options.apply ? "success" : "secondary"} outline={!options.apply} on:click={() => Recipe.toggle_apply_operation(index)}>
-                        <Icon name={options.apply ? "eye" : "eye-slash"} />
+                    <Button size="sm" color={options.apply ? "secondary" : "warning"} outline={options.apply} on:click={() => Recipe.toggle_apply_operation(index)}>
+                        <Icon name="skip-forward" />
                     </Button>
                     <Button size="sm" color={options.stop ? "danger" : "secondary"} outline={!options.stop} on:click={() => Recipe.toggle_stop_at_operation(index)}><Icon name="pause-fill" /></Button>
                 </ButtonGroup>

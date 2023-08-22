@@ -35,7 +35,7 @@
 </script>
 
 {#if id !== undefined}
-    <Card style="border-top: 3px solid black; {options.stop ? 'border-bottom: 3px solid red;' : ''} {options.apply ? '' : 'border-left: 3px dashed red; border-right: 3px dashed red;'}"
+    <Card style="border-top: 3px solid black; {options.stop ? 'border-bottom: 3px solid red;' : ''} {options.apply ? '' : 'border-left: 3px dashed #f47c3c; border-right: 3px dashed #f47c3c;'}"
           data-testid="Operation">
         <div on:mouseenter={mouse_in_draggable_area} on:mouseleave={mouse_out_of_draggable_area}>
             <IngredientHeader {id} {operation} {index} {options} />
