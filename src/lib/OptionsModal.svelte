@@ -1,6 +1,6 @@
 <script>
     import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
-    import {io_panel_width, operations_panel_width} from "$lib/stores";
+    import {io_panel_width, operations_panel_width, input_height} from "$lib/stores";
 
     export let open = false;
 
@@ -22,7 +22,7 @@
                     bind:value={$operations_panel_width}
                     step={1}
             />
-          </FormGroup>
+        </FormGroup>
         <FormGroup>
             <Label>I/O panel ({$io_panel_width}%)</Label>
             <Input
@@ -33,7 +33,18 @@
                     bind:value={$io_panel_width}
                     step={1}
             />
-          </FormGroup>
+        </FormGroup>
+        <FormGroup>
+            <Label>Input height ({$input_height}%)</Label>
+            <Input
+                    type="range"
+                    name="io"
+                    min={10}
+                    max={90}
+                    bind:value={$input_height}
+                    step={1}
+            />
+        </FormGroup>
     </ModalBody>
     <ModalFooter>
         <Button color="primary" on:click={toggle}>Close</Button>

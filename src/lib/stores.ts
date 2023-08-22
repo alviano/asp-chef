@@ -13,6 +13,7 @@ export const readonly_ingredients = writable(false);
 export const show_ingredient_headers = writable(true);
 export const operations_panel_width = writable(browser ? localStorage.getItem('operations-panel-width') || 15 : 15);
 export const io_panel_width = writable(browser ? localStorage.getItem('io-panel-width') || 30 : 30);
+export const input_height = writable(browser ? localStorage.getItem('input-height') || 50 : 50);
 
 privacy_policy.subscribe(value => {
   if (value) {
@@ -29,5 +30,11 @@ operations_panel_width.subscribe(value => {
 io_panel_width.subscribe(value => {
   if (value) {
     localStorage.setItem('io-panel-width', '' + value);
+  }
+});
+
+input_height.subscribe(value => {
+  if (value) {
+    localStorage.setItem('input-height', '' + value);
   }
 });

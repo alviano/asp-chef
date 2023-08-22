@@ -5,6 +5,7 @@
     import InputPanel from "$lib/InputPanel.svelte";
     import OutputPanel from "$lib/OutputPanel.svelte";
     import {
+        input_height,
         io_panel_width,
         operations_panel_width,
         pause_baking,
@@ -183,7 +184,7 @@
     </Col>
     {#if show_io_panel}
         <Col class="p-0 vh-100" style="min-width: {$io_panel_width}%; max-width: {$io_panel_width}%; overflow: hidden;">
-            <div bind:this={input_panel_div} style="height: 50vh; overflow-x: hidden; overflow-y: scroll;">
+            <div bind:this={input_panel_div} style="height: {$input_height}vh; overflow-x: hidden; overflow-y: scroll;">
                 <InputPanel bind:value={input_value} bind:encode={encode_input} />
             </div>
             <div bind:this={progress_panel_div} data-testid="AspChef-baking-bar">
@@ -197,7 +198,7 @@
                     </Progress>
                 </Progress>
             </div>
-            <div bind:this={output_panel_div} style="height: 50vh; overflow-x: hidden; overflow-y: scroll;">
+            <div bind:this={output_panel_div} style="height: {100 - $input_height}vh; overflow-x: hidden; overflow-y: scroll;">
                 <OutputPanel value={output_value} bind:decode={decode_output} on:change_input={(event) => input_value = event.detail} />
             </div>
         </Col>
