@@ -44,6 +44,10 @@ pre {
   padding: 0.5em;
 }
 
+pre.container {
+    max-width: 100% !important;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
