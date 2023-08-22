@@ -80,11 +80,13 @@
     import Store from "$lib/operations/Store.svelte";
     import Restore from "$lib/operations/Restore.svelte";
     import OptionsModal from "$lib/OptionsModal.svelte";
+    import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
 
     export let show_operations;
     export let show_io_panel;
 
     let set_options = false;
+    let safely_open_recipe = false;
 
     async function copy_to_clipboard() {
         const url = Recipe.as_url();
@@ -292,6 +294,13 @@
                     </Popover>
                 </ButtonGroup>
                 <ButtonGroup>
+                    <Popover title="Safely load recipe">
+                        <div slot="value">
+                            <p>Load a recipe from a URL without baking it.</p>
+                            <p>Keybinding: <code>S</code></p>
+                        </div>
+                        <Button size="sm" on:click={() => safely_open_recipe = true}><Icon name="envelope-open" /></Button>
+                    </Popover>
                     <Popover title="Copy recipe">
                         <div slot="value">
                             <p>Copy the recipe URL in the clipboard.</p>
@@ -442,3 +451,4 @@
 </Card>
 
 <OptionsModal bind:open="{set_options}" />
+<SafelyLoadRecipeModal bind:open="{safely_open_recipe}" />
