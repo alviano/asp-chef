@@ -1,6 +1,7 @@
 <script>
     import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
     import {io_panel_width, operations_panel_width, input_height} from "$lib/stores";
+    import {consts} from "$lib/consts";
 
     export let open = false;
 
@@ -17,8 +18,8 @@
             <Input
                     type="range"
                     name="operations"
-                    min={10}
-                    max={33}
+                    min={consts.OPERATIONS_PANEL_MIN_VALUE}
+                    max={consts.OPERATIONS_PANEL_MAX_VALUE}
                     bind:value={$operations_panel_width}
                     step={1}
             />
@@ -28,8 +29,8 @@
             <Input
                     type="range"
                     name="io"
-                    min={20}
-                    max={66}
+                    min={consts.IO_PANEL_MIN_VALUE}
+                    max={consts.IO_PANEL_MAX_VALUE}
                     bind:value={$io_panel_width}
                     step={1}
             />
@@ -39,8 +40,8 @@
             <Input
                     type="range"
                     name="io"
-                    min={10}
-                    max={90}
+                    min={consts.INPUT_HEIGHT_MIN_VALUE}
+                    max={consts.INPUT_HEIGHT_MAX_VALUE}
                     bind:value={$input_height}
                     step={1}
             />
