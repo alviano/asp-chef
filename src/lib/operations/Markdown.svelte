@@ -285,7 +285,7 @@
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Markdown-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
     </InputGroup>
-    <div bind:this="{output_div}" class="p-2 output" data-testid="Markdown-output">
+    <div slot="output" bind:this="{output_div}" class="p-2 output" data-testid="Markdown-output">
         {@html Utils.render_markdown(output)}
     </div>
 </Operation>

@@ -34,6 +34,7 @@
     export let add_to_recipe;
     export let keybinding;
 
+    $: readonly = (options && options.readonly) || $readonly_ingredients;
     let min = -999_999;
     let max = 999_999;
 
@@ -72,58 +73,60 @@
         </p>
     </div>
     <InputGroup>
-        {#if !(options.readonly || $readonly_ingredients)}
-            <InputGroupText style="width: 10em;">Label</InputGroupText>
-        {/if}
+        <InputGroupText style="width: 10em;">Label</InputGroupText>
         <Input type="text"
                bind:value={options.label}
                placeholder="Your custom label here"
                on:input={edit}
-               readonly={options.readonly || $readonly_ingredients}
                data-testid="Slider-label"
         />
     </InputGroup>
-    {#if !(options.readonly || $readonly_ingredients)}
-        <InputGroup>
-            <InputGroupText style="width: 10em;">Minimum value</InputGroupText>
-            <Input type="text"
-                   bind:value={options.min}
-                   placeholder="min"
-                   on:input={edit}
-                   data-testid="Slider-min"
-            />
-            <InputGroupText style="width: 5em;"><code class="text-end w-100">{min}</code></InputGroupText>
-        </InputGroup>
-        <InputGroup>
-            <InputGroupText style="width: 10em;">Maximum value</InputGroupText>
-            <Input type="text"
-                   bind:value={options.max}
-                   placeholder="max"
-                   on:input={edit}
-                   data-testid="Slider-max"
-            />
-            <InputGroupText style="width: 5em;"><code class="text-end w-100">{max}</code></InputGroupText>
-        </InputGroup>
-        <InputGroup>
-            <InputGroupText style="width: 10em;">Output predicate</InputGroupText>
-            <Input type="text"
-                   bind:value={options.output_predicate}
-                   placeholder="output predicate"
-                   on:input={edit}
-                   data-testid="Slider-output-predicate"
-            />
-            <InputGroupText style="width: 5em;"><code class="text-end w-100">{options.value}</code></InputGroupText>
-        </InputGroup>
-    {/if}
-    <div class="m-3">
-        <Tooltip value="{options.value} (range {min}..{max})" placement="top">
-            <Input type="range"
-                   min="{min}"
-                   max="{max}"
-                   bind:value="{options.value}"
-                   on:input={edit}
-                   />
-            <Input type="number" class="d-test" bind:value={options.value} data-testid="Slider-value" />
-        </Tooltip>
+    <InputGroup>
+        <InputGroupText style="width: 10em;">Minimum value</InputGroupText>
+        <Input type="text"
+               bind:value={options.min}
+               placeholder="min"
+               on:input={edit}
+               data-testid="Slider-min"
+        />
+        <InputGroupText style="width: 5em;"><code class="text-end w-100">{min}</code></InputGroupText>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 10em;">Maximum value</InputGroupText>
+        <Input type="text"
+               bind:value={options.max}
+               placeholder="max"
+               on:input={edit}
+               data-testid="Slider-max"
+        />
+        <InputGroupText style="width: 5em;"><code class="text-end w-100">{max}</code></InputGroupText>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 10em;">Output predicate</InputGroupText>
+        <Input type="text"
+               bind:value={options.output_predicate}
+               placeholder="output predicate"
+               on:input={edit}
+               data-testid="Slider-output-predicate"
+        />
+        <InputGroupText style="width: 5em;"><code class="text-end w-100">{options.value}</code></InputGroupText>
+    </InputGroup>
+    <div slot="output">
+        {#if readonly && options.label}
+            <InputGroup>
+                <InputGroupText style="width: 100%;">{options.label} ({options.value})</InputGroupText>
+            </InputGroup>
+        {/if}
+        <div class="m-3">
+            <Tooltip value="{options.value} (range {min}..{max})" placement="top">
+                <Input type="range"
+                       min="{min}"
+                       max="{max}"
+                       bind:value="{options.value}"
+                       on:input={edit}
+                       />
+                <Input type="number" class="d-test" bind:value={options.value} data-testid="Slider-value" />
+            </Tooltip>
+        </div>
     </div>
 </Operation>

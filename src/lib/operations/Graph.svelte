@@ -239,23 +239,25 @@
             </InputGroupText>
         </InputGroup>
     {/if}
-    {#each graphs as graph}
-        <GraphCanvas
-                {graph}
-                max_height="{options.height}"
-                search_pattern={options.search}
-                search_color={options.search_color}
-                search_text_color={options.search_text_color}
-        />
-    {/each}
-    <InputGroup>
-        <InputGroupText>Search</InputGroupText>
-        <Input type="search" placeholder="Search..." bind:value={options.search} on:change={edit} />
-    </InputGroup>
     <InputGroup>
         <InputGroupText>Highlight color</InputGroupText>
         <Input type="text" placeholder="Color..." bind:value={options.search_color} on:change={edit} />
         <InputGroupText>Highlight text color</InputGroupText>
         <Input type="text" placeholder="Text color..." bind:value={options.search_text_color} on:change={edit} />
     </InputGroup>
+    <div slot="output">
+        {#each graphs as graph}
+            <GraphCanvas
+                    {graph}
+                    max_height="{options.height}"
+                    search_pattern={options.search}
+                    search_color={options.search_color}
+                    search_text_color={options.search_text_color}
+            />
+        {/each}
+        <InputGroup>
+            <InputGroupText>Search</InputGroupText>
+            <Input type="search" placeholder="Search..." bind:value={options.search} on:change={edit} />
+        </InputGroup>
+    </div>
 </Operation>

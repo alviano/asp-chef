@@ -73,7 +73,7 @@
             <Icon name="arrow-up-square" />
         </Button>
     </InputGroup>
-    <div style="height: {options.height}px; overflow-y: auto" data-testid="Output-textarea">
+    <div slot="output" style="height: {options.height}px; overflow-y: auto" data-testid="Output-textarea">
         <AutoHideBadge color="warning">readonly</AutoHideBadge>
         <CodeMirror bind:value={text_value} readonly placeholder="NO MODELS" lineWrapping="{true}" />
         <pre class="d-test">{text_value}</pre>

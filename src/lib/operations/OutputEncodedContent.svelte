@@ -74,7 +74,7 @@
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="OutputEncodedContent-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
     </InputGroup>
-    <div style="height: {options.height}px; overflow-y: auto" data-testid="OutputEncodedContent-textarea">
+    <div slot="output" style="height: {options.height}px; overflow-y: auto" data-testid="OutputEncodedContent-textarea">
         <AutoHideBadge color="warning">readonly</AutoHideBadge>
         <CodeMirror value={output} readonly placeholder="NO CONTENT" lineWrapping="{true}" />
         <pre class="d-test">{output}</pre>

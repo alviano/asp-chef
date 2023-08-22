@@ -221,6 +221,7 @@
                     <Popover title="Edit ingredients">
                         <div slot="value">
                             <p>Enable/disable editing of ingredients.</p>
+                            <p>Note that the editing of some options is always enabled (e.g., search keys in <strong>Graph</strong> and <strong>Table</strong>).</p>
                             <p>Keybinding: <code>E</code></p>
                         </div>
                         <Button size="sm"
