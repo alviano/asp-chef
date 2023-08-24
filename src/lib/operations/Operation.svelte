@@ -52,12 +52,6 @@
             <CardBody class="p-0" style="cursor: auto;">
                 {#if !$readonly_ingredients && !options.readonly}
                     <slot />
-                    {#if $errors_at_index[index]}
-                        <div class="alert-danger p-3" style="color: white">
-                            <h5 class="alert-heading">Errors</h5>
-                            <div class="font-monospace">{$errors_at_index[index]}</div>
-                        </div>
-                    {/if}
                 {/if}
                 <slot name="output" />
                 {#if $errors_at_index[index]}

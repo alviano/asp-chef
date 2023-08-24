@@ -94,6 +94,12 @@
         Utils.snackbar("URL ready to be pasted!");
     }
 
+    async function copy_short_url() {
+        const url = await Recipe.shorten_link(Recipe.as_url().replace("http://localhost:5188", "https://asp-chef.alviano.net"));
+        await navigator.clipboard.writeText(url);
+        Utils.snackbar("Short URL ready to be pasted!");
+    }
+
     function toggle_show_help() {
         $show_help = !$show_help;
     }
@@ -303,6 +309,15 @@
                             <p>Keybinding: <code>S</code></p>
                         </div>
                         <Button size="sm" on:click={() => safely_open_recipe = true}><Icon name="envelope-open" /></Button>
+                    </Popover>
+                    <Popover title="Copy short recipe URL">
+                        <div slot="value">
+                            <p>Shorten recipe URL with a random short URL provided by shrtco.de and copy it in the clipboard.</p>
+                            <p>Note that a new URL is created every time the button is clicked. Each IP is limited to 1 request per second.</p>
+                        </div>
+                        <Button size="sm" on:click={copy_short_url}>
+                            <Icon name="arrows-angle-contract" />
+                        </Button>
                     </Popover>
                     <Popover title="Copy recipe">
                         <div slot="value">

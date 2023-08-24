@@ -38,6 +38,11 @@
                         <Icon name="box-arrow-up" />
                     </Button>
                 </Popover>
+                <Popover title="Duplicate operation" value="Add a copy of ingredient #{index + 1} below it.">
+                    <Button size="sm" on:click={() => Recipe.duplicate_operation(index)}><Icon name="box-arrow-down" /></Button>
+                </Popover>
+            </ButtonGroup>
+            <ButtonGroup>
                 <Popover title="Interceptor above" value="Add Interceptor ingredient above ingredient #{index + 1}.">
                     <Button size="sm" on:click={() => Recipe.add_operation('Interceptor', Recipe.common_default_options(), index)}>
                         <Icon name="box-arrow-in-up" />
@@ -48,36 +53,47 @@
                         <Icon name="box-arrow-in-down" />
                     </Button>
                 </Popover>
-                <Popover title="Duplicate operation" value="Add a copy of ingredient #{index + 1} below it.">
-                    <Button size="sm" on:click={() => Recipe.duplicate_operation(index)}><Icon name="box-arrow-down" /></Button>
-                </Popover>
             </ButtonGroup>
-            <Popover title="Control execution of the recipe">
-                <div slot="value">
-                    <p>Activate <Badge color="secondary"><Icon name="binoculars" /></Badge> to show the ingredient.</p>
-                    <p>Activate <Badge color="secondary"><Icon name="pencil" /></Badge> to modify the ingredient.</p>
-                    <p>Activate <Badge color="warning"><Icon name="skip-forward" /></Badge> to skip the ingredient.</p>
-                    <p>The recipe is terminated after applying an ingredient with the <strong>pause button</strong> <Badge color="danger"><Icon name="pause-fill" /></Badge> active.</p>
-                </div>
-                <ButtonGroup>
+            <ButtonGroup>
+                <Popover title="Show ingredient details">
+                    <div slot="value">
+                        <p>Activate <Badge color="secondary"><Icon name="binoculars" /></Badge> to show the ingredient details.</p>
+                    </div>
                     <Button size="sm" color="secondary" outline={!options.show} on:click={() => Recipe.toggle_show_operation(index)}>
                         <Icon name="binoculars" />
                     </Button>
+                </Popover>
+                <Popover title="Show edit controls">
+                    <div slot="value">
+                        <p>Activate <Badge color="secondary"><Icon name="pencil" /></Badge> to modify the ingredient.</p>
+                    </div>
                     <Button size="sm" color="secondary" outline={options.readonly} on:click={() => Recipe.toggle_readonly_operation(index)}>
                         <Icon name="pencil" />
                     </Button>
+                </Popover>
+                <Popover title="Skip ingredient">
+                    <div slot="value">
+                        <p>Activate <Badge color="warning"><Icon name="skip-forward" /></Badge> to skip the ingredient.</p>
+                    </div>
                     <Button size="sm" color={options.apply ? "secondary" : "warning"} outline={options.apply} on:click={() => Recipe.toggle_apply_operation(index)}>
                         <Icon name="skip-forward" />
                     </Button>
+                </Popover>
+                <Popover title="Terminate recipe here">
+                    <div slot="value">
+                        <p>The recipe is terminated after applying an ingredient with the <strong>pause button</strong> <Badge color="danger"><Icon name="pause-fill" /></Badge> active.</p>
+                    </div>
                     <Button size="sm" color={options.stop ? "danger" : "secondary"} outline={!options.stop} on:click={() => Recipe.toggle_stop_at_operation(index)}><Icon name="pause-fill" /></Button>
-                </ButtonGroup>
-            </Popover>
-            <Popover title="Move operation" value="Move ingredient #{index + 1} up or down in the recipe.">
-                <ButtonGroup>
+                </Popover>
+            </ButtonGroup>
+            <ButtonGroup>
+                <Popover title="Move operation up" value="Move ingredient #{index + 1} up in the recipe.">
                     <Button size="sm" disabled="{index <= 0}" on:click={() => Recipe.swap_operations(index - 1, index)}><Icon name="arrow-up" /></Button>
+                </Popover>
+                <Popover title="Move operation down" value="Move ingredient #{index + 1} down in the recipe.">
                     <Button size="sm" disabled="{index + 1 >= $recipe.length}" on:click={() => Recipe.swap_operations(index, index + 1)}><Icon name="arrow-down" /></Button>
-                </ButtonGroup>
-            </Popover>
+                </Popover>
+            </ButtonGroup>
         </span>
     </CardTitle>
 </CardHeader>

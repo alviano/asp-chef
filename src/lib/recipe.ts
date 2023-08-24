@@ -108,6 +108,29 @@ export class Recipe {
         };
     }
 
+    static async expand_if_short_link(recipe_url: string) : Promise<string> {
+        try {
+            if (recipe_url.match(/^https?:\/\/(shrtco.de|9qr.de|shiny.link)\//)) {
+                const code = new URL(recipe_url).pathname.substring(1);
+                const json = await fetch(`https://api.shrtco.de/v2/info?code=${code}`).then(response => response.json());
+                return json.result.url;
+            }
+        } catch (error) {
+            /* empty */
+        }
+        return recipe_url;
+    }
+
+    static async shorten_link(recipe_url: string) : Promise<string> {
+        try {
+            const json = await fetch(`https://api.shrtco.de/v2/shorten?url=${encodeURIComponent(recipe_url)}`).then(response => response.json());
+            return json.result.full_short_link;
+        } catch (error) {
+            /* empty */
+        }
+        return recipe_url;
+    }
+
     static serialize_ingredients(start: number, how_many = 0) {
         const json = {
             recipe: this.recipe.slice(start, how_many === 0 ? undefined : start + how_many),

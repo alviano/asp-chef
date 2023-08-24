@@ -1,6 +1,7 @@
 <script>
     import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
     import {Utils} from "$lib/utils";
+    import {Recipe} from "$lib/recipe";
 
     export let open = false;
 
@@ -10,24 +11,25 @@
         open = !open;
     }
 
-    function rewrite_url(url) {
+    async function rewrite_url(url) {
+        const recipe_url = await Recipe.expand_if_short_link(url);
         try {
-            const hash = new URL(url).hash;
+            const hash = new URL(recipe_url).hash;
             return `/safe-open${hash}`;
         } catch (error) {
             Utils.snackbar("Invalid URL");
         }
     }
 
-    function load() {
-        const url = rewrite_url(value);
+    async function load() {
+        const url = await rewrite_url(value);
         if (url) {
             location = url;
         }
     }
 
-    function open_in_new_tab() {
-        const url = rewrite_url(value);
+    async function open_in_new_tab() {
+        const url = await rewrite_url(value);
         if (url) {
             window.open(url);
             toggle();

@@ -1,6 +1,7 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
     import {consts} from "$lib/consts";
+    import {Utils} from "$lib/utils";
 
     const operation = "Recipe";
     const default_extra_options = {
@@ -10,19 +11,23 @@
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        if (options.url === '') {
+        const recipe_url = await Recipe.expand_if_short_link(options.url);
+        if (recipe_url !== options.url) {
+            Utils.snackbar(`Fetched recipe ${recipe_url.substring(0, 25)}...`)
+        }
+        if (recipe_url === '') {
             return input;
-        } else  if (options.url.indexOf('#') === -1) {
+        } else  if (recipe_url.indexOf('#') === -1) {
             Recipe.set_errors_at_index(index, 'Error: invalid URL, must contain #. Forward input.');
             return input;
         }
 
         let res = input;
         try {
-            const url = options.url.split('#')[1];
+            const url = recipe_url.split('#')[1];
             const recipe_ingredients = Recipe.extract_recipe_from_serialization(url);
             try {
-                listeners.get(id)(recipe_ingredients);
+                listeners.get(id)(recipe_url, recipe_ingredients);
             } catch (error) { /* component not mounted, possibly because of headless mode */ }
             for (const ingredient of recipe_ingredients) {
                 if (ingredient.options.apply) {
@@ -43,7 +48,6 @@
     import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/operations/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import {Utils} from "$lib/utils";
     import Popover from "$lib/Popover.svelte";
 
     export let id;
@@ -52,9 +56,18 @@
     export let add_to_recipe;
     export let keybinding;
 
+    let recipe_url = '';
     let ingredients = [];
     let ingredients_length = 0;
     let number_of_ingredients_to_implode = 0;
+
+    function normalized_recipe_url(recipe_url) {
+        try {
+            return consts.DOMAIN + '#' + new URL(recipe_url).hash.slice(1);
+        } catch (error) {
+            return '';
+        }
+    }
 
     function edit() {
         Recipe.edit_operation(index, options);
@@ -85,8 +98,19 @@
         Utils.snackbar("URL ready to be pasted!");
     }
 
+    function resolve_url() {
+        options.url = recipe_url;
+        edit();
+    }
+
+    async function shorten_url() {
+        options.url = await Recipe.shorten_link(options.url);
+        edit();
+    }
+
     onMount(() => {
-        listeners.set(id, (the_ingredients) => {
+        listeners.set(id, (the_recipe_url, the_ingredients) => {
+            recipe_url = the_recipe_url;
             ingredients = the_ingredients;
             ingredients_length = the_ingredients.length;
         });
@@ -112,12 +136,27 @@
             Similarly, some ingredients can be imploded into the recipe ingredient (implode button), actually replacing it.
         </p>
     </div>
-    <Input type="text"
-           bind:value="{options.url}"
-           placeholder="{consts.DOMAIN + '#/...%21'}"
-           on:input={edit}
-           data-testid="Recipe-url"
-    />
+    <InputGroup>
+        <Input type="text"
+               bind:value="{options.url}"
+               placeholder="{consts.DOMAIN + '#/...%21'}"
+               on:input={edit}
+               data-testid="Recipe-url"
+        />
+        {#if recipe_url === options.url}
+            <Popover title="Shorten URL" value="Shorten recipe URL with a random short URL provided by shrtco.de">
+                <Button on:click={shorten_url}>
+                    <Icon name="arrows-angle-contract" />
+                </Button>
+            </Popover>
+        {:else}
+            <Popover title="Resolve URL" value="Replace shorten recipe URL with its long version.">
+                <Button on:click={resolve_url}>
+                    <Icon name="arrows-angle-expand" />
+                </Button>
+            </Popover>
+        {/if}
+    </InputGroup>
     <InputGroup>
         <Button on:click={() => implode(number_of_ingredients_to_implode)}>
             Implode
@@ -150,10 +189,10 @@
                 <code>{ingredients.length} ingredients</code>
             </Popover>
         </InputGroupText>
-        <Button href="{consts.DOMAIN + '#' + options.url.split('#')[1]}" target="_blank">
+        <Button href="{normalized_recipe_url(recipe_url)}" target="_blank">
             Open in new tab
         </Button>
-        <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(consts.DOMAIN + '#' + options.url.split('#')[1])}>
+        <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(normalized_recipe_url(recipe_url))}>
             <Icon name="clipboard-plus" />
         </Button>
     </InputGroup>
