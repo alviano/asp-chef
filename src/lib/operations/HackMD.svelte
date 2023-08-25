@@ -26,9 +26,7 @@
             const text = await response.text();
             const content = Base64.encode(text);
             const encoded_content = `${options.predicate}("${content}")`;
-            res.forEach(part => {
-                part.push(Utils.parse_atom(encoded_content));
-            });
+            res = res.map(part => [...part, Utils.parse_atom(encoded_content)]);
         } catch (error) {
             Recipe.set_errors_at_index(index, error, res);
         }
@@ -39,6 +37,7 @@
 <script>
     import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/operations/Operation.svelte";
+    import {readonly_ingredients} from "$lib/stores";
 
     export let id;
     export let options;
@@ -46,8 +45,15 @@
     export let add_to_recipe;
     export let keybinding;
 
+    $: readonly = (options && options.readonly) || $readonly_ingredients;
+
     function edit() {
         Recipe.edit_operation(index, options);
+    }
+
+    function reload() {
+        Recipe.invalidate_cached_output(index);
+        edit();
     }
 
     async function copy_to_clipboard(url) {
@@ -96,5 +102,13 @@
         <Button href="{options.url}" target="_blank">
             Open in new tab
         </Button>
+        <Button size="sm" title="Reload" on:click={reload}>
+            <Icon name="arrow-repeat" />
+        </Button>
     </InputGroup>
+    <div slot="output">
+        {#if readonly && options.url}
+            <Button block on:click={reload}>Reload</Button>
+        {/if}
+    </div>
 </Operation>
