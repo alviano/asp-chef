@@ -54,18 +54,21 @@
                max="{59}"
                bind:value="{seconds}"
                on:change={edit}
+               title="Seconds"
                />
         <Input type="range"
                min="{0}"
                max="{59}"
                bind:value="{minutes}"
                on:change={edit}
+               title="Minutes"
                />
         <Input type="range"
                min="{0}"
                max="{23}"
                bind:value="{hours}"
                on:change={edit}
+               title="Hours"
                />
         <code class="float-start">
             {hours} hours, {minutes} minutes and {seconds % 60} seconds

@@ -83,6 +83,7 @@
     import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
     import HackMD from "$lib/operations/HackMD.svelte";
 	import { createEventDispatcher } from 'svelte';
+    import Timer from "$lib/operations/Timer.svelte";
 
 	const dispatch = createEventDispatcher();
 
@@ -420,6 +421,8 @@
                         <SortByPredicateOrArgument id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Set Timeout'}
                         <SetTimeout id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                    {:else if item.operation === 'Timer'}
+                        <Timer id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Set Configuration'}
                         <SetConfiguration id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Set SAT Preprocessing'}
