@@ -82,12 +82,20 @@
     import OptionsModal from "$lib/OptionsModal.svelte";
     import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
     import HackMD from "$lib/operations/HackMD.svelte";
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
 
     export let show_operations;
     export let show_io_panel;
 
     let set_options = false;
     let safely_open_recipe = false;
+
+    function reload_recipe() {
+        dispatch("reload_recipe");
+        Utils.snackbar("Recipe reloaded!");
+    }
 
     async function copy_to_clipboard() {
         const url = Recipe.as_url();
@@ -188,6 +196,9 @@
             } else if (event.uKey === 'S') {
                 safely_open_recipe = true;
                 return true;
+            } else if (event.uKey === 'R') {
+                reload_recipe();
+                return true;
             }
         }]);
 
@@ -235,7 +246,7 @@
                 <ButtonGroup>
                     <Popover title="Hide/show Operations panel">
                         <div slot="value">
-                            <p>Keybinding: <code>L</code></p>
+                            <p>Keybinding: <code>Arrow Left</code></p>
                         </div>
                         <Button size="sm"
                                 outline={!show_operations}
@@ -245,7 +256,7 @@
                     </Popover>
                     <Popover title="Hide/show I/O panel">
                         <div slot="value">
-                            <p>Keybinding: <code>R</code></p>
+                            <p>Keybinding: <code>Arrow Right</code></p>
                         </div>
                         <Button size="sm"
                                 outline={!show_io_panel}
@@ -332,6 +343,18 @@
                             <p>Keybinding: <code>C</code></p>
                         </div>
                         <Button size="sm" on:click={() => copy_to_clipboard()}><Icon name="clipboard-plus" /></Button>
+                    </Popover>
+                    <Popover title="Reload recipe">
+                        <div slot="value">
+                            <p>Reload recipe from URL.</p>
+                            <p>
+                                Your browser history keeps track of changes you do to your recipe.
+                                Moving back and forth in the history does not automatically reload the recipe.
+                                If you don't want to reload the page, you can use this button to reload just the recipe.
+                            </p>
+                            <p>Keybinding: <code>R</code></p>
+                        </div>
+                        <Button size="sm" on:click={reload_recipe}><Icon name="arrow-repeat" /></Button>
                     </Popover>
                 </ButtonGroup>
             </span>

@@ -108,9 +108,7 @@
         $show_ingredient_details, $readonly_ingredients, $show_ingredient_headers, $pause_baking,
         update_url(input_value, encode_input, decode_output);
 
-    onMount(() => {
-        const recipe_panel = document.getElementById('recipe_panel_column');
-
+    function reload_recipe() {
         if (location.hash.length > 1) {
             const data = Recipe.deserialize(location.hash.slice(1));
             if (data !== null) {
@@ -129,15 +127,19 @@
         recipe_unsubscribe = recipe.subscribe(() => {
             delayed_process(input_value, encode_input, decode_output, $pause_baking);
         });
-        input_panel_div.style.height = `${input_panel_div.offsetHeight - progress_panel_div.offsetHeight / 2}px`;
-        output_panel_div.style.height = `${output_panel_div.offsetHeight - progress_panel_div.offsetHeight / 2}px`;
+    }
+
+    onMount(() => {
+        const recipe_panel = document.getElementById('recipe_panel_column');
+
+        reload_recipe();
 
         $keydown.push([keydown_uuid, (event) => {
-            if (event.uKey === 'L' || event.key === 'ArrowLeft') {
+            if (event.key === 'ArrowLeft') {
                 show_operations = !show_operations;
                 Utils.snackbar(show_operations ? "Operations panel shown..." : "Operations panel hidden...");
                 return true;
-            } else if (event.uKey === 'R' || event.key === 'ArrowRight') {
+            } else if (event.key === 'ArrowRight') {
                 show_io_panel = !show_io_panel;
                 Utils.snackbar(show_io_panel ? "I/O panel shown..." : "I/O panel hidden...");
                 return true;
@@ -178,6 +180,7 @@
     <Col id="recipe_panel_column" class="p-0 vh-100" style="background-color: lightgray; overflow-x: hidden; overflow-y: scroll;">
         <RecipePanel
                 on:change_input={(event) => input_value = event.detail}
+                on:reload_recipe={reload_recipe}
                 bind:show_operations
                 bind:show_io_panel
         />
