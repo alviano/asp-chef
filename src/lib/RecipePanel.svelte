@@ -95,9 +95,14 @@
     }
 
     async function copy_short_url() {
-        const url = await Recipe.shorten_link(Recipe.as_url().replace("http://localhost:5188", "https://asp-chef.alviano.net"));
-        await navigator.clipboard.writeText(url);
-        Utils.snackbar("Short URL ready to be pasted!");
+        Utils.confirm({
+            message: "The recipe contains no sensitive information and I want to create a non-deletable short URL for it?",
+            onconfirm: async () => {
+                const url = await Recipe.shorten_link(Recipe.as_url().replace("http://localhost:5188", "https://asp-chef.alviano.net"));
+                await navigator.clipboard.writeText(url);
+                Utils.snackbar("Short URL ready to be pasted!");
+            },
+        });
     }
 
     function toggle_show_help() {
@@ -312,8 +317,9 @@
                     </Popover>
                     <Popover title="Copy short recipe URL">
                         <div slot="value">
-                            <p>Shorten recipe URL with a random short URL provided by shrtco.de and copy it in the clipboard.</p>
+                            <p>Shorten recipe URL with a random short URL provided by <code>shrtco.de</code> and copy it in the clipboard.</p>
                             <p>Note that a new URL is created every time the button is clicked. Each IP is limited to 1 request per second.</p>
+                            <p><strong>Important!</strong> Short URLs are easy to guess and cannot be deleted. If your recipe contains sensitive, create a password-protected short URL visiting <code>https://shrtco.de/tools/password</code> (but in this case, the short URL cannot be used as an ingredient).</p>
                         </div>
                         <Button size="sm" on:click={copy_short_url}>
                             <Icon name="arrows-angle-contract" />

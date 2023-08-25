@@ -104,8 +104,13 @@
     }
 
     async function shorten_url() {
-        options.url = await Recipe.shorten_link(options.url);
-        edit();
+        Utils.confirm({
+            message: "The recipe contains no sensitive information and I want to create a non-deletable short URL for it?",
+            onconfirm: async () => {
+                options.url = await Recipe.shorten_link(options.url);
+                edit();
+            },
+        });
     }
 
     onMount(() => {
@@ -144,18 +149,20 @@
                data-testid="Recipe-url"
         />
         {#if recipe_url === options.url}
-            <Popover title="Shorten URL" value="Shorten recipe URL with a random short URL provided by shrtco.de">
-                <Button on:click={shorten_url}>
-                    <Icon name="arrows-angle-contract" />
-                </Button>
-            </Popover>
+            <Button size="sm" title="Shorten recipe URL (not suggested in case of sensitive information in the URL)" on:click={shorten_url}>
+                <Icon name="arrows-angle-contract" />
+            </Button>
         {:else}
-            <Popover title="Resolve URL" value="Replace shorten recipe URL with its long version.">
-                <Button on:click={resolve_url}>
-                    <Icon name="arrows-angle-expand" />
-                </Button>
-            </Popover>
+            <Button size="sm" title="Replace shorten recipe URL with its long version" on:click={resolve_url}>
+                <Icon name="arrows-angle-expand" />
+            </Button>
         {/if}
+        <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(normalized_recipe_url(recipe_url))}>
+            <Icon name="clipboard-plus" />
+        </Button>
+        <Button href="{normalized_recipe_url(recipe_url)}" target="_blank">
+            Open in new tab
+        </Button>
     </InputGroup>
     <InputGroup>
         <Button on:click={() => implode(number_of_ingredients_to_implode)}>
@@ -167,11 +174,13 @@
                title="Number of ingredients below to implode (0 for all)"
                data-testid="Recipe-number-of-ingredients-to-implode"
         />
-        <InputGroupText class="me-3">
-            from #{index + 2} to #{number_of_ingredients_to_implode ? index + 1 + number_of_ingredients_to_implode : 'end'}
+        <InputGroupText>
+            ingredients, from #{index + 2} to #{number_of_ingredients_to_implode ? index + 1 + number_of_ingredients_to_implode : 'end'}
         </InputGroupText>
+    </InputGroup>
+    <InputGroup>
         <Button on:click={explode}>Explode</Button>
-        <InputGroupText class="me-3">
+        <InputGroupText>
             <Popover title="Ingredients in the Recipe">
                 <div slot="value">
                     {#each ingredients as ingredient, index}
@@ -189,11 +198,6 @@
                 <code>{ingredients.length} ingredients</code>
             </Popover>
         </InputGroupText>
-        <Button href="{normalized_recipe_url(recipe_url)}" target="_blank">
-            Open in new tab
-        </Button>
-        <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(normalized_recipe_url(recipe_url))}>
-            <Icon name="clipboard-plus" />
-        </Button>
+        <Input disabled="true" />
     </InputGroup>
 </Operation>
