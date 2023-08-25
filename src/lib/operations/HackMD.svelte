@@ -14,7 +14,7 @@
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
             return input;
-        } else  if (options.url.startsWith(HACK_MD_DOMAIN) === -1) {
+        } else  if (!options.url.startsWith(`${HACK_MD_DOMAIN}/`)) {
             Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${HACK_MD_DOMAIN}. Forward input.`);
             return input;
         }
@@ -109,7 +109,7 @@
     </InputGroup>
     <div slot="output">
         {#if readonly && options.url}
-            <Button block on:click={reload}>Reload</Button>
+            <Button block on:click={reload}>Reload {options.url}</Button>
         {/if}
     </div>
 </Operation>
