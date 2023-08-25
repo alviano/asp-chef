@@ -1,0 +1,100 @@
+<script context="module">
+    import {Recipe} from "$lib/recipe";
+    import {Utils} from "$lib/utils";
+    import {Base64} from "js-base64";
+
+    const operation = "HackMD";
+    const default_extra_options = {
+        predicate: '__base64__',
+        url: '',
+    };
+
+    const HACK_MD_DOMAIN = "https://hackmd.io";
+
+    Recipe.register_operation_type(operation, async (input, options, index) => {
+        if (options.url === '') {
+            return input;
+        } else  if (options.url.startsWith(HACK_MD_DOMAIN) === -1) {
+            Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${HACK_MD_DOMAIN}. Forward input.`);
+            return input;
+        }
+
+        let res = input;
+        try {
+            const url = HACK_MD_DOMAIN + new URL(options.url).pathname + '/download';
+            const response = await fetch(url);
+            const text = await response.text();
+            const content = Base64.encode(text);
+            const encoded_content = `${options.predicate}("${content}")`;
+            res.forEach(part => {
+                part.push(Utils.parse_atom(encoded_content));
+            });
+        } catch (error) {
+            Recipe.set_errors_at_index(index, error, res);
+        }
+        return res;
+    });
+</script>
+
+<script>
+    import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import Operation from "$lib/operations/Operation.svelte";
+
+    export let id;
+    export let options;
+    export let index;
+    export let add_to_recipe;
+    export let keybinding;
+
+    function edit() {
+        Recipe.edit_operation(index, options);
+    }
+
+    async function copy_to_clipboard(url) {
+        await navigator.clipboard.writeText(url);
+        Utils.snackbar("URL ready to be pasted!");
+    }
+</script>
+
+<Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
+    <div slot="description">
+        <p>The <strong>{operation}</strong> operation takes a URL pointing a public note on HackMD and fetches its content.</p>
+        <p>
+            <strong>Important!</strong> The note must be <em>published</em> or <em>readable by everyone</em>.
+        </p>
+        <p>
+            The content is base64 encoded and wrapped by predicate <code>__base64__</code>.
+        </p>
+        <p>
+            The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
+        </p>
+        <p>
+            The encoded content can be consumed by operations such as <strong>Markdown</strong> and <strong>Search Models</strong>.
+        </p>
+    </div>
+    <InputGroup>
+        <InputGroupText>Predicate</InputGroupText>
+        <Input type="text"
+               bind:value="{options.predicate}"
+               placeholder="predicate"
+               on:input={edit}
+        />
+        <Button href="{HACK_MD_DOMAIN}" target="_blank">
+            Visit HackMD
+        </Button>
+    </InputGroup>
+    <InputGroup>
+        <Input type="text"
+               bind:value="{options.url}"
+               placeholder="{HACK_MD_DOMAIN}..."
+               on:input={edit}
+               data-testid="HackMD-url"
+        />
+        <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(options.url)}>
+            <Icon name="clipboard-plus" />
+        </Button>
+        <Button href="{options.url}" target="_blank">
+            Open in new tab
+        </Button>
+    </InputGroup>
+</Operation>

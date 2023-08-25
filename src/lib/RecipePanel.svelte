@@ -81,6 +81,7 @@
     import Restore from "$lib/operations/Restore.svelte";
     import OptionsModal from "$lib/OptionsModal.svelte";
     import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
+    import HackMD from "$lib/operations/HackMD.svelte";
 
     export let show_operations;
     export let show_io_panel;
@@ -319,7 +320,7 @@
                         <div slot="value">
                             <p>Shorten recipe URL with a random short URL provided by <code>shrtco.de</code> and copy it in the clipboard.</p>
                             <p>Note that a new URL is created every time the button is clicked. Each IP is limited to 1 request per second.</p>
-                            <p><strong>Important!</strong> Short URLs are easy to guess and cannot be deleted. If your recipe contains sensitive, create a password-protected short URL visiting <code>https://shrtco.de/tools/password</code> (but in this case, the short URL cannot be used as an ingredient).</p>
+                            <p><strong>Important!</strong> Short URLs are easy to guess and cannot be deleted. If your recipe contains sensitive information, create a password-protected short URL visiting <code>https://shrtco.de/tools/password</code> (but in this case, the short URL cannot be used as an ingredient).</p>
                         </div>
                         <Button size="sm" on:click={copy_short_url}>
                             <Icon name="arrows-angle-contract" />
@@ -462,6 +463,8 @@
                         <Restore id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Markdown'}
                         <Markdown id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                    {:else if item.operation === 'HackMD'}
+                        <HackMD id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else}
                         <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                         <Alert color="danger">

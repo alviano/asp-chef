@@ -114,7 +114,8 @@
     <div slot="output">
         {#if readonly && options.label}
             <InputGroup>
-                <InputGroupText style="width: 100%;">{options.label} ({options.value})</InputGroupText>
+                <Input readonly="true" value="{options.label}" />
+                <InputGroupText class="float-end"><code>{options.value} in range {min}..{max}</code></InputGroupText>
             </InputGroup>
         {/if}
         <div class="m-3">
