@@ -16,6 +16,7 @@
         if (!options.active || !intervals.has(id) || intervals.get(id).seconds !== options.seconds) {
             if (intervals.has(id)) {
                 clearInterval(intervals.get(id).interval);
+                intervals.delete(id);
             }
             if (options.active) {
                 const interval = setInterval(() => {
