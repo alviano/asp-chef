@@ -67,6 +67,7 @@
         <p>The <strong>{operation}</strong> operation takes a URL pointing a public note on HackMD and fetches its content.</p>
         <p>
             <strong>Important!</strong> The note must be <em>published</em> or <em>readable by everyone</em>.
+            Prefer using the <strong>share URL</strong> (format <code>https://hackmd.io/@username/code</code>) for a better cache handling.
         </p>
         <p>
             The content is base64 encoded and wrapped by predicate <code>__base64__</code>.
