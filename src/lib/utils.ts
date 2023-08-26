@@ -14,7 +14,7 @@ export class Utils extends BaseUtils {
     private static _clingo_lock = new AsyncLock();
     private static _clingo_options = new Map();
     private static _clingo_worker = null;
-    private static _browser_cache_policy = "default";
+    private static _browser_cache_policy: RequestCache = "default";
 
     private static _BROWSER_CACHE_POLICY_VALUES = {
         "default" : "Use cache if fresh, otherwise ask for changes",
