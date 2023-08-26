@@ -22,7 +22,9 @@
         let res = input;
         try {
             const url = HACK_MD_DOMAIN + new URL(options.url).pathname + '/download';
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                cache: Utils.browser_cache_policy,
+            });
             const text = await response.text();
             const content = Base64.encode(text);
             const encoded_content = `${options.predicate}("${content}")`;

@@ -41,7 +41,7 @@
         const response = await fetch(options.url, {
             method: "POST",
             mode: "cors",
-            cache: "no-cache",
+            cache: Utils.browser_cache_policy,
             credentials: "same-origin",
             headers: new Headers([["Content-Type", "application/json"]]),
             body: JSON.stringify({

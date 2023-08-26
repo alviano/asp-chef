@@ -14,6 +14,31 @@ export class Utils extends BaseUtils {
     private static _clingo_lock = new AsyncLock();
     private static _clingo_options = new Map();
     private static _clingo_worker = null;
+    private static _browser_cache_policy = "default";
+
+    private static _BROWSER_CACHE_POLICY_VALUES = {
+        "default" : "Use cache if fresh, otherwise ask for changes",
+        "no-store" : "Don't use or update cache",
+        "reload" : "Don't use cache, but update it",
+        "no-cache" : "Ask for changes",
+        "force-cache" : "Use cache if available",
+        "only-if-cached" : "Use cache if available, otherwise error",
+    };
+
+    static get browser_cache_policy_values() {
+        return {...this._BROWSER_CACHE_POLICY_VALUES}
+    }
+
+    static get browser_cache_policy() {
+        return this._browser_cache_policy;
+    }
+
+    static set browser_cache_policy(value: string) {
+        if (!(value in this._BROWSER_CACHE_POLICY_VALUES)) {
+            throw new Error("Invalid value for browser cache policy");
+        }
+        this._browser_cache_policy = value;
+    }
 
     static render_markdown(content: string) {
         return BaseUtils.render_markdown(content, dom_purify_config)
