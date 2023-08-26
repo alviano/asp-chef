@@ -172,7 +172,7 @@
     let number_of_models = 0;
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     onMount(() => {

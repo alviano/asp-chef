@@ -21,7 +21,7 @@
             if (options.active) {
                 const interval = setInterval(() => {
                     Recipe.invalidate_cached_output(index);
-                    Recipe.edit_operation(index, options);
+                    Recipe.edit_operation(id, index, options);
                 }, options.seconds * 1000);
                 intervals.set(id, {
                     interval,
@@ -52,7 +52,7 @@
 
     function edit() {
         options.seconds = seconds + 60 * minutes + 3600 * hours;
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     function toggle_active() {

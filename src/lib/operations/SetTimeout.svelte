@@ -31,7 +31,7 @@
 
     function edit() {
         options.seconds = seconds + 60 * minutes + 3600 * hours;
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 </script>
 

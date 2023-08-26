@@ -37,7 +37,7 @@
     $: text_value = Utils.flatten_output(models);
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     onMount(() => {

@@ -50,7 +50,7 @@
     $: readonly = (options && options.readonly) || $readonly_ingredients;
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     function reload() {

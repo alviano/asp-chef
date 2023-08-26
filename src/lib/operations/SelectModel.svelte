@@ -33,7 +33,7 @@
     let number_of_models = options ? options.model_index : 100;
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     onMount(() => {

@@ -32,7 +32,7 @@
     let input_predicates = [];
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     function toggle_predicate(predicate) {

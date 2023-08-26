@@ -38,7 +38,7 @@
     let output_div;
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     function check_one_term_string(atom) {

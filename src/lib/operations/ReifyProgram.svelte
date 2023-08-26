@@ -47,7 +47,7 @@
     export let keybinding;
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 </script>
 

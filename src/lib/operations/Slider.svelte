@@ -39,7 +39,7 @@
     let max = 999_999;
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     onMount(() => {

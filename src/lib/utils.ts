@@ -61,6 +61,11 @@ export class Utils extends BaseUtils {
         this._clingo_options.clear();
     }
 
+    static reset_config() {
+        this.reset_clingo_options();
+        this._browser_cache_policy = 'default';
+    }
+
     static change_clingo_option(key, value) {
         this._clingo_options.set(key, value);
     }

@@ -193,7 +193,7 @@ export class Recipe {
 
     static async process(input: string, encode_input: boolean): Promise<object[][]> {
         this.aborted = false;
-        Utils.reset_clingo_options();
+        Utils.reset_config();
         let where = 'Input';
         processing_index.set(-1);
         try {
@@ -265,10 +265,17 @@ export class Recipe {
         }
     }
 
-    static edit_operation(index: number, options: object) {
+    static edit_operation(id: string, index: number, options: object) {
         this.invalidate_cached_output(index);
         const the_recipe = this.recipe;
-        the_recipe[index].options = options;
+        if (the_recipe[index].id === id) {
+            the_recipe[index].options = options;
+        } else {
+            const the_index = the_recipe.findIndex(ingredient => ingredient.id === id)
+            if (the_index !== -1) {
+                the_recipe[the_index].options = options;
+            }
+        }
         recipe.set(the_recipe);
     }
 

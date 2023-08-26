@@ -56,7 +56,7 @@ ${options.closure_predicate}(Y,X) :- ${options.input_predicate}(X,Y).
     }
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     onMount(() => {

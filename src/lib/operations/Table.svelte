@@ -31,7 +31,7 @@
     let models = [];
 
     function edit() {
-        Recipe.edit_operation(index, options);
+        Recipe.edit_operation(id, index, options);
     }
 
     function argument_indices(model) {
