@@ -36,4 +36,7 @@
             Moreover, the <strong>{operation}</strong> ingredient is not intercepted (it is always added at a specified index or otherwise at the end of the recipe).
         </p>
     </div>
+    <div class="alert-warning p-3" style="color: white">
+        <h5 class="alert-heading">New ingredients intercepted here!</h5>
+    </div>
 </Operation>

@@ -7,12 +7,14 @@
         key: 'K',
         case_sensitive: false,
         output_predicate: "__key__",
-        last_event: null,
     };
 
-    Recipe.register_operation_type(operation, async (input, options, index) => {
-        if (options.output_predicate && options.last_event) {
-            const atom = `${options.output_predicate}("${options.key}",index(${index + 1}),${options.last_event})`;
+    const last_event = new Map();
+
+    Recipe.register_operation_type(operation, async (input, options, index, id) => {
+        if (options.output_predicate && last_event.has(id)) {
+            const the_event = last_event.get(id);
+            const atom = `${options.output_predicate}("${the_event[0]}",index(${index + 1}),${the_event[1]})`;
             return input.map(part => [...part, Utils.parse_atom(atom)]);
         } else {
             return input;
@@ -41,13 +43,18 @@
         edit();
     }
 
+    function clear() {
+        last_event.delete(id);
+        edit();
+    }
+
     onMount(() => {
         if (id !== undefined) {
             $keydown.unshift([id, (event) => {
                 if (options.apply &&
                     (options.case_sensitive ? options.key === event.key : options.key.toUpperCase() === event.key.toUpperCase())) {
                     const date = new Date();
-                    options.last_event = `time(${date.getHours()}, ${date.getMinutes()}, ${date.getSeconds()})`;
+                    last_event.set(id, [options.key.replaceAll('"', '\\"'), `time(${date.getHours()}, ${date.getMinutes()}, ${date.getSeconds()})`]);
                     edit();
                     return true;
                 }
@@ -72,16 +79,23 @@
             An atom of the form <code>__key__(KEY, index(INDEX), time(HOUR,MINUTES,SECONDS))</code> is added to each model in input (if predicate <code>__key__</code> is given).
         </p>
         <p>
+            The cache is invalidated when the keybinding is pressed.
+            It can be used to implement <em>regular polling</em> to external servers (e.g., if followed by <strong>HackMD</strong>).
+        </p>
+        <p>
             <strong>Attention!</strong>
             User-defined keybindings have priority over UI keybindings.
             Duplicated user-defined keybindings can result in unexpected behavior.
         </p>
     </div>
-    <div class="m-3">
-        <InputGroup>
-            <InputGroupText style="width: 9em;">Key</InputGroupText>
-            <Input bind:value={options.key} />
-            <Button outline="{!options.case_sensitive}" on:click={toggle_case_sensitive}>Case sensitive</Button>
-        </InputGroup>
-    </div>
+    <InputGroup>
+        <InputGroupText style="width: 9em;">Key</InputGroupText>
+        <Input bind:value={options.key} />
+        <Button style="width: 12em;" outline="{!options.case_sensitive}" on:click={toggle_case_sensitive}>Case sensitive</Button>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 9em;">Output predicate</InputGroupText>
+        <Input bind:value={options.output_predicate} on:change={edit} placeholder="output predicate" />
+        <Button title="Remove any emitted atom" style="width: 12em;" on:click={clear}>Clear</Button>
+    </InputGroup>
 </Operation>
