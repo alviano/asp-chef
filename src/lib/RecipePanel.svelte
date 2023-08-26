@@ -85,6 +85,7 @@
 	import { createEventDispatcher } from 'svelte';
     import Timer from "$lib/operations/Timer.svelte";
     import SetBrowserCachePolicy from "$lib/operations/SetBrowserCachePolicy.svelte";
+    import Keybinding from "$lib/operations/Keybinding.svelte";
 
 	const dispatch = createEventDispatcher();
 
@@ -424,6 +425,8 @@
                         <SetTimeout id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Set Browser Cache Policy'}
                         <SetBrowserCachePolicy id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                    {:else if item.operation === 'Keybinding'}
+                        <Keybinding id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Timer'}
                         <Timer id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                     {:else if item.operation === 'Set Configuration'}

@@ -53,11 +53,6 @@
         Recipe.edit_operation(id, index, options);
     }
 
-    function reload() {
-        Recipe.invalidate_cached_output(index);
-        edit();
-    }
-
     async function copy_to_clipboard(url) {
         await navigator.clipboard.writeText(url);
         Utils.snackbar("URL ready to be pasted!");
@@ -105,13 +100,13 @@
         <Button href="{options.url}" target="_blank">
             Open in new tab
         </Button>
-        <Button size="sm" title="Reload" on:click={reload}>
+        <Button size="sm" title="Reload" on:click={edit}>
             <Icon name="arrow-repeat" />
         </Button>
     </InputGroup>
     <div slot="output">
         {#if readonly && options.url}
-            <Button block on:click={reload}>Reload {options.url}</Button>
+            <Button block on:click={edit}>Reload {options.url}</Button>
         {/if}
     </div>
 </Operation>

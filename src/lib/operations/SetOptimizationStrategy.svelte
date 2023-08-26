@@ -78,7 +78,7 @@
             Model-guided and code-guided algorithms are available.
         <p>
             Algorithm <code>k</code> comes with a parameter for setting the size of the cardinality constraints added by the unsatisfiable core analysis.
-            Value <code>0</code> measn <em>dynamic</em>.
+            Value <code>0</code> means <em>dynamic</em>.
         </p>
         <p>
             The number of conflicts in the shrinking can be limited (value <code>0</code> for no limit).
