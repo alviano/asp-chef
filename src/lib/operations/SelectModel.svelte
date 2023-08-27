@@ -21,7 +21,7 @@
 
 <script>
     import {Input} from "sveltestrap";
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
 
     export let id;

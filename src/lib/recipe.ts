@@ -6,7 +6,9 @@ import {v4 as uuidv4} from 'uuid';
 import {Base64} from "js-base64";
 
 export class Recipe {
-    private static operation_types = new Map();
+    private static _operation_types = new Map();
+    private static _operation_components = new Map();
+    private static _operation_keys = [];
     private static uncachable_operations_types = new Set();
     private static last_serialization = null;
     private static cached_output = [];
@@ -21,22 +23,67 @@ export class Recipe {
         return get(errors_at_index);
     }
 
-    static async svelte_components(filter: string) {
+    static operation_component(operation_type: string) {
+        return this._operation_components.get(this.operation_type_filename(operation_type));
+    }
+
+    static operation_components(filter: string) {
         const res = [];
-        for (const key of Array.from(this.operation_types.keys()).sort()) {
+        this._sort_operation_keys()
+        for (const key of this._operation_keys) {
             if (String(key).match(new RegExp(filter, 'i'))) {
-                const component = (await import(`./operations/${String(key).replace(/ /g, '')}.svelte`)).default;
-                res.push(component);
+                res.push(this.operation_component(key));
             }
         }
         return res;
+    }
+
+    static async load_operation_components(feedback = (processed, total, file, skip) => { /* empty */ }) {
+        const map = Object.entries(await import.meta.glob('/src/lib/operations/**/*.svelte'));
+        let total = map.length;
+        let processed = 0;
+        feedback(processed, total, '', true);
+        const promises = [];
+        for (const [key, value] of map) {
+            const the_key = key.slice(20, -7);
+            const skip = the_key.startsWith('+');
+            if (skip) {
+                total--;
+            } else {
+                promises.push(value().then(component => {
+                    this._operation_components.set(the_key, component.default);
+                    processed++;
+                    feedback(processed, total, the_key, skip);
+                }));
+            }
+        }
+        await Promise.all(promises);
+    }
+
+    static has_operation_type(key: string): boolean {
+        return this._operation_types.has(key);
+    }
+
+    static _sort_operation_keys() {
+        if (this._operation_keys.length !== this._operation_types.size) {
+            this._operation_keys = Array.from(this._operation_types.keys()).sort((a, b) => {
+                if (a[0] === '@') {
+                    return b[0] === '@' ? a.localeCompare(b) : 1;
+                }
+                return b[0] === '@' ? -1 : a.localeCompare(b);
+            });
+        }
     }
 
     static register_operation_type(
         operation: string,
         apply: (input: string[][], options: object, index: number, id: string) => Promise<string[][]>,
     ) {
-        this.operation_types.set(operation, apply);
+        this._operation_types.set(operation, apply);
+    }
+
+    static operation_type_filename(operation: string) : string {
+        return operation.replace(/ /g, '');
     }
 
     static new_uncachable_operation_type(operation: string) {
@@ -148,7 +195,7 @@ export class Recipe {
     }
 
     static get number_of_operations() {
-        return this.operation_types.size;
+        return this._operation_types.size;
     }
 
     static get number_of_ingredients() {
@@ -229,10 +276,10 @@ export class Recipe {
     }
 
     static async apply_operation_type(index: number, ingredient: object, input: string[][]) {
-        if (!this.operation_types.has(ingredient.operation)) {
+        if (!this._operation_types.has(ingredient.operation)) {
             throw Error('Unknown operation: ' + ingredient.operation);
         }
-        return await this.operation_types.get(ingredient.operation)(input, ingredient.options, index, ingredient.id);
+        return await this._operation_types.get(ingredient.operation)(input, ingredient.options, index, ingredient.id);
     }
 
 

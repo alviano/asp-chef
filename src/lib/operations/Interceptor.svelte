@@ -11,7 +11,7 @@
 </script>
 
 <script>
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
 
     export let id;
     export let options;
@@ -37,6 +37,7 @@
         </p>
     </div>
     <div class="alert-warning p-3" style="color: white">
-        <h5 class="alert-heading">New ingredients intercepted here!</h5>
+        <h5 class="alert-heading">Attention!</h5>
+        New ingredients intercepted here.
     </div>
 </Operation>

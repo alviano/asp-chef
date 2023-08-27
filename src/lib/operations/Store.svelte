@@ -13,7 +13,7 @@
 
 <script>
     import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
     import {Tooltip} from "dumbo-svelte";
     import {Utils} from "$lib/utils";
 

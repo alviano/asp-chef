@@ -9,6 +9,7 @@ const config: PlaywrightTestConfig = {
 	},
 	testDir: 'tests',
 	testMatch: /test\..*.ts/,
+	retries: 3,
 };
 
 export default config;

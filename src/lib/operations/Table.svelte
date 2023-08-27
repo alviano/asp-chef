@@ -18,7 +18,7 @@
 
 <script>
     import {Button, ButtonGroup, Icon, Input, InputGroup, InputGroupText, Table} from "sveltestrap";
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import Popover from "$lib/Popover.svelte";
 

@@ -1,11 +1,11 @@
 <script>
     import {Utils} from "$lib/utils";
     import {Recipe} from "$lib/recipe";
-    import AspChef from "$lib/AspChef.svelte";
     import {consts} from "$lib/consts";
     import {Base64} from "js-base64";
 
-    async function clingo_to_be_loaded() {
+    async function load_operations_and_clingo() {
+        await Recipe.load_operation_components();
         while (window.clingo === undefined) {
             await Utils.delay(100);
         }
@@ -36,13 +36,12 @@
     <script src="https://cdn.jsdelivr.net/npm/clingo-wasm@0.1.1"></script>
 </svelte:head>
 
-{#await clingo_to_be_loaded().then(process)}
+{#await load_operations_and_clingo()}
+    Loading...
+{:then _}
+    {#await process()}
     Processing...
-{:then output}
-    <pre data-testid="Headless-output">{output}</pre>
+    {:then output}
+        <pre data-testid="Headless-output">{output}</pre>
+    {/await}
 {/await}
-
-<!-- keep <AspChef> just to load operations -->
-{#if false}
-    <AspChef />
-{/if}

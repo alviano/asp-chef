@@ -39,7 +39,7 @@ ${options.closure_predicate}(X,Z) :- ${options.closure_predicate}(X,Y); ${option
 
 <script>
     import {Button, FormGroup, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
 
     export let id;

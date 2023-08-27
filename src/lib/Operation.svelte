@@ -1,6 +1,6 @@
 <script>
     import {Button, Card, CardBody} from "sveltestrap";
-    import IngredientHeader from "$lib/operations/IngredientHeader.svelte";
+    import IngredientHeader from "$lib/IngredientHeader.svelte";
     import {Recipe} from "$lib/recipe";
     import Popover from "$lib/Popover.svelte";
     import {

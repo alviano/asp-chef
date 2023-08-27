@@ -95,10 +95,15 @@ $ npm run test:headed tests/test.Something.ts  # single file, show the browser
 
 ### Adding new operations
 
-Create a component in `src/lib/operations` and link it in the component `<RecipePanel>`.
+Create a component in `src/lib/operations`.
+Feel free to start with a copy of an already existing operation and customize to your needs.
 
 The operation must be associated with a unique name.
-The file implementing the operation must be named as the operation itself, spaces excluded. 
+The file implementing the operation must be named as the operation itself, spaces excluded.
+Files defining auxiliary components not-being operations must have name starting with `+`. 
+**It is strongly suggested to create a subdirectory `@yourname` to store your operations.**
+This way, the operation can be identified as `@yourname/Your Operation`.
+
 
 The operation must define its default options and register itself in the `Recipe` class.
 When instantiated as an ingredient, the operation will receive in input an array of models, and it is expected to produce in output an array of models.

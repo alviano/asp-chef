@@ -22,7 +22,7 @@
 </script>
 
 <script>
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Utils} from "$lib/utils";
     import {Input, InputGroup, Label} from "sveltestrap";

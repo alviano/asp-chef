@@ -24,7 +24,7 @@
 
 <script>
     import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import {keydown} from "dumbo-svelte";
 

@@ -11,7 +11,7 @@
 </script>
 
 <script>
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
     import OperationsList from "$lib/operations/OperationsList.svelte";
 
     export let id;

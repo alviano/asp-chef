@@ -1,6 +1,6 @@
 <script>
     import Operations from "$lib/OperationsPanel.svelte";
-    import {Col, Progress, Row} from "sveltestrap";
+    import {Alert, Col, Progress, Row} from "sveltestrap";
     import {Recipe} from "$lib/recipe";
     import InputPanel from "$lib/InputPanel.svelte";
     import OutputPanel from "$lib/OutputPanel.svelte";
@@ -102,6 +102,23 @@
     let show_operations = true;
     let show_io_panel = true;
 
+    let loading_operation_components = {
+        processed: 0,
+        total: 0,
+        files: [],
+    };
+    async function load_operation_components() {
+        await Recipe.load_operation_components((p, t, f, s) => {
+            loading_operation_components.processed = p;
+            loading_operation_components.total = t;
+            if (!s) {
+                loading_operation_components.files.unshift(f);
+            }
+        });
+        loading_operation_components.files = [];
+        reload_recipe();
+    }
+
     const keydown_uuid = uuidv4();
 
     $: $show_help, show_operations, show_io_panel,
@@ -131,8 +148,6 @@
 
     onMount(() => {
         const recipe_panel = document.getElementById('recipe_panel_column');
-
-        reload_recipe();
 
         $keydown.push([keydown_uuid, (event) => {
             if (event.key === 'ArrowLeft') {
@@ -171,39 +186,50 @@
     });
 </script>
 
-<Row class="vw-100 vh-100" style="overflow: hidden;">
-    {#if show_operations}
-        <Col class="p-0 vh-100" style="min-width: {$operations_panel_width}%; max-width: {$operations_panel_width}%; overflow-x: hidden; overflow-y: scroll;">
-            <Operations />
+{#await load_operation_components()}
+    <Alert color="info">
+        <h5 class="alert-heading">ASP Chef is loading!</h5>
+        <p>Please, wait! I'm loading around {loading_operation_components.total} operations... </p>
+    </Alert>
+    <Progress animated value={loading_operation_components.processed} max={loading_operation_components.total} class="mb-2" />
+    {#each loading_operation_components.files as file}
+        <code>Operation {file} ready!</code><br />
+    {/each}
+{:then _}
+    <Row class="vw-100 vh-100" style="overflow: hidden;">
+        {#if show_operations}
+            <Col class="p-0 vh-100" style="min-width: {$operations_panel_width}%; max-width: {$operations_panel_width}%; overflow-x: hidden; overflow-y: scroll;">
+                <Operations />
+            </Col>
+        {/if}
+        <Col id="recipe_panel_column" class="p-0 vh-100" style="background-color: lightgray; overflow-x: hidden; overflow-y: scroll;">
+            <RecipePanel
+                    on:change_input={(event) => input_value = event.detail}
+                    on:reload_recipe={reload_recipe}
+                    bind:show_operations
+                    bind:show_io_panel
+            />
         </Col>
-    {/if}
-    <Col id="recipe_panel_column" class="p-0 vh-100" style="background-color: lightgray; overflow-x: hidden; overflow-y: scroll;">
-        <RecipePanel
-                on:change_input={(event) => input_value = event.detail}
-                on:reload_recipe={reload_recipe}
-                bind:show_operations
-                bind:show_io_panel
-        />
-    </Col>
-    {#if show_io_panel}
-        <Col class="p-0 vh-100" style="min-width: {$io_panel_width}%; max-width: {$io_panel_width}%; overflow: hidden;">
-            <div bind:this={input_panel_div} style="height: {$input_height}vh; overflow-x: hidden; overflow-y: scroll;">
-                <InputPanel bind:value={input_value} bind:encode={encode_input} />
-            </div>
-            <div bind:this={progress_panel_div} data-testid="AspChef-baking-bar">
-                <span class="d-test">{process_timeout ? "Baking..." : "Ready!"}</span>
-                <Progress class="mb-0" multi style="font-family: monospace; font-weight: bold;">
-                    <Progress bar animated color="danger" value={process_timeout ? 100 : 0}>
-                        <span style="color: white;">Baking...</span>
+        {#if show_io_panel}
+            <Col class="p-0 vh-100" style="min-width: {$io_panel_width}%; max-width: {$io_panel_width}%; overflow: hidden;">
+                <div bind:this={input_panel_div} style="height: {$input_height}vh; overflow-x: hidden; overflow-y: scroll;">
+                    <InputPanel bind:value={input_value} bind:encode={encode_input} />
+                </div>
+                <div bind:this={progress_panel_div} data-testid="AspChef-baking-bar">
+                    <span class="d-test">{process_timeout ? "Baking..." : "Ready!"}</span>
+                    <Progress class="mb-0" multi style="font-family: monospace; font-weight: bold;">
+                        <Progress bar animated color="danger" value={process_timeout ? 100 : 0}>
+                            <span style="color: white;">Baking...</span>
+                        </Progress>
+                        <Progress bar color="success" value={process_timeout ? 0 : 100}>
+                            <span style="color: white;">Ready!</span>
+                        </Progress>
                     </Progress>
-                    <Progress bar color="success" value={process_timeout ? 0 : 100}>
-                        <span style="color: white;">Ready!</span>
-                    </Progress>
-                </Progress>
-            </div>
-            <div bind:this={output_panel_div} style="height: {100 - $input_height}vh; overflow-x: hidden; overflow-y: scroll;">
-                <OutputPanel value={output_value} bind:decode={decode_output} on:change_input={(event) => input_value = event.detail} />
-            </div>
-        </Col>
-    {/if}
-</Row>
+                </div>
+                <div bind:this={output_panel_div} style="height: {100 - $input_height}vh; overflow-x: hidden; overflow-y: scroll;">
+                    <OutputPanel value={output_value} bind:decode={decode_output} on:change_input={(event) => input_value = event.detail} />
+                </div>
+            </Col>
+        {/if}
+    </Row>
+{/await}

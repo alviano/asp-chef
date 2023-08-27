@@ -17,7 +17,7 @@
     let component_to_add = null;
 
     async function load_components(filter) {
-        components = await Recipe.svelte_components(filter);
+        components = Recipe.operation_components(filter);
     }
 
     async function add_operation(component_index) {

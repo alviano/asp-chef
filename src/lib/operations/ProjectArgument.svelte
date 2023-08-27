@@ -29,7 +29,7 @@
 </script>
 
 <script>
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
     import {Input, InputGroup, InputGroupText} from "sveltestrap";
 
     export let id;

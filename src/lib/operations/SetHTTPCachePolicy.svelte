@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
-    const operation = "Set Browser Cache Policy";
+    const operation = "Set HTTP Cache Policy";
     const default_extra_options = {
         value: 'default',
     };
@@ -18,7 +18,7 @@
 
 <script>
     import {Input} from "sveltestrap";
-    import Operation from "$lib/operations/Operation.svelte";
+    import Operation from "$lib/Operation.svelte";
 
     export let id;
     export let options;

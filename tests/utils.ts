@@ -62,7 +62,6 @@ export class TestRecipe {
 		const the_output = trim ? output.trim() : output;
 		if (decode) {
 			await this.page.getByTestId('OutputPanel').getByRole('button', { name: 'Decode' }).click();
-			await this.page.waitForNavigation('.*', { waitUntil: 'networkidle' });
 		}
 		await this.complete_baking();
 		await with_d_test_elements(this.page.getByTestId("OutputPanel-textarea"), async (location) => {
