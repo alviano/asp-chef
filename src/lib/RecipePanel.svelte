@@ -22,6 +22,7 @@
     import OptionsModal from "$lib/OptionsModal.svelte";
     import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
 	import { createEventDispatcher } from 'svelte';
+    import Javascript from "$lib/operations/Javascript.svelte";
 
 	const dispatch = createEventDispatcher();
 
@@ -303,7 +304,9 @@
         <section style="padding-bottom: 20em;" use:dndzone="{{items, dragDisabled, flipDurationMs}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
             {#each items as item, index (item.id)}
                 <div animate:flip="{{duration: flipDurationMs}}" class:mt-1={$show_ingredient_headers}>
-                    {#if Recipe.has_operation_type(item.operation)}
+                    {#if Recipe.is_remote_javascript_operation(item.operation)}
+                        <Javascript remote_name={item.operation} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+                    {:else if Recipe.has_operation_type(item.operation)}
                         <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined}
                                           on:change_input />
                     {:else}

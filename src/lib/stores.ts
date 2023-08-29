@@ -23,6 +23,7 @@ export const show_ingredient_headers = writable(true);
 export const operations_panel_width = writable(int_in_range_or_default('operations-panel-width', consts.OPERATIONS_PANEL_MIN_VALUE, consts.OPERATIONS_PANEL_MAX_VALUE, consts.OPERATIONS_PANEL_DEFAULT_VALUE));
 export const io_panel_width = writable(int_in_range_or_default('io-panel-width', consts.IO_PANEL_MIN_VALUE, consts.IO_PANEL_MAX_VALUE, consts.IO_PANEL_DEFAULT_VALUE));
 export const input_height = writable(int_in_range_or_default('input-height', consts.INPUT_HEIGHT_MIN_VALUE, consts.INPUT_HEIGHT_MAX_VALUE, consts.INPUT_HEIGHT_DEFAULT_VALUE));
+export const registered_javascript = writable(browser ? JSON.parse(localStorage.getItem('registered-javascript') || "{}") : {});
 
 privacy_policy.subscribe(value => {
   if (value) {
@@ -46,4 +47,8 @@ input_height.subscribe(value => {
   if (value) {
     localStorage.setItem('input-height', '' + value);
   }
+});
+
+registered_javascript.subscribe(value => {
+  localStorage.setItem('registered-javascript', JSON.stringify(value));
 });

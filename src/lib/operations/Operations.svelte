@@ -12,7 +12,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import OperationsList from "$lib/operations/OperationsList.svelte";
+    import OperationsList from "$lib/operations/+OperationsList.svelte";
 
     export let id;
     export let options;

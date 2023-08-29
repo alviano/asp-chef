@@ -1,7 +1,7 @@
 <script>
     import {Card, CardBody, CardHeader, CardTitle} from "sveltestrap";
     import Nav from '$lib/Nav.svelte';
-    import OperationsList from "$lib/operations/OperationsList.svelte";
+    import OperationsList from "$lib/operations/+OperationsList.svelte";
     import {Recipe} from "$lib/recipe";
     import {consts} from "$lib/consts";
 </script>

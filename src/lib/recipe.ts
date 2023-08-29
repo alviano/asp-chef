@@ -1,6 +1,6 @@
 import {get} from "svelte/store";
 import {Utils} from "$lib/utils";
-import {errors_at_index, processing_index, recipe} from "$lib/stores";
+import {errors_at_index, processing_index, recipe, registered_javascript} from "$lib/stores";
 import {consts} from "$lib/consts";
 import {v4 as uuidv4} from 'uuid';
 import {Base64} from "js-base64";
@@ -10,6 +10,7 @@ export class Recipe {
     private static _operation_components = new Map();
     private static _operation_keys = [];
     private static uncachable_operations_types = new Set();
+    private static _remote_javascript_operations = new Map();
     private static last_serialization = null;
     private static cached_output = [];
     private static aborted = false;
@@ -40,7 +41,8 @@ export class Recipe {
 
     static async load_operation_components(feedback = (processed, total, file, skip) => { /* empty */ }) {
         const map = Object.entries(await import.meta.glob('/src/lib/operations/**/*.svelte'));
-        let total = map.length;
+        this._remote_javascript_operations = new Map(Object.entries(get(registered_javascript)));
+        let total = map.length + this._remote_javascript_operations.size;
         let processed = 0;
         feedback(processed, total, '', true);
         const promises = [];
@@ -58,6 +60,11 @@ export class Recipe {
             }
         }
         await Promise.all(promises);
+        for (const [key, value] of this._remote_javascript_operations) {
+            await this.new_remote_javascript_operation(value.prefix, value.url, false);
+            processed++;
+            feedback(processed, total, key, false);
+        }
     }
 
     static has_operation_type(key: string): boolean {
@@ -67,10 +74,10 @@ export class Recipe {
     static _sort_operation_keys() {
         if (this._operation_keys.length !== this._operation_types.size) {
             this._operation_keys = Array.from(this._operation_types.keys()).sort((a, b) => {
-                if (a[0] === '@') {
-                    return b[0] === '@' ? a.localeCompare(b) : 1;
+                if (['@', '#'].includes(a[0])) {
+                    return ['@', '#'].includes(b[0]) ? a.localeCompare(b) : 1;
                 }
-                return b[0] === '@' ? -1 : a.localeCompare(b);
+                return ['@', '#'].includes(b[0]) ? -1 : a.localeCompare(b);
             });
         }
     }
@@ -88,6 +95,36 @@ export class Recipe {
 
     static new_uncachable_operation_type(operation: string) {
         this.uncachable_operations_types.add(operation);
+    }
+
+    static async new_remote_javascript_operation(prefix: string, url: string, update_store = true) {
+        const code = await fetch(url).then(response => response.text());
+        const {name, doc, options} = await Utils.worker_run(code, [], "DESCRIBE");
+        const operation = `#js-${prefix}/${name}`;
+        this._remote_javascript_operations.set(operation, {
+            prefix,
+            name,
+            url,
+            code,
+            doc,
+            options,
+        });
+        this._operation_components.set(this.operation_type_filename(operation), operation);
+        this._operation_types.set(operation, this._operation_types.get("Javascript"));
+
+        if (update_store) {
+            registered_javascript.set(Object.fromEntries(this._remote_javascript_operations.entries()));
+        }
+
+        return operation;
+    }
+
+    static is_remote_javascript_operation(operation: string) {
+        return this._remote_javascript_operations.has(operation);
+    }
+
+    static get_remote_javascript_operation(operation: string) {
+        return this._remote_javascript_operations.get(operation);
     }
 
     static common_default_options() {

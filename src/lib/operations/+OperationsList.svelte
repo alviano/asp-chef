@@ -7,6 +7,7 @@
     import {Utils} from "$lib/utils";
     import {consts} from "$lib/consts";
     import {v4 as uuidv4} from "uuid";
+    import Javascript from "$lib/operations/Javascript.svelte";
 
     export let index;
     export let style = '';
@@ -100,11 +101,20 @@
 </Popover>
 <div {style}>
     {#each components as component, number}
+        {#if Recipe.is_remote_javascript_operation(component)}
+        <Javascript id="{undefined}" options="{undefined}" {index} add_to_recipe="{undefined}"
+                    keybinding="{keybinding(number, filter_focused)}" remote_name="{component}" />
+        {:else}
         <svelte:component this={component} id="{undefined}" options="{undefined}" {index} add_to_recipe="{undefined}"
                           keybinding="{keybinding(number, filter_focused)}" />
+        {/if}
     {/each}
 </div>
 
 {#if component_to_add}
+    {#if Recipe.is_remote_javascript_operation(component_to_add)}
+    <Javascript id="{undefined}" options="{undefined}" {index} add_to_recipe="{true}" keybinding="{undefined}" remote_name="{component_to_add}" />
+        {:else}
     <svelte:component this={component_to_add} id="{undefined}" options="{undefined}" {index} add_to_recipe="{true}" keybinding="{undefined}" />
+         {/if}
 {/if}
