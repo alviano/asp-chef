@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
-    const operation = "Lua";
+    const operation = "Lua @-terms";
     const default_extra_options = {
         height: 200,
         content: '',

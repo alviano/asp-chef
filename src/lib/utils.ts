@@ -5,6 +5,7 @@ import _ from 'lodash';
 import AsyncLock from "async-lock";
 // import {run} from 'clingo-wasm'
 import ClingoWorker from '$lib/clingo.worker?worker';
+import JavascriptWorker from '$lib/javascript.worker?worker';
 
 const dom_purify_config = new DOMPurifyConfig(consts);
 
@@ -15,6 +16,7 @@ export class Utils extends BaseUtils {
     private static _clingo_options = new Map();
     private static _clingo_worker = null;
     private static _browser_cache_policy: RequestCache = "default";
+    private static _worker = null;
 
     private static _BROWSER_CACHE_POLICY_VALUES = {
         "default" : "Use cache if fresh, otherwise ask for changes",
@@ -33,7 +35,7 @@ export class Utils extends BaseUtils {
         return this._browser_cache_policy;
     }
 
-    static set browser_cache_policy(value: string) {
+    static set browser_cache_policy(value: RequestCache) {
         if (!(value in this._BROWSER_CACHE_POLICY_VALUES)) {
             throw new Error("Invalid value for browser cache policy");
         }
@@ -50,6 +52,50 @@ export class Utils extends BaseUtils {
 
     static dom_purify(content: string) {
         return BaseUtils.dom_purify(content, dom_purify_config);
+    }
+
+    static worker_terminate() {
+        if (this._worker !== null) {
+            this._worker.terminate();
+            this._worker = null;
+        }
+    }
+
+    static async worker_run(code: string, input, options) {
+        this.worker_terminate();
+
+        this._worker = new JavascriptWorker();
+        let res;
+        let err;
+        this._worker.onmessage = (event) => {
+            res = event.data.res;
+            err = event.data.err;
+            this.worker_terminate();
+        }
+        this._worker.onerror = (event) => {
+            res = input;
+            err = event.message;
+            this.worker_terminate();
+        }
+
+        this._worker.postMessage({
+            code,
+            input,
+            options,
+        });
+
+        while (this._worker !== null) {
+            await Utils.delay(100);
+        }
+
+        if (res === undefined) {
+            err = "Terminated";
+        }
+
+        if (err) {
+            throw new Error(err);
+        }
+        return options !== "DESCRIBE" ? res.map(part => part.map(atom => Utils.parse_atom(atom.str))) : res;
     }
 
     static set clingo_timeout(value: number) {

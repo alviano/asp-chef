@@ -229,6 +229,7 @@ export class Recipe {
     static async abort() {
         this.aborted = true;
         await Utils.clingo_terminate();
+        await Utils.worker_terminate();
     }
 
     static invalidate_cached_output(index: number) {

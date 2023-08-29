@@ -11,7 +11,7 @@
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         try {
-            listeners.get(id)(input);
+            await listeners.get(id)(input);
         } catch (error) { /* component not mounted, possibly because of headless mode */ }
         return options.echo ? input : input.map(model => model.filter(atom => atom.predicate !== options.predicate));
     });

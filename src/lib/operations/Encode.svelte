@@ -12,17 +12,12 @@
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
         const content = Base64.encode(options.content);
-        const encoded_content = `${options.predicate}("${content}").`;
-        const mapper = atom => atom.str + '.';
         const res = [];
-        for (const part of input) {
-            try {
-                const program = part.map(mapper).join('\n') + encoded_content;
-                const model = await Utils.search_model(program);
-                res.push(Utils.parse_atoms(model));
-            } catch (error) {
-                Recipe.set_errors_at_index(index, error, res);
-            }
+        try {
+            const encoded_content = Utils.parse_atom(`${options.predicate}("${content}")`);
+            input.forEach(part => res.push([...part, encoded_content]));
+        } catch (error) {
+            Recipe.set_errors_at_index(index, error, res);
         }
         return res;
     });
@@ -60,6 +55,7 @@
                bind:value={options.height}
                min="20"
                step="20"
+               style="max-width: 5em;"
                on:input={edit}
         />
         <InputGroupText>Predicate</InputGroupText>

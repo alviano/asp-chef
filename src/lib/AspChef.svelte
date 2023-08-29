@@ -63,7 +63,7 @@
             clearTimeout(process_timeout);
         }
         if (pause_baking) {
-            await Utils.clingo_terminate();
+            await Recipe.abort()
             $processing_index = Recipe.number_of_ingredients;
             if (process_timeout) {
                 clearTimeout(process_timeout);
