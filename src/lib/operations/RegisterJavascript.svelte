@@ -100,7 +100,7 @@
         </p>
     </div>
     <InputGroup>
-        <InputGroupText style="width: 7em;">#js-</InputGroupText>
+        <InputGroupText style="width: 7em;">&amp;js-</InputGroupText>
         <Input type="text"
                bind:value="{options.prefix}"
                placeholder="prefix"

@@ -74,10 +74,10 @@ export class Recipe {
     static _sort_operation_keys() {
         if (this._operation_keys.length !== this._operation_types.size) {
             this._operation_keys = Array.from(this._operation_types.keys()).sort((a, b) => {
-                if (['@', '#'].includes(a[0])) {
+                if (['@', '#', '&'].includes(a[0])) {
                     return ['@', '#'].includes(b[0]) ? a.localeCompare(b) : 1;
                 }
-                return ['@', '#'].includes(b[0]) ? -1 : a.localeCompare(b);
+                return ['@', '#', '&'].includes(b[0]) ? -1 : a.localeCompare(b);
             });
         }
     }
@@ -100,7 +100,7 @@ export class Recipe {
     static async new_remote_javascript_operation(prefix: string, url: string, update_store = true) {
         const code = await fetch(url).then(response => response.text());
         const {name, doc, options} = await Utils.worker_run(code, [], "DESCRIBE");
-        const operation = `#js-${prefix}/${name}`;
+        const operation = `&js-${prefix}/${name}`;
         this._remote_javascript_operations.set(operation, {
             prefix,
             name,

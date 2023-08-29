@@ -180,7 +180,7 @@ week
     {/if}
     {#if remote_name}
         <InputGroup>
-            <Button block outline="{!show_remote_code}" on:click={toggle_show_remote_code}>{name + " - " || ""} Show code</Button>
+            <Button block outline="{!show_remote_code}" on:click={toggle_show_remote_code}>Show code</Button>
         </InputGroup>
     {:else if doc}
         <Popover block title="{name}" class="mw-70">
