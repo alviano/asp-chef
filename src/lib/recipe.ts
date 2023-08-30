@@ -98,7 +98,9 @@ export class Recipe {
     }
 
     static async new_remote_javascript_operation(prefix: string, url: string, update_store = true) {
-        const code = await fetch(url).then(response => response.text());
+        const code = await fetch(url, {
+            cache: Utils.browser_cache_policy,
+        }).then(response => response.text());
         const {name, doc, options} = await Utils.worker_run(code, [], "DESCRIBE");
         const operation = `&js-${prefix}/${name}`;
         this._remote_javascript_operations.set(operation, {

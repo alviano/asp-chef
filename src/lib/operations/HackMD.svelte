@@ -2,6 +2,7 @@
     import {Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
+    import {consts} from "$lib/consts";
 
     const operation = "HackMD";
     const default_extra_options = {
@@ -9,7 +10,7 @@
         url: '',
     };
 
-    const HACK_MD_DOMAIN = "https://hackmd.io";
+    const HACK_MD_DOMAIN = consts.HACK_MD_DOMAIN;
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
@@ -21,7 +22,7 @@
 
         let res = input;
         try {
-            const url = HACK_MD_DOMAIN + new URL(options.url).pathname + '/download';
+            const url = Utils.public_url_hack_md(options.url);
             const response = await fetch(url, {
                 cache: Utils.browser_cache_policy,
             });

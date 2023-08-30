@@ -280,6 +280,17 @@ export class Utils extends BaseUtils {
         res.push(consts.SYMBOLS.MODELS_SEPARATOR.repeat(input_string.length - last_index));
         return res.join('');
     }
+
+    static public_url_hack_md(url) {
+        return consts.HACK_MD_DOMAIN + new URL(url).pathname + '/download';
+    }
+
+    static public_url(url) {
+        if (url.startsWith(consts.HACK_MD_DOMAIN)) {
+            return this.public_url_hack_md(url);
+        }
+        throw new Error("Unknown domain: " + url);
+    }
 }
 
 const GRAMMAR = `

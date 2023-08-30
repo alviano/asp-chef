@@ -16,6 +16,7 @@ export const consts = {
   INPUT_HEIGHT_MIN_VALUE: 10,
   INPUT_HEIGHT_MAX_VALUE: 90,
   INPUT_HEIGHT_DEFAULT_VALUE: 50,
+  HACK_MD_DOMAIN: "https://hackmd.io",
   SYMBOLS: {
     CHECK_MARK: '✔',
     CROSS_MARK: '✘',
