@@ -4,33 +4,39 @@
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
-    const operation = "HackMD";
+    const operation = "List GitHub";
     const default_extra_options = {
         predicate: '__base64__',
         url: '',
+        filter: '',
     };
 
-    const HACK_MD_DOMAIN = consts.HACK_MD_DOMAIN;
+    const GITHUB_DOMAIN = consts.GITHUB_DOMAIN;
+    const CDN_JSDELIVER_DOMAIN = consts.CDN_JSDELIVER_DOMAIN;
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
             return input;
-        } else  if (!options.url.startsWith(`${HACK_MD_DOMAIN}/`)) {
-            Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${HACK_MD_DOMAIN}. Forward input.`);
+        } else  if (!options.url.startsWith(`${GITHUB_DOMAIN}/`)) {
+            Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
             return input;
         }
 
         let res = input;
         try {
-            const url = Utils.public_url_hack_md(options.url);
+            const url = Utils.public_url_github(options.url);
             const response = await fetch(url, {
                 cache: Utils.browser_cache_policy,
             });
             const text = await response.text();
-            const content = Base64.encode(text);
-            const encoded_content = `${options.predicate}("${content}")`;
-            const atom = Utils.parse_atom(encoded_content);
-            res = res.map(part => [...part, atom]);
+            const files = text.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.startsWith('<a rel="nofollow" href="'))
+                .map(line => CDN_JSDELIVER_DOMAIN + line.substring(24).split('">')[0])
+                .filter(url => url.match(new RegExp(options.filter, 'i')));
+            const encoded_content = files.map(file => `${options.predicate}("${Base64.encode(file)}")`);
+            const atoms = Utils.parse_atoms(encoded_content);
+            res = res.map(part => [...part, ...atoms]);
         } catch (error) {
             Recipe.set_errors_at_index(index, error, res);
         }
@@ -63,38 +69,42 @@
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
-        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public note on HackMD and fetches its content.</p>
+        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public directory on GitHub and fetches the list of its files (via jsDelivr).</p>
         <p>
-            <strong>Important!</strong> The note must be <em>published</em> or <em>readable by everyone</em>.
+            <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/blob/version/directory/</code> (ending by slash).
             Use <strong>Set Browser Cache Policy</strong> to configure the cache policy.
         </p>
         <p>
-            The content is base64 encoded and wrapped by predicate <code>__base64__</code>.
+            URLs can be filtered by a case-insensitive regular expression.
+            For example, use <code>\.js</code> to select javascript files.
+        </p>
+        <p>
+            Each URL in output is base64 encoded and wrapped by predicate <code>__base64__</code>.
         </p>
         <p>
             The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
         </p>
         <p>
-            The encoded content can be consumed by operations such as <strong>Markdown</strong> and <strong>Search Models</strong>.
+            The encoded content can be consumed by operations such as <strong>@config/Register Javascript</strong>.
         </p>
     </div>
     <InputGroup>
-        <InputGroupText>Predicate</InputGroupText>
+        <InputGroupText style="width: 7em;">Predicate</InputGroupText>
         <Input type="text"
                bind:value="{options.predicate}"
                placeholder="predicate"
                on:input={edit}
         />
-        <Button href="{HACK_MD_DOMAIN}" target="_blank">
-            Visit HackMD
+        <Button href="{consts.NPM_DOMAIN}" target="_blank">
+            Visit npm
         </Button>
     </InputGroup>
     <InputGroup>
         <Input type="text"
                bind:value="{options.url}"
-               placeholder="{HACK_MD_DOMAIN}..."
+               placeholder="{GITHUB_DOMAIN}..."
                on:input={edit}
-               data-testid="HackMD-url"
+               data-testid="npm-url"
         />
         <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(options.url)}>
             <Icon name="clipboard-plus" />
@@ -104,6 +114,17 @@
         </Button>
         <Button size="sm" title="Reload" on:click={edit}>
             <Icon name="arrow-repeat" />
+        </Button>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 7em;">Filter</InputGroupText>
+        <Input type="text"
+               bind:value="{options.filter}"
+               placeholder="filter"
+               on:input={edit}
+        />
+        <Button href="{consts.NPM_DOMAIN}" target="_blank">
+            Visit npm
         </Button>
     </InputGroup>
     <div slot="output">

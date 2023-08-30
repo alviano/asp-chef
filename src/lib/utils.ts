@@ -286,9 +286,16 @@ export class Utils extends BaseUtils {
     }
 
     static public_url_github(url) {
+        // https://github.com/alviano/asp-chef
         const the_url = new URL(url);
         const [_, user, repo, blob, version, file] = the_url.pathname.split('/', 6);
-        return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}@${version}/${file}`;
+        if (blob === undefined) {
+            return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}/`;
+        } else if (blob === 'tree') {
+            return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}@${version}/${file}/`;
+        } else {
+            return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}@${version}/${file}`;
+        }
     }
 
     static public_url(url) {

@@ -29,7 +29,8 @@
             const text = await response.text();
             const content = Base64.encode(text);
             const encoded_content = `${options.predicate}("${content}")`;
-            res = res.map(part => [...part, Utils.parse_atom(encoded_content)]);
+            const atom = Utils.parse_atom(encoded_content);
+            res = res.map(part => [...part, atom]);
         } catch (error) {
             Recipe.set_errors_at_index(index, error, res);
         }
