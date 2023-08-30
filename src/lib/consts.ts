@@ -17,6 +17,9 @@ export const consts = {
   INPUT_HEIGHT_MAX_VALUE: 90,
   INPUT_HEIGHT_DEFAULT_VALUE: 50,
   HACK_MD_DOMAIN: "https://hackmd.io",
+  GITHUB_DOMAIN: "https://github.com",
+  CDN_JSDELIVER_DOMAIN: "https://cdn.jsdelivr.net",
+  NPM_DOMAIN: "https://www.npmjs.com/",
   SYMBOLS: {
     CHECK_MARK: '✔',
     CROSS_MARK: '✘',

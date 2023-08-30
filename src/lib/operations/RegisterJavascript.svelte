@@ -38,6 +38,15 @@
         Recipe.edit_operation(id, index, options);
     }
 
+    async function register_url(url) {
+        try {
+            url = Utils.public_url(url);
+        } catch (error) { /* empty */ }
+
+        const operation = await Recipe.new_remote_javascript_operation(options.prefix, url);
+        Utils.snackbar("Registered " + operation);
+    }
+
     async function register() {
         if (!options.prefix) {
             Recipe.set_errors_at_index(index, "Error: " + "Missing prefix")
@@ -45,8 +54,7 @@
         }
         if (options.url && options.url.match("http[s]://")) {
             try {
-                const operation = await Recipe.new_remote_javascript_operation(options.prefix, options.url);
-                Utils.snackbar("Registered " + operation);
+                await register_url(options.url);
             } catch (error) {
                 Recipe.set_errors_at_index(index, "Error: " + error);
             }
@@ -56,13 +64,11 @@
             for (const part of input) {
                 for (const atom of part) {
                     if (atom.predicate === options.local) {
-                        const operation = await Recipe.new_remote_javascript_operation(options.prefix, 'data:text/plain;base64,' + atom.terms[0].string);
-                        Utils.snackbar("Registered " + operation);
+                        await register_url('data:text/plain;base64,' + atom.terms[0].string);
                     } else if (atom.predicate === options.url) {
                         const urls = Base64.decode(atom.terms[0].string).split('\n').map(url => url.trim()).filter(url => url);
                         for (const url of urls) {
-                            const operation = await Recipe.new_remote_javascript_operation(options.prefix, url);
-                            Utils.snackbar("Registered " + operation);
+                            await register_url(url);
                         }
                     }
                 }
@@ -91,6 +97,7 @@
             The code must adhere to the <strong>Javascript</strong> operation (providing name and doc).
         </p>
         <p>
+            HackMD and GitHub URLs are rewritten to their public counterparts.
             The input is forwarded to the next ingredient.
         </p>
         <p>

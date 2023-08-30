@@ -4,26 +4,25 @@
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
-    const operation = "HackMD";
+    const operation = "npm";
     const default_extra_options = {
         predicate: '__base64__',
         url: '',
     };
 
-    const HACK_MD_DOMAIN = consts.HACK_MD_DOMAIN;
+    const CDN_JSDELIVER_DOMAIN = consts.CDN_JSDELIVER_DOMAIN;
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
             return input;
-        } else  if (!options.url.startsWith(`${HACK_MD_DOMAIN}/`)) {
-            Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${HACK_MD_DOMAIN}. Forward input.`);
+        } else  if (!options.url.startsWith(`${CDN_JSDELIVER_DOMAIN}/`)) {
+            Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${CDN_JSDELIVER_DOMAIN}. Forward input.`);
             return input;
         }
 
         let res = input;
         try {
-            const url = Utils.public_url_hack_md(options.url);
-            const response = await fetch(url, {
+            const response = await fetch(options.url, {
                 cache: Utils.browser_cache_policy,
             });
             const text = await response.text();
@@ -50,6 +49,10 @@
 
     $: readonly = (options && options.readonly) || $readonly_ingredients;
 
+    let the_package = '';
+    let version = '';
+    let file = '';
+
     function edit() {
         Recipe.edit_operation(id, index, options);
     }
@@ -58,13 +61,22 @@
         await navigator.clipboard.writeText(url);
         Utils.snackbar("URL ready to be pasted!");
     }
+
+    function make_url(the_package, version, file) {
+        return `${CDN_JSDELIVER_DOMAIN}/npm/${the_package}${version ? '@' + version : ''}/${file}`;
+    }
+
+    function use_url() {
+        options.url = make_url(the_package, version, file);
+        edit();
+    }
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
-        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public note on HackMD and fetches its content.</p>
+        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public file on npm and fetches its content (via jsDelivr).</p>
         <p>
-            <strong>Important!</strong> The note must be <em>published</em> or <em>readable by everyone</em>.
+            <strong>Important!</strong> The URL must be in the format <code>https://cdn.jsdelivr.net/npm/package@version/file</code>.
             Use <strong>Set Browser Cache Policy</strong> to configure the cache policy.
         </p>
         <p>
@@ -78,22 +90,45 @@
         </p>
     </div>
     <InputGroup>
-        <InputGroupText>Predicate</InputGroupText>
+        <InputGroupText style="width: 7em;">Predicate</InputGroupText>
         <Input type="text"
                bind:value="{options.predicate}"
                placeholder="predicate"
                on:input={edit}
         />
-        <Button href="{HACK_MD_DOMAIN}" target="_blank">
-            Visit HackMD
+        <Button href="{consts.NPM_DOMAIN}" target="_blank">
+            Visit npm
+        </Button>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 7em;">Make URL</InputGroupText>
+        <Input type="text"
+               bind:value="{the_package}"
+               placeholder="package"
+        />
+        <InputGroupText>@</InputGroupText>
+        <Input type="text"
+               bind:value="{version}"
+               placeholder="version"
+        />
+        <InputGroupText>/</InputGroupText>
+        <Input type="text"
+               bind:value="{file}"
+               placeholder="file"
+        />
+        <Button on:click={use_url} disabled="{!the_package || !file}">
+            Use
+        </Button>
+        <Button href="{the_package ? make_url(the_package, version, file) : ''}" target="_blank" disabled="{!the_package}">
+            Open
         </Button>
     </InputGroup>
     <InputGroup>
         <Input type="text"
                bind:value="{options.url}"
-               placeholder="{HACK_MD_DOMAIN}..."
+               placeholder="{CDN_JSDELIVER_DOMAIN}..."
                on:input={edit}
-               data-testid="HackMD-url"
+               data-testid="npm-url"
         />
         <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(options.url)}>
             <Icon name="clipboard-plus" />

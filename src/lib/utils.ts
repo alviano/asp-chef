@@ -285,9 +285,17 @@ export class Utils extends BaseUtils {
         return consts.HACK_MD_DOMAIN + new URL(url).pathname + '/download';
     }
 
+    static public_url_github(url) {
+        const the_url = new URL(url);
+        const [_, user, repo, blob, version, file] = the_url.pathname.split('/', 6);
+        return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}@${version}/${file}`;
+    }
+
     static public_url(url) {
         if (url.startsWith(consts.HACK_MD_DOMAIN)) {
             return this.public_url_hack_md(url);
+        } else if (url.startsWith(consts.GITHUB_DOMAIN)) {
+            return this.public_url_github(url);
         }
         throw new Error("Unknown domain: " + url);
     }

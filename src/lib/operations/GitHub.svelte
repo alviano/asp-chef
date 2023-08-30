@@ -4,25 +4,25 @@
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
-    const operation = "HackMD";
+    const operation = "GitHub";
     const default_extra_options = {
         predicate: '__base64__',
         url: '',
     };
 
-    const HACK_MD_DOMAIN = consts.HACK_MD_DOMAIN;
+    const GITHUB_DOMAIN = consts.GITHUB_DOMAIN;
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
             return input;
-        } else  if (!options.url.startsWith(`${HACK_MD_DOMAIN}/`)) {
-            Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${HACK_MD_DOMAIN}. Forward input.`);
+        } else  if (!options.url.startsWith(`${GITHUB_DOMAIN}/`)) {
+            Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
             return input;
         }
 
         let res = input;
         try {
-            const url = Utils.public_url_hack_md(options.url);
+            const url = Utils.public_url_github(options.url);
             const response = await fetch(url, {
                 cache: Utils.browser_cache_policy,
             });
@@ -62,9 +62,9 @@
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
-        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public note on HackMD and fetches its content.</p>
+        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public file on GitHub and fetches its content (via jsDelivr).</p>
         <p>
-            <strong>Important!</strong> The note must be <em>published</em> or <em>readable by everyone</em>.
+            <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/blob/version/filepath</code>.
             Use <strong>Set Browser Cache Policy</strong> to configure the cache policy.
         </p>
         <p>
@@ -84,16 +84,16 @@
                placeholder="predicate"
                on:input={edit}
         />
-        <Button href="{HACK_MD_DOMAIN}" target="_blank">
-            Visit HackMD
+        <Button href="{GITHUB_DOMAIN}" target="_blank">
+            Visit GitHub
         </Button>
     </InputGroup>
     <InputGroup>
         <Input type="text"
                bind:value="{options.url}"
-               placeholder="{HACK_MD_DOMAIN}..."
+               placeholder="{GITHUB_DOMAIN}..."
                on:input={edit}
-               data-testid="HackMD-url"
+               data-testid="GitHub-url"
         />
         <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(options.url)}>
             <Icon name="clipboard-plus" />
