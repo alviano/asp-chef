@@ -121,6 +121,19 @@ export class Recipe {
         return operation;
     }
 
+    static unregister_remote_javascript_operation(operation: string, update_store = true) {
+        if (!this.is_remote_javascript_operation(operation)) {
+            throw new Error("Expecting a remote javascript operation");
+        }
+        this._remote_javascript_operations.delete(operation);
+        this._operation_components.delete(operation);
+        this._operation_types.delete(operation);
+
+        if (update_store) {
+            registered_javascript.set(Object.fromEntries(this._remote_javascript_operations.entries()));
+        }
+    }
+
     static is_remote_javascript_operation(operation: string) {
         return this._remote_javascript_operations.has(operation);
     }
