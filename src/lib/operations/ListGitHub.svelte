@@ -71,7 +71,7 @@
     <div slot="description">
         <p>The <strong>{operation}</strong> operation takes a URL pointing to a public directory on GitHub and fetches the list of its files (via jsDelivr).</p>
         <p>
-            <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/blob/version/directory/</code> (ending by slash).
+            <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/tree/version/directory/</code> (ending by slash).
             Use <strong>Set Browser Cache Policy</strong> to configure the cache policy.
         </p>
         <p>
