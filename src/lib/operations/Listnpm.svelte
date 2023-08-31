@@ -83,7 +83,7 @@
         <p>The <strong>{operation}</strong> operation takes a URL pointing to a public directory on npm and fetches the list of its files (via jsDelivr).</p>
         <p>
             <strong>Important!</strong> The URL must be in the format <code>https://cdn.jsdelivr.net/npm/package@version/directory/</code> (ending by slash).
-            Use <strong>Set Browser Cache Policy</strong> to configure the cache policy.
+            Use <strong>Set HTTP Cache Policy</strong> to configure the cache policy.
         </p>
         <p>
             URLs can be filtered by a case-insensitive regular expression.

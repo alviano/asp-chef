@@ -66,7 +66,8 @@
         <p>The <strong>{operation}</strong> operation takes a URL pointing to a public file on GitHub and fetches its content (via jsDelivr).</p>
         <p>
             <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/blob/version/filepath</code>.
-            Use <strong>Set Browser Cache Policy</strong> to configure the cache policy.
+            Use <strong>Set HTTP Cache Policy</strong> to configure the cache policy.
+            Note that jsDelivr may take some time to update.
         </p>
         <p>
             The content is base64 encoded and wrapped by predicate <code>__base64__</code>.
