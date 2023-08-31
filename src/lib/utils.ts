@@ -288,7 +288,7 @@ export class Utils extends BaseUtils {
     static public_url_github(url) {
         // https://github.com/alviano/asp-chef
         const the_url = new URL(url);
-        const [_, user, repo, blob, version, file] = the_url.pathname.split('/', 6);
+        const [_, user, repo, blob, version, file] = this.split_with_limit(the_url.pathname, '/', 6);
         if (blob === undefined) {
             return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}/`;
         } else if (blob === 'tree') {
@@ -305,6 +305,16 @@ export class Utils extends BaseUtils {
             return this.public_url_github(url);
         }
         throw new Error("Unknown domain: " + url);
+    }
+
+    static split_with_limit(str: string, sep: string, limit: number) {
+        const array = str.split(sep);
+        if (array.length > limit) {
+            const tail = array.slice(limit - 1).join(sep);
+            array.splice(limit - 1);
+            array.push(tail);
+        }
+        return array;
     }
 }
 

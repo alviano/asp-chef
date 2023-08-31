@@ -75,7 +75,7 @@ week
 
     function set_options(describe) {
         the_options = describe.map(option => {
-            const [name, type, placeholder, value] = option.split('|', 4);
+            const [name, type, placeholder, value] = Utils.split_with_limit(option.split, '|', 4);
             if (!(name in options.options)) {
                 options.options[name] = value;
             }
