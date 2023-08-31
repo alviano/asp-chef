@@ -61,10 +61,18 @@ export class Recipe {
         }
         await Promise.all(promises);
         for (const [key, value] of [...this._remote_javascript_operations.entries()]) {
-            this._remote_javascript_operations.delete(key);  // remove possibly old version
-            await this.new_remote_javascript_operation(value.prefix, value.url, false);
+            let skip = false;
+            try {
+                const new_key = await this.new_remote_javascript_operation(value.prefix, value.url, false);
+                if (new_key !== key) {
+                    this._remote_javascript_operations.delete(key);
+                }
+            } catch (error) {
+                console.log("Oops! Cannot load " + key)
+                skip = true;
+            }
             processed++;
-            feedback(processed, total, key, false);
+            feedback(processed, total, key, skip);
         }
     }
 
