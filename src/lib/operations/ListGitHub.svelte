@@ -96,8 +96,8 @@
                placeholder="predicate"
                on:input={edit}
         />
-        <Button href="{consts.NPM_DOMAIN}" target="_blank">
-            Visit npm
+        <Button href="{consts.GITHUB_DOMAIN}" target="_blank">
+            Visit GitHub
         </Button>
     </InputGroup>
     <InputGroup>
@@ -124,9 +124,6 @@
                placeholder="filter"
                on:input={edit}
         />
-        <Button href="{consts.NPM_DOMAIN}" target="_blank">
-            Visit npm
-        </Button>
     </InputGroup>
     <div slot="output">
         {#if readonly && options.url}

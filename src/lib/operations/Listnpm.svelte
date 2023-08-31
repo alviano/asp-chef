@@ -158,9 +158,6 @@
                placeholder="filter"
                on:input={edit}
         />
-        <Button href="{consts.NPM_DOMAIN}" target="_blank">
-            Visit npm
-        </Button>
     </InputGroup>
     <div slot="output">
         {#if readonly && options.url}
