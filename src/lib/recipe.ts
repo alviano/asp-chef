@@ -60,7 +60,8 @@ export class Recipe {
             }
         }
         await Promise.all(promises);
-        for (const [key, value] of this._remote_javascript_operations) {
+        for (const [key, value] of [...this._remote_javascript_operations.entries()]) {
+            this._remote_javascript_operations.delete(key);  // remove possibly old version
             await this.new_remote_javascript_operation(value.prefix, value.url, false);
             processed++;
             feedback(processed, total, key, false);
@@ -97,12 +98,16 @@ export class Recipe {
         this.uncachable_operations_types.add(operation);
     }
 
+    static make_remote_javascript_operation_name(prefix: string, name: string) : string {
+        return `&js-${prefix}/${name}`;
+    }
+
     static async new_remote_javascript_operation(prefix: string, url: string, update_store = true) {
         const code = await fetch(url, {
             cache: Utils.browser_cache_policy,
         }).then(response => response.text());
         const {name, doc, options} = await Utils.worker_run(code, [], "DESCRIBE");
-        const operation = `&js-${prefix}/${name}`;
+        const operation = this.make_remote_javascript_operation_name(prefix, name);
         this._remote_javascript_operations.set(operation, {
             prefix,
             name,
