@@ -39,12 +39,12 @@ export class Recipe {
         return res;
     }
 
-    static async load_operation_components(feedback = (processed, total, file, skip) => { /* empty */ }) {
+    static async load_operation_components(feedback = (processed, total, file, skip, error) => { /* empty */ }) {
         const map = Object.entries(await import.meta.glob('/src/lib/operations/**/*.svelte'));
         this._remote_javascript_operations = new Map(Object.entries(get(registered_javascript)));
         let total = map.length + this._remote_javascript_operations.size;
         let processed = 0;
-        feedback(processed, total, '', true);
+        feedback(processed, total, '', true, null);
         const promises = [];
         for (const [key, value] of map) {
             const the_key = key.slice(20, -7);
@@ -55,25 +55,27 @@ export class Recipe {
                 promises.push(value().then(component => {
                     this._operation_components.set(the_key, component.default);
                     processed++;
-                    feedback(processed, total, the_key, skip);
+                    feedback(processed, total, the_key, skip, null);
                 }));
             }
         }
         await Promise.all(promises);
+
         for (const [key, value] of [...this._remote_javascript_operations.entries()]) {
-            let skip = false;
+            let err = null;
             try {
                 const new_key = await this.new_remote_javascript_operation(value.prefix, value.url, false);
                 if (new_key !== key) {
                     this._remote_javascript_operations.delete(key);
                 }
             } catch (error) {
-                console.log("Oops! Cannot load " + key)
-                skip = true;
+                await this._new_remote_javascript_operation(value.prefix, value.url, value.code);
+                err = `Oops! Cannot update ${key}... loaded latest fetched version.`;
             }
             processed++;
-            feedback(processed, total, key, skip);
+            feedback(processed, total, key, false, err);
         }
+        this._update_registered_javascript_store();
     }
 
     static has_operation_type(key: string): boolean {
@@ -110,10 +112,7 @@ export class Recipe {
         return `&js-${prefix}/${name}`;
     }
 
-    static async new_remote_javascript_operation(prefix: string, url: string, update_store = true) {
-        const code = await fetch(url, {
-            cache: Utils.browser_cache_policy,
-        }).then(response => response.text());
+    private static async _new_remote_javascript_operation(prefix: string, url: string, code: string) {
         const {name, doc, options} = await Utils.worker_run(code, [], "DESCRIBE");
         const operation = this.make_remote_javascript_operation_name(prefix, name);
         this._remote_javascript_operations.set(operation, {
@@ -127,10 +126,22 @@ export class Recipe {
         this._operation_components.set(this.operation_type_filename(operation), operation);
         this._operation_types.set(operation, this._operation_types.get("Javascript"));
 
-        if (update_store) {
-            registered_javascript.set(Object.fromEntries(this._remote_javascript_operations.entries()));
-        }
+        return operation;
+    }
 
+    private static _update_registered_javascript_store() {
+        registered_javascript.set(Object.fromEntries(this._remote_javascript_operations.entries()));
+    }
+
+    static async new_remote_javascript_operation(prefix: string, url: string, update_store = true) {
+        const code = await fetch(url, {
+            cache: Utils.browser_cache_policy,
+        }).then(response => response.text());
+
+        const operation = await this._new_remote_javascript_operation(prefix, url, code);
+        if (update_store) {
+            this._update_registered_javascript_store();
+        }
         return operation;
     }
 

@@ -108,11 +108,14 @@
         files: [],
     };
     async function load_operation_components() {
-        await Recipe.load_operation_components((p, t, f, s) => {
+        await Recipe.load_operation_components((p, t, f, s, e) => {
             loading_operation_components.processed = p;
             loading_operation_components.total = t;
             if (!s) {
                 loading_operation_components.files.unshift(f);
+            }
+            if (e) {
+                Utils.snackbar(e);
             }
         });
         loading_operation_components.files = [];
