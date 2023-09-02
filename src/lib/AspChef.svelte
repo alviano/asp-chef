@@ -144,6 +144,7 @@
                 $pause_baking = data.pause_baking;
             }
         }
+        Recipe.invalidate_cached_output(0);
         recipe_unsubscribe = recipe.subscribe(() => {
             delayed_process(input_value, encode_input, decode_output, $pause_baking);
         });

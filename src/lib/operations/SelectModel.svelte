@@ -53,7 +53,7 @@
             The <strong>{operation}</strong> operation selects one model among those in input.
         </p>
     </div>
-    <div class="m-3">
+    <div class="m-3" slot="output">
         <Input type="range"
                min="{1}"
                max="{number_of_models}"

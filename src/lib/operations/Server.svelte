@@ -76,7 +76,6 @@
             The <strong>{operation}</strong> operation asks a remote or local server to process the input.
         </p>
         <p>
-            Each part of the input is mapped to
             Input and output must be arrays of models.
             Additional options can be sent to the server;
             it is up to the server to interpret such options.
@@ -93,7 +92,7 @@
                bind:value={options.decode_predicate}
                placeholder="decode predicate"
                on:input={edit}
-               data-testid="SearchModels-decode-predicate"
+               data-testid="Server-decode-predicate"
         />
         <Button outline="{!options.echo_encoded_content}" on:click={() => { options.echo_encoded_content = !options.echo_encoded_content; edit(); }}>Echo</Button>
     </InputGroup>
