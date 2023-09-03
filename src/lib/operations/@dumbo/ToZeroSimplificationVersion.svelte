@@ -6,7 +6,6 @@
     const operation = "@dumbo/To Zero Simplification Version";
     const default_extra_options = {
         program_predicate: '__base64__',
-        false_predicate: '__false__',
         extra_atoms_predicate: '',
         echo_extra_atoms_predicate: false,
         extra_atoms: '',
@@ -34,7 +33,6 @@
                 });
                 const json = await Dumbo.fetch("to-zero-simplification-version", {
                     program: program.join('\n'),
-                    false_predicate: options.false_predicate,
                     extra_atoms,
                 });
                 input_part.push(Dumbo.encode_program(json.program, options.program_predicate));
@@ -69,7 +67,7 @@
             The <strong>{operation}</strong> operation rewrites the program stored in <code>__base64__</code> into an equivalent version that inhibit grounding simplifications.
         </p>
         <p>
-            The <code>__false__</code> predicate must be fresh.
+            Atoms with predicate <code>__false__</code> are injected in the input program, which is assumed to not already mentions the <code>__false__</code> predicate.
         </p>
         <p>
             Atoms that are expected to be part of the Herbrand base of the program can be given (from a dumbo key or in the format facts).
@@ -80,14 +78,6 @@
         <Input type="text"
                bind:value={options.program_predicate}
                placeholder="program predicate"
-               on:input={edit}
-        />
-    </InputGroup>
-    <InputGroup>
-        <InputGroupText style="width: 8em;">ID predicate</InputGroupText>
-        <Input type="text"
-               bind:value={options.false_predicate}
-               placeholder="false predicate"
                on:input={edit}
         />
     </InputGroup>
