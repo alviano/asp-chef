@@ -24,7 +24,7 @@
                         return;
                     }
                     if (atom.predicate === options.extra_atoms_predicate) {
-                        extra_atoms.push(atom.str + '.')
+                        extra_atoms.push(atom.terms[0].str)
                         if (!options.echo_extra_atoms_predicate) {
                             return;
                         }
