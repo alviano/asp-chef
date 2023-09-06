@@ -5,7 +5,7 @@
 
     const operation = "@dumbo/To Zero Simplification Version";
     const default_extra_options = {
-        program_predicate: '__base64__',
+        program_predicate: '__program__',
         extra_atoms_predicate: '',
         echo_extra_atoms_predicate: false,
         extra_atoms: '',
@@ -29,9 +29,9 @@
                             return;
                         }
                     }
-                    input_part.push(atom.str + '.');
+                    input_part.push(atom);
                 });
-                const json = await Dumbo.fetch("to-zero-simplification-version", {
+                const json = await Dumbo.fetch("to-zero-simplification-version/", {
                     program: program.join('\n'),
                     extra_atoms,
                 });

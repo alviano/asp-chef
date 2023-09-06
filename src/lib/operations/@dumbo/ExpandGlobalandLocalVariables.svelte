@@ -3,10 +3,9 @@
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/Move Up";
+    const operation = "@dumbo/Expand Global and Local Variables";
     const default_extra_options = {
         program_predicate: '__program__',
-        atoms: '',
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
@@ -22,9 +21,8 @@
                     }
                     input_part.push(atom);
                 });
-                const json = await Dumbo.fetch("move-up/", {
+                const json = await Dumbo.fetch("expand-global-and-local-variables/", {
                     program: program.join('\n'),
-                    atoms: options.atoms,
                 });
                 input_part.push(Dumbo.encode_program(json.program, options.program_predicate));
                 res.push(input_part);
@@ -38,7 +36,6 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import CodeMirror from "svelte-codemirror-editor";
     import {Input, InputGroup, InputGroupText} from "sveltestrap";
 
     export let id;
@@ -55,12 +52,7 @@
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
         <p>
-            The <strong>{operation}</strong> operation can be used to reorder the program stored in <code>__base64__</code>.
-        </p>
-        <p>
-            One or more <em>atom patterns</em> can be specified.
-            (Each atom pattern is terminated by a dot, as for facts, but may contain variables.)
-            Rules matching (i.e., unifying with) any given pattern are moved up in the program.
+            The <strong>{operation}</strong> operation can be used to expand <em>global and local variables</em> in the program stored in <code>__base64__</code>.
         </p>
     </div>
     <InputGroup>
@@ -71,12 +63,4 @@
                on:input={edit}
         />
     </InputGroup>
-    <InputGroup>
-        <InputGroupText class="w-100"><strong>Patterns</strong></InputGroupText>
-    </InputGroup>
-    <CodeMirror bind:value={options.atoms}
-                lineWrapping="{true}"
-                placeholder="predicate(const,Var,...). ..."
-                on:change={edit}
-    />
 </Operation>

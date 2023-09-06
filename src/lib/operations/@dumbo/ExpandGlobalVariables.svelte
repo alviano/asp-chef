@@ -3,9 +3,9 @@
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/Expand Variables";
+    const operation = "@dumbo/Expand Global Variables";
     const default_extra_options = {
-        program_predicate: '__base64__',
+        program_predicate: '__program__',
         expand: {},
     };
 
@@ -22,7 +22,7 @@
                     program_parts.push(Base64.decode(atom.terms[0].string));
                     return;
                 }
-                input_part.push(atom.str + '.');
+                input_part.push(atom);
             });
             let program = program_parts.join('\n');
 
@@ -117,7 +117,7 @@
                placeholder="program predicate"
                on:input={edit}
         />
-        <Button on:click={clear}>Clear</Button>
+        <Button title="Clear expanded variables" on:click={clear}>Clear</Button>
     </InputGroup>
     <div slot="output">
         {#each rules as {rule, variables}, rule_index}
