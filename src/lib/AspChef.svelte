@@ -126,13 +126,15 @@
             }
         }
         Recipe.invalidate_cached_output(0);
-        recipe_unsubscribe = recipe.subscribe(() => {
-            delayed_process(input_value, encode_input, decode_output, $pause_baking);
-        });
     }
 
     onMount(() => {
         const recipe_panel = document.getElementById('recipe_panel_column');
+
+        recipe_unsubscribe = recipe.subscribe(async () => {
+            await update_url(input_value, encode_input, decode_output);
+            await delayed_process(input_value, encode_input, decode_output, $pause_baking);
+        });
 
         $keydown.push([keydown_uuid, (event) => {
             if (event.key === 'ArrowLeft') {
