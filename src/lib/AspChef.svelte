@@ -93,9 +93,6 @@
         }, $baking_delay);
     }
 
-    $: input_value, encode_input, Recipe.invalidate_cached_output(0);
-    $: delayed_process(input_value, encode_input, decode_output, $pause_baking);
-
     let recipe_unsubscribe = null;
     let input_panel_div;
     let output_panel_div;
@@ -105,6 +102,9 @@
 
     const keydown_uuid = uuidv4();
 
+
+    $: input_value, encode_input, Recipe.invalidate_cached_output(0);
+    $: delayed_process(input_value, encode_input, decode_output, $pause_baking);
     $: $show_help, show_operations, show_io_panel,
         $show_ingredient_details, $readonly_ingredients, $show_ingredient_headers, $pause_baking,
         update_url(input_value, encode_input, decode_output);
@@ -130,11 +130,6 @@
 
     onMount(() => {
         const recipe_panel = document.getElementById('recipe_panel_column');
-
-        recipe_unsubscribe = recipe.subscribe(async () => {
-            await update_url(input_value, encode_input, decode_output);
-            await delayed_process(input_value, encode_input, decode_output, $pause_baking);
-        });
 
         $keydown.push([keydown_uuid, (event) => {
             if (event.key === 'ArrowLeft') {
@@ -189,7 +184,12 @@
             }
         });
         loading_operation_components.files = [];
+
         reload_recipe();
+        recipe_unsubscribe = recipe.subscribe(async () => {
+            await update_url(input_value, encode_input, decode_output);
+            await delayed_process(input_value, encode_input, decode_output, $pause_baking);
+        });
     }
 </script>
 
