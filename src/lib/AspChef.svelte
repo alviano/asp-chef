@@ -87,7 +87,7 @@
                 return;
             }
             processing = true;
-            await Recipe.process(input_value, encode_input);
+            output_value = await Recipe.process(input_value, encode_input);
             process_timeout = null;
             processing = false;
         }, $baking_delay);
