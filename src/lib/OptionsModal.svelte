@@ -1,6 +1,6 @@
 <script>
     import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
-    import {io_panel_width, operations_panel_width, input_height} from "$lib/stores";
+    import {io_panel_width, operations_panel_width, input_height, baking_delay} from "$lib/stores";
     import {consts} from "$lib/consts";
 
     export let open = false;
@@ -46,7 +46,17 @@
                     step={1}
             />
         </FormGroup>
-    </ModalBody>
+        <FormGroup>
+            <Label>Baking delay ({$baking_delay}ms)</Label>
+            <Input
+                    type="range"
+                    name="io"
+                    min={consts.BAKING_DELAY_MIN_VALUE}
+                    max={consts.BAKING_DELAY_MAX_VALUE}
+                    bind:value={$baking_delay}
+                    step={50}
+            />
+        </FormGroup>    </ModalBody>
     <ModalFooter>
         <Button color="primary" on:click={toggle}>Close</Button>
     </ModalFooter>

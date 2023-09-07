@@ -5,6 +5,7 @@
     import InputPanel from "$lib/InputPanel.svelte";
     import OutputPanel from "$lib/OutputPanel.svelte";
     import {
+        baking_delay,
         input_height,
         io_panel_width,
         operations_panel_width,
@@ -31,29 +32,29 @@
     let processing = false;
 
     async function update_url(input_value, encode_input, decode_output) {
-        if (recipe_unsubscribe !== null) {
-            location.hash = Recipe.serialize(input_value, {
-                encode_input,
-                decode_output,
-                show_help: $show_help,
-                show_operations: show_operations,
-                show_io_panel: show_io_panel,
-                show_ingredient_details: $show_ingredient_details,
-                readonly_ingredients: $readonly_ingredients,
-                show_ingredient_headers: $show_ingredient_headers,
-                pause_baking: $pause_baking,
-            });
+        if (recipe_unsubscribe === null) {
+            return;
         }
-    }
-
-    async function process(input_value, encode_input, decode_output) {
-        output_value = await Recipe.process(input_value, encode_input);
-        await update_url(input_value, encode_input, decode_output);
+        location.hash = Recipe.serialize(input_value, {
+            encode_input,
+            decode_output,
+            show_help: $show_help,
+            show_operations: show_operations,
+            show_io_panel: show_io_panel,
+            show_ingredient_details: $show_ingredient_details,
+            readonly_ingredients: $readonly_ingredients,
+            show_ingredient_headers: $show_ingredient_headers,
+            pause_baking: $pause_baking,
+        });
     }
 
     const lock = new AsyncLock();
     let delayed_process_counter = 0;
     async function delayed_process(input_value, encode_input, decode_output, pause_baking) {
+        if (recipe_unsubscribe === null) {
+            return;
+        }
+
         let id;
         lock.acquire('process', async () => {
             delayed_process_counter++;
@@ -86,10 +87,10 @@
                 return;
             }
             processing = true;
-            await process(input_value, encode_input, decode_output);
+            await Recipe.process(input_value, encode_input);
             process_timeout = null;
             processing = false;
-        }, 100);
+        }, $baking_delay);
     }
 
     $: input_value, encode_input, Recipe.invalidate_cached_output(0);
@@ -101,26 +102,6 @@
     let progress_panel_div;
     let show_operations = true;
     let show_io_panel = true;
-
-    let loading_operation_components = {
-        processed: 0,
-        total: 0,
-        files: [],
-    };
-    async function load_operation_components() {
-        await Recipe.load_operation_components((p, t, f, s, e) => {
-            loading_operation_components.processed = p;
-            loading_operation_components.total = t;
-            if (!s) {
-                loading_operation_components.files.unshift(f);
-            }
-            if (e) {
-                Utils.snackbar(e);
-            }
-        });
-        loading_operation_components.files = [];
-        reload_recipe();
-    }
 
     const keydown_uuid = uuidv4();
 
@@ -188,6 +169,26 @@
         recipe_unsubscribe();
         $keydown = $keydown.filter(key_value => key_value[0] !== keydown_uuid);
     });
+
+    let loading_operation_components = {
+        processed: 0,
+        total: 0,
+        files: [],
+    };
+    async function load_operation_components() {
+        await Recipe.load_operation_components((p, t, f, s, e) => {
+            loading_operation_components.processed = p;
+            loading_operation_components.total = t;
+            if (!s) {
+                loading_operation_components.files.unshift(f);
+            }
+            if (e) {
+                Utils.snackbar(e);
+            }
+        });
+        loading_operation_components.files = [];
+        reload_recipe();
+    }
 </script>
 
 {#await load_operation_components()}
@@ -220,12 +221,12 @@
                     <InputPanel bind:value={input_value} bind:encode={encode_input} />
                 </div>
                 <div bind:this={progress_panel_div} data-testid="AspChef-baking-bar">
-                    <span class="d-test">{process_timeout ? "Baking..." : "Ready!"}</span>
+                    <span class="d-test">{processing ? "Baking..." : "Ready!"}</span>
                     <Progress class="mb-0" multi style="font-family: monospace; font-weight: bold;">
-                        <Progress bar animated color="danger" value={process_timeout ? 100 : 0}>
-                            <span style="color: white;">Baking...</span>
+                        <Progress bar animated color={processing ? "danger" : "warning"} value={process_timeout !== null ? 100 : 0}>
+                            <span style="color: white;">{processing ? "Baking..." : "Heating the oven..."}</span>
                         </Progress>
-                        <Progress bar color="success" value={process_timeout ? 0 : 100}>
+                        <Progress bar color="success" value={process_timeout !== null ? 0 : 100}>
                             <span style="color: white;">Ready!</span>
                         </Progress>
                     </Progress>
