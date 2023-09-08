@@ -103,7 +103,7 @@
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
         <p>
-            The <strong>{operation}</strong> operation can be used to expand <em>global safe variables</em> of rules in the program stored in <code>__base64__</code>.
+            The <strong>{operation}</strong> operation can be used to expand <em>global safe variables</em> of rules in the program stored in <code>__program__</code>.
         </p>
         <p>
             <strong>Attention!</strong>

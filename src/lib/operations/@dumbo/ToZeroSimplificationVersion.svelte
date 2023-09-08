@@ -64,7 +64,7 @@
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
         <p>
-            The <strong>{operation}</strong> operation rewrites the program stored in <code>__base64__</code> into an equivalent version that inhibit grounding simplifications.
+            The <strong>{operation}</strong> operation rewrites the program stored in <code>__program__</code> into an equivalent version that inhibit grounding simplifications.
         </p>
         <p>
             Atoms with predicate <code>__false__</code> are injected in the input program, which is assumed to not already mentions the <code>__false__</code> predicate.
