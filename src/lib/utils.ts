@@ -6,6 +6,8 @@ import AsyncLock from "async-lock";
 // import {run} from 'clingo-wasm'
 import ClingoWorker from '$lib/clingo.worker?worker';
 import JavascriptWorker from '$lib/javascript.worker?worker';
+import {clingo_remote_on, clingo_remote_url, clingo_remote_uuid} from "$lib/stores";
+import {get} from "svelte/store";
 
 const dom_purify_config = new DOMPurifyConfig(consts);
 
@@ -120,6 +122,9 @@ export class Utils extends BaseUtils {
         try {
             this._clingo_worker.terminate();
             this._clingo_worker = new ClingoWorker();
+            if (get(clingo_remote_on)) {
+                await this.__remote_clingo_terminate();
+            }
         } catch (error) {
             /* empty */
         }
@@ -128,6 +133,34 @@ export class Utils extends BaseUtils {
         } catch (error) {
             /* empty */
         }
+    }
+
+    static async __remote_clingo(endpoint, data = {}) {
+        return fetch(`${get(clingo_remote_url)}/${endpoint}/`, {
+            method: "POST",
+            mode: "cors",
+            cache: Utils.browser_cache_policy,
+            credentials: "same-origin",
+            headers: new Headers([["Content-Type", "application/json"]]),
+            body: JSON.stringify({
+                uuid: get(clingo_remote_uuid),
+                ...data,
+            }),
+        });
+    }
+
+    static async __remote_clingo_terminate() {
+        await this.__remote_clingo("clingo-terminate");
+    }
+
+    static async __remote_clingo_run(program: string, number: number, options, timeout: number) {
+        const response = await this.__remote_clingo("clingo-run", {
+            program,
+            number,
+            options,
+            timeout,
+        });
+        return await response.json();
     }
 
     static async clingo_run(program: string, number = 0, options = [], timeout = null) {
@@ -141,14 +174,25 @@ export class Utils extends BaseUtils {
                 const timeout = setTimeout(async () => {
                     await this.clingo_terminate(`Error: TIMEOUT ${the_timeout} seconds (it can be increased with a Set Timeout ingredient)`);
                 }, the_timeout * 1000);
-                this._clingo_worker.onmessage = ({data}) => {
-                    clearTimeout(timeout);
-                    resolve(data);
-                }
-                this._clingo_worker.postMessage({ type: 'run', args: [program, number, [
+                const the_options = [
                     ...options,
                     ...Array.from(this._clingo_options, ([key, value]) => `${key}${value}`),
-                ]]});
+                ];
+                if (get(clingo_remote_on)) {
+                    this.__remote_clingo_run(program, number, the_options, the_timeout).then(data => {
+                        clearTimeout(timeout);
+                        delete data.Input;
+                        resolve(data);
+                    });
+                } else {
+                    this._clingo_worker.onmessage = ({data}) => {
+                        clearTimeout(timeout);
+                        resolve(data);
+                    }
+                    this._clingo_worker.postMessage({
+                        type: 'run', args: [program, number, the_options]
+                    });
+                }
             });
         });
     }

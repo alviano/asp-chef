@@ -10,7 +10,7 @@
         show_help,
         show_ingredient_details,
         readonly_ingredients,
-        show_ingredient_headers,
+        show_ingredient_headers, clingo_remote_on,
     } from "$lib/stores";
     import {Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import {keydown} from "dumbo-svelte";
@@ -180,6 +180,17 @@
                         <Button size="sm"
                                 on:click={() => set_options = true}>
                             <Icon name="gear" />
+                        </Button>
+                    </Popover>
+                    <Popover title="Remote clingo">
+                        <div slot="value">
+                            <p>Replace clingo-wasm with native clingo served by a remote server.</p>
+                        </div>
+                        <Button size="sm"
+                                color={$clingo_remote_on ? "warning" : "secondary"}
+                                outline={!$clingo_remote_on}
+                                on:click={() => $clingo_remote_on = !$clingo_remote_on}>
+                            <Icon name="cloud-check" />
                         </Button>
                     </Popover>
                 </ButtonGroup>

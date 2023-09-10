@@ -1,6 +1,6 @@
 <script>
     import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
-    import {io_panel_width, operations_panel_width, input_height, baking_delay} from "$lib/stores";
+    import {io_panel_width, operations_panel_width, input_height, baking_delay, clingo_remote_url} from "$lib/stores";
     import {consts} from "$lib/consts";
 
     export let open = false;
@@ -56,7 +56,15 @@
                     bind:value={$baking_delay}
                     step={50}
             />
-        </FormGroup>    </ModalBody>
+        </FormGroup>
+        <FormGroup>
+            <Label>Remote clingo</Label>
+            <Input
+                    name="io"
+                    bind:value={$clingo_remote_url}
+            />
+        </FormGroup>
+    </ModalBody>
     <ModalFooter>
         <Button color="primary" on:click={toggle}>Close</Button>
     </ModalFooter>

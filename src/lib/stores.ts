@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import { consts } from "$lib/consts";
+import {v4 as uuidv4} from 'uuid';
 
 function int_in_range_or_default(key, min, max, default_value) {
   if (!browser) {
@@ -25,6 +26,9 @@ export const io_panel_width = writable(int_in_range_or_default('io-panel-width',
 export const input_height = writable(int_in_range_or_default('input-height', consts.INPUT_HEIGHT_MIN_VALUE, consts.INPUT_HEIGHT_MAX_VALUE, consts.INPUT_HEIGHT_DEFAULT_VALUE));
 export const registered_javascript = writable(browser ? JSON.parse(localStorage.getItem('registered-javascript') || "{}") : {});
 export const baking_delay = writable(int_in_range_or_default('baking-delay', consts.BAKING_DELAY_MIN_VALUE, consts.BAKING_DELAY_MAX_VALUE, consts.BAKING_DELAY_DEFAULT_VALUE));
+export const clingo_remote_uuid = writable((browser ? localStorage.getItem('clingo-remote-uuid') : '') || uuidv4());
+export const clingo_remote_url = writable((browser ? localStorage.getItem('clingo-remote-url') : '') || 'http://localhost:8000');
+export const clingo_remote_on = writable(browser ? localStorage.getItem('clingo-remote-on') : '');
 
 privacy_policy.subscribe(value => {
   if (value) {
@@ -56,4 +60,16 @@ registered_javascript.subscribe(value => {
 
 baking_delay.subscribe(value => {
   localStorage.setItem('baking-delay', '' + value);
+});
+
+clingo_remote_uuid.subscribe(value => {
+  localStorage.setItem('clingo-remote-uuid', '' + value);
+});
+
+clingo_remote_url.subscribe(value => {
+  localStorage.setItem('clingo-remote-url', '' + value);
+});
+
+clingo_remote_on.subscribe(value => {
+  localStorage.setItem('clingo-remote-on', '' + value);
 });
