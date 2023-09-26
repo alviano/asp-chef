@@ -126,6 +126,7 @@
             }
         }
         Recipe.invalidate_cached_output(0);
+        delayed_process(input_value, encode_input, decode_output, $pause_baking);
     }
 
     onMount(() => {
