@@ -204,7 +204,7 @@
         <code>Operation {file} ready!</code><br />
     {/each}
 {:then _}
-    <Row class="vw-100 vh-100" style="overflow: hidden;">
+    <Row class="vw-100 vh-100 m-0" style="overflow: hidden;">
         {#if show_operations}
             <Col class="p-0 vh-100" style="min-width: {$operations_panel_width}%; max-width: {$operations_panel_width}%; overflow-x: hidden; overflow-y: scroll;">
                 <Operations />
