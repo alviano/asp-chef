@@ -1,6 +1,6 @@
 import {get} from "svelte/store";
 import {Utils} from "$lib/utils";
-import {errors_at_index, processing_index, recipe, registered_javascript} from "$lib/stores";
+import {bitly_api_token, errors_at_index, processing_index, recipe, registered_javascript} from "$lib/stores";
 import {consts} from "$lib/consts";
 import {v4 as uuidv4} from 'uuid';
 import {Base64} from "js-base64";
@@ -232,26 +232,42 @@ export class Recipe {
     }
 
     static async expand_if_short_link(recipe_url: string) : Promise<string> {
-        try {
-            if (recipe_url.match(/^https?:\/\/(shrtco.de|9qr.de|shiny.link)\//)) {
-                const code = new URL(recipe_url).pathname.substring(1);
-                const json = await fetch(`https://api.shrtco.de/v2/info?code=${code}`).then(response => response.json());
-                return json.result.url;
-            }
-        } catch (error) {
-            /* empty */
+        if (get(bitly_api_token) === '') {
+            throw new Error("Missing Bitly API Token")
+        }
+        if (recipe_url.match(/^https?:\/\/bit.ly\//)) {
+            const code = new URL(recipe_url).pathname.substring(1);
+            const json = await fetch(
+                `https://api-ssl.bitly.com/v4/bitlinks/bit.ly/${code}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${get(bitly_api_token)}`,
+                    }
+                }
+            ).then(response => response.json());
+            return json.long_url;
         }
         return recipe_url;
     }
 
     static async shorten_link(recipe_url: string) : Promise<string> {
-        try {
-            const json = await fetch(`https://api.shrtco.de/v2/shorten?url=${encodeURIComponent(recipe_url)}`).then(response => response.json());
-            return json.result.full_short_link;
-        } catch (error) {
-            /* empty */
+        if (get(bitly_api_token) === '') {
+            throw new Error("Missing Bitly API Token")
         }
-        return recipe_url;
+        const json = await fetch(
+            "https://api-ssl.bitly.com/v4/shorten",
+            {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${get(bitly_api_token)}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    "long_url": recipe_url,
+                }),
+            }
+        ).then(response => response.json());
+        return json.link;
     }
 
     static serialize_ingredients(start: number, how_many = 0) {

@@ -29,6 +29,7 @@ export const baking_delay = writable(int_in_range_or_default('baking-delay', con
 export const clingo_remote_uuid = writable((browser ? localStorage.getItem('clingo-remote-uuid') : '') || uuidv4());
 export const clingo_remote_url = writable((browser ? localStorage.getItem('clingo-remote-url') : '') || 'http://localhost:8000');
 export const clingo_remote_on = writable((browser ? localStorage.getItem('clingo-remote-on') : 'false') === 'true');
+export const bitly_api_token = writable((browser ? localStorage.getItem('bitly-api-token') : '') || '');
 
 privacy_policy.subscribe(value => {
   if (value) {
@@ -72,4 +73,8 @@ clingo_remote_url.subscribe(value => {
 
 clingo_remote_on.subscribe(value => {
   localStorage.setItem('clingo-remote-on', '' + value);
+});
+
+bitly_api_token.subscribe(value => {
+  localStorage.setItem('bitly-api-token', '' + value);
 });

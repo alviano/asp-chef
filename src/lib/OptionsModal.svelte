@@ -1,6 +1,13 @@
 <script>
     import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
-    import {io_panel_width, operations_panel_width, input_height, baking_delay, clingo_remote_url} from "$lib/stores";
+    import {
+        baking_delay,
+        bitly_api_token,
+        clingo_remote_url,
+        input_height,
+        io_panel_width,
+        operations_panel_width
+    } from "$lib/stores";
     import {consts} from "$lib/consts";
 
     export let open = false;
@@ -39,7 +46,7 @@
             <Label>Input height ({$input_height}%)</Label>
             <Input
                     type="range"
-                    name="io"
+                    name="height"
                     min={consts.INPUT_HEIGHT_MIN_VALUE}
                     max={consts.INPUT_HEIGHT_MAX_VALUE}
                     bind:value={$input_height}
@@ -49,7 +56,7 @@
         <FormGroup>
             <Label>Baking delay ({$baking_delay}ms)</Label>
             <Input
-                    type="range"
+                    type="delay"
                     name="io"
                     min={consts.BAKING_DELAY_MIN_VALUE}
                     max={consts.BAKING_DELAY_MAX_VALUE}
@@ -60,8 +67,16 @@
         <FormGroup>
             <Label>Remote clingo</Label>
             <Input
-                    name="io"
+                    name="clingo"
                     bind:value={$clingo_remote_url}
+            />
+        </FormGroup>
+        <FormGroup>
+            <Label>Bitly API Token (set it only on trusted browsers)</Label>
+            <Input
+                    type="password"
+                    name="bitly-token"
+                    bind:value={$bitly_api_token}
             />
         </FormGroup>
     </ModalBody>

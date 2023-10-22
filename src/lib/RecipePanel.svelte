@@ -280,9 +280,9 @@
                     </Popover>
                     <Popover title="Copy short recipe URL">
                         <div slot="value">
-                            <p>Shorten recipe URL with a random short URL provided by <code>shrtco.de</code> and copy it in the clipboard.</p>
-                            <p>Note that a new URL is created every time the button is clicked. Each IP is limited to 1 request per second.</p>
-                            <p><strong>Important!</strong> Short URLs are easy to guess and cannot be deleted. If your recipe contains sensitive information, create a password-protected short URL visiting <code>https://shrtco.de/tools/password</code> (but in this case, the short URL cannot be used as an ingredient).</p>
+                            <p>Shorten recipe URL with a random short URL provided by <code>bitly.com</code> and copy it in the clipboard.</p>
+                            <p>Note that a new URL is created every time the button is clicked and an API token must be given in the options.</p>
+                            <p><strong>Important!</strong> Short URLs are easy to guess.</p>
                         </div>
                         <Button size="sm" on:click={copy_short_url}>
                             <Icon name="arrows-angle-contract" />
