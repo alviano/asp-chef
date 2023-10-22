@@ -26,8 +26,15 @@
             const response = await fetch(url, {
                 cache: Utils.browser_cache_policy,
             });
-            const text = await response.text();
-            const content = Base64.encode(text);
+            const contentType = response.headers.get("content-type");
+            let content;
+            if (contentType.startsWith("application/json")) {
+                const json = await response.json();
+                content = json.content;
+            } else {
+                const text = await response.text();
+                content = Base64.encode(text);
+            }
             const encoded_content = `${options.predicate}("${content}")`;
             const atom = Utils.parse_atom(encoded_content);
             res = res.map(part => [...part, atom]);
@@ -63,7 +70,7 @@
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
-        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public file on GitHub and fetches its content (via jsDelivr).</p>
+        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public file on GitHub and fetches its content (possibly via jsDelivr).</p>
         <p>
             <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/blob/version/filepath</code>.
             Use <strong>Set HTTP Cache Policy</strong> to configure the cache policy.

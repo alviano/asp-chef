@@ -21,6 +21,7 @@ export const consts = {
   BAKING_DELAY_DEFAULT_VALUE: 250,
   HACK_MD_DOMAIN: "https://hackmd.io",
   GITHUB_DOMAIN: "https://github.com",
+  GITHUB_API_DOMAIN: "https://api.github.com",
   CDN_JSDELIVER_DOMAIN: "https://cdn.jsdelivr.net",
   NPM_DOMAIN: "https://www.npmjs.com/",
   SYMBOLS: {
