@@ -44,7 +44,7 @@
         <CardTitle>
             Input
             <span class="float-end">
-                <code class="h6 me-3">models: {value.split(consts.SYMBOLS.MODELS_SEPARATOR).length}</code>
+                <code class="me-3" style="font-size: 70%;">models: {value.split(consts.SYMBOLS.MODELS_SEPARATOR).length}</code>
                 <Popover title="Clear input" value="Remove input content.">
                     <Button size="sm" color="danger" on:click={clear_input}><Icon name="trash" /></Button>
                 </Popover>

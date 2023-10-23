@@ -12,32 +12,57 @@
 
     const GITHUB_DOMAIN = consts.GITHUB_DOMAIN;
 
+    async function fetch_content(url, predicate) {
+        const response = await fetch(url, {
+            cache: Utils.browser_cache_policy,
+        });
+        const contentType = response.headers.get("content-type");
+        let content;
+        if (contentType.startsWith("application/json")) {
+            const json = await response.json();
+            content = json.content;
+        } else {
+            const text = await response.text();
+            content = Base64.encode(text);
+        }
+        const encoded_content = `${predicate}("${content}")`;
+        return Utils.parse_atom(encoded_content);
+    }
+
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
             return input;
-        } else  if (!options.url.startsWith(`${GITHUB_DOMAIN}/`)) {
+        } else  if (options.url !== "*" && !options.url.startsWith(`${GITHUB_DOMAIN}/`)) {
             Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
             return input;
         }
 
         let res = input;
         try {
-            const url = Utils.public_url_github(options.url);
-            const response = await fetch(url, {
-                cache: Utils.browser_cache_policy,
-            });
-            const contentType = response.headers.get("content-type");
-            let content;
-            if (contentType.startsWith("application/json")) {
-                const json = await response.json();
-                content = json.content;
+            if (options.url === "*") {
+                res = [];
+                for (let part of input) {
+                    const new_part = [];
+                    res.push(new_part);
+                    for (let atom of part) {
+                        if (atom.predicate === options.predicate) {
+                            const url = Base64.decode(atom.terms[0].string);
+                            if (url.startsWith(`${GITHUB_DOMAIN}/`)) {
+                                new_part.push(await fetch_content(Utils.public_url_github(url), options.predicate));
+                            } else {
+                                Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
+                                return input;
+                            }
+                        } else {
+                            new_part.push(atom);
+                        }
+                    }
+                }
             } else {
-                const text = await response.text();
-                content = Base64.encode(text);
+                const url = Utils.public_url_github(options.url);
+                const atom = await fetch_content(url, options.predicate);
+                res = input.map(part => [...part, atom]);
             }
-            const encoded_content = `${options.predicate}("${content}")`;
-            const atom = Utils.parse_atom(encoded_content);
-            res = res.map(part => [...part, atom]);
         } catch (error) {
             Recipe.set_errors_at_index(index, error, res);
         }
@@ -81,6 +106,7 @@
         </p>
         <p>
             The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
+            If the wildcard <code>*</code> is used as URL, URLs are actually taken from the <code>__base64__</code> atoms.
         </p>
         <p>
             The encoded content can be consumed by operations such as <strong>Markdown</strong> and <strong>Search Models</strong>.
@@ -100,7 +126,7 @@
     <InputGroup>
         <Input type="text"
                bind:value="{options.url}"
-               placeholder="{GITHUB_DOMAIN}..."
+               placeholder="* | {GITHUB_DOMAIN}..."
                on:input={edit}
                data-testid="GitHub-url"
         />

@@ -36,7 +36,7 @@
                         <Badge color="danger" class="me-3">Errors</Badge>
                     </Popover>
                 {/if}
-                <code class="h6 me-3">models: {value.length}</code>
+                <code class="me-3" style="font-size: 70%;">models: {value.length}</code>
                 <Popover title="Set as input" value="Replace input with the current content in output.">
                     <Button size="sm" on:click={() => dispatch('change_input', Utils.flatten_output(value, ''))}>
                         <Icon name="arrow-up-square" />

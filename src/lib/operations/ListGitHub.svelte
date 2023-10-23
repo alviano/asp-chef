@@ -28,11 +28,9 @@
             const response = await fetch(url, {
                 cache: Utils.browser_cache_policy,
             });
-            const text = await response.text();
-            const files = text.split('\n')
-                .map(line => line.trim())
-                .filter(line => line.startsWith('<a rel="nofollow" href="'))
-                .map(line => CDN_JSDELIVER_DOMAIN + line.substring(24).split('">')[0])
+            const json = await response.json();
+            const files = Array.from(json)
+                .map(entry => entry.html_url)
                 .filter(url => url.match(new RegExp(options.filter, 'i')));
             const encoded_content = files.map(file => `${options.predicate}("${Base64.encode(file)}")`);
             const atoms = Utils.parse_atoms(encoded_content);

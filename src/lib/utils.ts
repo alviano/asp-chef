@@ -332,12 +332,10 @@ export class Utils extends BaseUtils {
     static public_url_github(url) {
         const the_url = new URL(url);
         const [_, user, repo, blob, version, file] = this.split_with_limit(the_url.pathname, '/', 6);
-        if (blob === 'blob' && version === 'master') {
+        if (['blob', 'tree'].includes(blob) && version === 'master') {
             return `${consts.GITHUB_API_DOMAIN}/repos/${user}/${repo}/contents/${file}`;
         } else if (blob === undefined) {
             return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}/`;
-        } else if (blob === 'tree') {
-            return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}@${version}/${file}/`;
         } else {
             return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}@${version}/${file}`;
         }
