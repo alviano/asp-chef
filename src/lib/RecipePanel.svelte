@@ -47,9 +47,13 @@
         Utils.confirm({
             message: "The recipe contains no sensitive information and I want to create a non-deletable short URL for it?",
             onconfirm: async () => {
-                const url = await Recipe.shorten_link(Recipe.as_url().replace("http://localhost:5188", "https://asp-chef.alviano.net"));
-                await navigator.clipboard.writeText(url);
-                Utils.snackbar("Short URL ready to be pasted!");
+                try {
+                    const url = await Recipe.shorten_link(Recipe.as_url().replace("http://localhost:5188", "https://asp-chef.alviano.net"));
+                    await navigator.clipboard.writeText(url);
+                    Utils.snackbar("Short URL ready to be pasted!");
+                } catch (error) {
+                    Utils.snackbar(error);
+                }
             },
         });
     }
