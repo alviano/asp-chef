@@ -12,7 +12,12 @@
     }
 
     async function rewrite_url(url) {
-        const recipe_url = await Recipe.expand_if_short_link(url);
+        let recipe_url = url;
+        try {
+            recipe_url = await Recipe.expand_if_short_link(url);
+        } catch (error) {
+            Utils.snackbar(error);
+        }
         try {
             const hash = new URL(recipe_url).hash;
             return `/safe-open${hash}`;
