@@ -26,6 +26,7 @@
     import {Utils} from "$lib/utils";
     import _ from "lodash";
     import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
+    import QrCode from "svelte-qrcode";
 
 
     export let id;
@@ -72,7 +73,7 @@
                 atom.functor = '';
                 atom.terms = [atom];
             }
-            if (atom.functor === '' || atom.predicate === 'base64' ||
+            if (atom.functor === '' || atom.predicate === 'base64' || atom.predicate === 'qrcode' ||
                 atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 output_atoms.push(atom);
             } else if (atom.predicate === 'th' || atom.predicate === 'tr') {
@@ -140,6 +141,12 @@
                 replacement.push(prefix + terms.join(term_separator) + suffix);
             } else if (atom.predicate === 'base64') {
                 replacement.push(`${prefix}${terms.map(term => Base64.decode(term)).join(term_separator)}${suffix}`);
+            } else if (atom.predicate === 'qrcode') {
+                if (atom.terms.length !== 1) {
+                    Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
+                } else {
+                    replacement.push(`${prefix}[qrcode](${terms.join(term_separator)})${suffix}`);
+                }
             } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
@@ -232,7 +239,19 @@
                     { left: '\\[', right: '\\]', display: true },
                 ],
             });
-            [...output_div.getElementsByTagName('pre')].forEach(Utils.add_copy_button);
+            Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
+            Array.from(output_div.getElementsByTagName('a'))
+                .filter(element => element.text === "qrcode")
+                .forEach(element => {
+                    const text = element.text;
+                    element.innerHTML = "";
+                    element.removeAttribute("href");
+                    element.removeAttribute("target");
+                    new QrCode({
+                        target: element,
+                        value: text,
+                    });
+                });
         });
     });
 
@@ -275,6 +294,9 @@
         </p>
         <p>
             Predicate <code>base64/1</code> decodes Base64-encoded content.
+        </p>
+        <p>
+            Predicate <code>qrcode/1</code> (and links <code>[qrcode](...)</code>) are shown as QR-codes.
         </p>
         <p>
             The input is echoed in output.

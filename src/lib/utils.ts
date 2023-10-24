@@ -45,7 +45,7 @@ export class Utils extends BaseUtils {
     }
 
     static render_markdown(content: string) {
-        return BaseUtils.render_markdown(content, dom_purify_config)
+        return BaseUtils.render_markdown(content, dom_purify_config);
     }
 
     static render_inline_markdown(content: string) {
