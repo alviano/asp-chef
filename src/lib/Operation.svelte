@@ -41,9 +41,9 @@
 </script>
 
 {#if id !== undefined}
-    <Card style="{$show_ingredient_headers ? 'border-top: 3px solid black;' : 'border: 0px;'} {options.stop ? 'border-bottom: 3px solid red;' : ''} {options.apply ? '' : 'border-left: 3px dashed #f47c3c; border-right: 3px dashed #f47c3c;'}"
+    <Card style="{$show_ingredient_headers && !options.hide_header ? 'border-top: 3px solid black;' : 'border: 0px;'} {options.stop ? 'border-bottom: 3px solid red;' : ''} {options.apply ? '' : 'border-left: 3px dashed #f47c3c; border-right: 3px dashed #f47c3c;'}"
           data-testid="Operation">
-        {#if $show_ingredient_headers}
+        {#if $show_ingredient_headers && !options.hide_header}
             <div on:mouseenter={mouse_in_draggable_area} on:mouseleave={mouse_out_of_draggable_area}>
                 <IngredientHeader {id} {operation} {index} {options} />
             </div>

@@ -1,6 +1,12 @@
 import {get} from "svelte/store";
 import {Utils} from "$lib/utils";
-import {bitly_api_token, errors_at_index, processing_index, recipe, registered_javascript} from "$lib/stores";
+import {
+    bitly_api_token,
+    errors_at_index,
+    processing_index,
+    recipe,
+    registered_javascript,
+} from "$lib/stores";
 import {consts} from "$lib/consts";
 import {v4 as uuidv4} from 'uuid';
 import {Base64} from "js-base64";
@@ -172,6 +178,7 @@ export class Recipe {
             apply: true,
             show: true,
             readonly: false,
+            hide_header: false,
         };
     }
 
@@ -494,5 +501,15 @@ export class Recipe {
         const the_recipe = this.recipe;
         the_recipe[index].options.readonly = !the_recipe[index].options.readonly;
         recipe.set(the_recipe);
+    }
+
+    static toggle_hide_header_operation(index: number) {
+        const the_recipe = this.recipe;
+        the_recipe[index].options.hide_header = !the_recipe[index].options.hide_header;
+        recipe.set(the_recipe);
+    }
+
+    static get number_of_hidden_headers() {
+        return this.recipe.filter(ingredient => ingredient.options.hide_header).length;
     }
 }

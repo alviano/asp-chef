@@ -12,7 +12,7 @@
         readonly_ingredients,
         show_ingredient_headers, clingo_remote_on,
     } from "$lib/stores";
-    import {Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
+    import {Badge, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import {keydown} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";
     import {Utils} from "$lib/utils";
@@ -23,6 +23,7 @@
     import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
 	import { createEventDispatcher } from 'svelte';
     import Javascript from "$lib/operations/Javascript.svelte";
+    import HiddenHeadersModal from "$lib/HiddenHeadersModal.svelte";
 
 	const dispatch = createEventDispatcher();
 
@@ -31,6 +32,7 @@
 
     let set_options = false;
     let safely_open_recipe = false;
+    let hidden_headers = false;
 
     function reload_recipe() {
         dispatch("reload_recipe");
@@ -255,8 +257,9 @@
                         <Button size="sm"
                                 color="secondary"
                                 outline={!$show_ingredient_headers}
-                                on:click={() => toggle_show_ingredient_headers()}>
+                                on:click={(event) => {event.target.id === "number_of_hidden_headers_badge" ? hidden_headers = true : toggle_show_ingredient_headers()}}>
                             <Icon name="arrow-down-up" />
+                            <Badge id="number_of_hidden_headers_badge">{$recipe ? Recipe.number_of_hidden_headers : 0}</Badge>
                         </Button>
                     </Popover>
                     <Popover title="Pause baking">
@@ -318,7 +321,7 @@
     <CardBody class="p-0" style="background-color: lightgray;">
         <section style="padding-bottom: 20em;" use:dndzone="{{items, dragDisabled, flipDurationMs}}" on:consider="{handleDndConsider}" on:finalize="{handleDndFinalize}">
             {#each items as item, index (item.id)}
-                <div animate:flip="{{duration: flipDurationMs}}" class:mt-1={$show_ingredient_headers}>
+                <div animate:flip="{{duration: flipDurationMs}}" class:mt-1={$show_ingredient_headers && !item.options.hide_header}>
                     {#if Recipe.is_remote_javascript_operation(item.operation)}
                         <Javascript remote_name={item.operation} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                     {:else if Recipe.has_operation_type(item.operation)}
@@ -339,3 +342,4 @@
 
 <OptionsModal bind:open="{set_options}" />
 <SafelyLoadRecipeModal bind:open="{safely_open_recipe}" />
+<HiddenHeadersModal bind:open="{hidden_headers}" />

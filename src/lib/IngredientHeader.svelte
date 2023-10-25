@@ -1,6 +1,6 @@
 <script>
     import {Badge, Button, ButtonGroup, CardHeader, CardTitle, Icon} from "sveltestrap";
-    import {recipe, errors_at_index, processing_index} from "$lib/stores";
+    import {recipe, errors_at_index, processing_index, show_ingredient_headers} from "$lib/stores";
     import Popover from "$lib/Popover.svelte";
     import {Recipe} from "$lib/recipe";
 
@@ -69,6 +69,17 @@
                     </div>
                     <Button size="sm" color="secondary" outline={options.readonly} on:click={() => Recipe.toggle_readonly_operation(index)}>
                         <Icon name="pencil" />
+                    </Button>
+                </Popover>
+                <Popover title="Show ingredient header bar">
+                    <div slot="value">
+                        <p>Click on <Badge color="secondary"><Icon name="arrow-down-up" /></Badge> to hide the header bar.</p>
+                        <p>Header bars can be shown back by clicking on the number of hidden headers in the button <Badge color="secondary"><Icon name="arrow-down-up" /></Badge>.</p>
+                    </div>
+                    <Button size="sm"
+                            color="secondary"
+                            on:click={() => Recipe.toggle_hide_header_operation(index)}>
+                        <Icon name="arrow-down-up" />
                     </Button>
                 </Popover>
                 <Popover title="Skip ingredient">
