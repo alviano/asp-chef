@@ -145,7 +145,7 @@
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
                 } else {
-                    replacement.push(`${prefix}[qrcode](${terms.join(term_separator)})${suffix}`);
+                    replacement.push(`${prefix}[${terms.join(term_separator)}](qrcode)${suffix}`);
                 }
             } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 if (atom.terms.length !== 1) {
@@ -241,16 +241,20 @@
             });
             Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
             Array.from(output_div.getElementsByTagName('a'))
-                .filter(element => element.text === "qrcode")
+                .filter(element => element.href === `${consts.DOMAIN}/qrcode`)
                 .forEach(element => {
-                    const text = element.text;
+                    const content = element.text;
                     element.innerHTML = "";
                     element.removeAttribute("href");
                     element.removeAttribute("target");
-                    new QrCode({
-                        target: element,
-                        value: text,
-                    });
+                    new QrCode(
+                        {
+                            target: element,
+                            props: {
+                                value: content,
+                            },
+                        },
+                    );
                 });
         });
     });
@@ -296,7 +300,7 @@
             Predicate <code>base64/1</code> decodes Base64-encoded content.
         </p>
         <p>
-            Predicate <code>qrcode/1</code> (and links <code>[qrcode](...)</code>) are shown as QR-codes.
+            Predicate <code>qrcode/1</code> (and links <code>[...](qrcode)</code>) are shown as QR-codes.
         </p>
         <p>
             The input is echoed in output.
