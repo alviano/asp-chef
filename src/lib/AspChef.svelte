@@ -189,10 +189,9 @@
         loading_operation_components.files = [];
 
         reload_recipe();
-        recipe_unsubscribe = recipe.subscribe(() => {
-            // update url and run recipe concurrently
-            update_url(input_value, encode_input, decode_output);
-            delayed_process(input_value, encode_input, decode_output, $pause_baking);
+        recipe_unsubscribe = recipe.subscribe(async () => {
+            await update_url(input_value, encode_input, decode_output);
+            await delayed_process(input_value, encode_input, decode_output, $pause_baking);
         });
     }
 </script>
