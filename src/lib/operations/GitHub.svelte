@@ -13,9 +13,16 @@
     const GITHUB_DOMAIN = consts.GITHUB_DOMAIN;
 
     async function fetch_content_internal(url, predicate, errors) {
-        const response = await fetch(url, {
+        const request_options = {
             cache: Utils.browser_cache_policy,
-        });
+        };
+        const github_api_token = localStorage.getItem('github-api-token')
+        if (github_api_token) {
+            request_options.headers = {
+                Authorization: `Bearer ${github_api_token}`
+            };
+        }
+        const response = await fetch(url, request_options);
         if (response.status !== 200) {
             const json = await response.json();
             errors.push(json.message || json);

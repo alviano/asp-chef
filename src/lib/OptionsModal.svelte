@@ -4,6 +4,7 @@
         baking_delay,
         bitly_api_token,
         clingo_remote_url,
+        github_api_token,
         input_height,
         io_panel_width,
         operations_panel_width
@@ -77,6 +78,14 @@
                     type="password"
                     name="bitly-token"
                     bind:value={$bitly_api_token}
+            />
+        </FormGroup>
+        <FormGroup>
+            <Label>GitHub API Token (set it only on trusted browsers)</Label>
+            <Input
+                    type="password"
+                    name="github-token"
+                    bind:value={$github_api_token}
             />
         </FormGroup>
     </ModalBody>

@@ -26,9 +26,16 @@
         try {
             let errors = [];
             let files;
-            let response = await fetch(Utils.public_url_github(options.url), {
+            const request_options = {
                 cache: Utils.browser_cache_policy,
-            });
+            };
+            const github_api_token = localStorage.getItem('github-api-token')
+            if (github_api_token) {
+                request_options.headers = {
+                    Authorization: `Bearer ${github_api_token}`
+                };
+            }
+            let response = await fetch(Utils.public_url_github(options.url), request_options);
             let json = await response.json();
             if (response.status === 200) {
                 files = Array.from(json)
