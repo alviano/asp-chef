@@ -329,16 +329,23 @@ export class Utils extends BaseUtils {
         return consts.HACK_MD_DOMAIN + new URL(url).pathname + '/download';
     }
 
-    static public_url_github(url) {
+    static public_url_github(url, use_jsDelivr) {
         const the_url = new URL(url);
         const [_, user, repo, blob, version, file] = this.split_with_limit(the_url.pathname, '/', 6);
-        if (['blob', 'tree'].includes(blob) && version === 'master') {
+        if (!use_jsDelivr && ['blob', 'tree'].includes(blob) && version === 'master') {
             return `${consts.GITHUB_API_DOMAIN}/repos/${user}/${repo}/contents/${file}`;
         } else if (blob === undefined) {
             return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}/`;
         } else {
             return `${consts.CDN_JSDELIVER_DOMAIN}/gh/${user}/${repo}@${version}/${file}`;
         }
+    }
+
+    static public_url_github_from_jsDelivr(url) {
+        const the_url = new URL(url);
+        const [_, gh, user, repo_version, file] = this.split_with_limit(the_url.pathname, '/', 5);
+        const [repo, version] = repo_version.split('@');
+        return `${consts.GITHUB_DOMAIN}/${user}/${repo}/blob/${version}/${file}`;
     }
 
     static public_url(url) {

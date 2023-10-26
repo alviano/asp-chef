@@ -24,14 +24,35 @@
 
         let res = input;
         try {
-            const url = Utils.public_url_github(options.url);
-            const response = await fetch(url, {
+            let errors = [];
+            let files;
+            let response = await fetch(Utils.public_url_github(options.url), {
                 cache: Utils.browser_cache_policy,
             });
-            const json = await response.json();
-            const files = Array.from(json)
-                .map(entry => entry.html_url)
-                .filter(url => url.match(new RegExp(options.filter, 'i')));
+            let json = await response.json();
+            if (response.status === 200) {
+                files = Array.from(json)
+                    .map(entry => entry.html_url)
+                    .filter(url => url.match(new RegExp(options.filter, 'i')));
+            } else {  // second attempt via jsDelivr
+                errors.push(json.message || json);
+                response = await fetch(Utils.public_url_github(options.url, true), {
+                    cache: Utils.browser_cache_policy,
+                });
+                if (response.status === 200) {
+                    const text = await response.text();
+                    files = text.split('\n')
+                        .map(line => line.trim())
+                        .filter(line => line.startsWith('<a rel="nofollow" href="'))
+                        .map(line => CDN_JSDELIVER_DOMAIN + line.substring(24).split('">')[0])
+                } else {
+                    json = await response.json();
+                    errors.push(json.message || json);
+                    Recipe.set_errors_at_index(index, errors.join('\n'), res);
+                    return res;
+                }
+            }
+
             const encoded_content = files.map(file => `${options.predicate}("${Base64.encode(file)}")`);
             const atoms = Utils.parse_atoms(encoded_content);
             res = res.map(part => [...part, ...atoms]);
@@ -67,11 +88,11 @@
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
-        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public directory on GitHub and fetches the list of its files (via jsDelivr).</p>
+        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public directory on GitHub and fetches the list of its files (possibly via jsDelivr).</p>
         <p>
             <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/tree/version/directory/</code> (ending by slash).
             Use <strong>Set HTTP Cache Policy</strong> to configure the cache policy.
-            Note that jsDelivr may take some time to update.
+            Note that the GitHub API has a rate limit, while jsDelivr may take some time to update.
         </p>
         <p>
             URLs can be filtered by a case-insensitive regular expression.

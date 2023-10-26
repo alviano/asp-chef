@@ -68,6 +68,7 @@ export class TestRecipe {
 			await expect(await location.locator('.d-test')).toHaveText(the_output, { timeout: 5000 });
 		});
 
+		await this.delay(150);	// wait for the URL to update
 		await this.page.goto('/headless#' + this.page.url().split('#')[1]);
 		await expect(await this.page.getByTestId("Headless-output")).toHaveText(the_output, { timeout: 5000 });
 	}
@@ -209,7 +210,7 @@ export class TestRecipe {
 	}
 
 	async lua(content: string, encode_predicate = '__base64__') {
-		return this.ingredient('Lua', async ingredient => {
+		return this.ingredient('Lua @-terms', async ingredient => {
 			await ingredient.getByTestId('Lua-content').getByRole('textbox').fill(content.trim());
 			await ingredient.getByTestId('Lua-encode-predicate').fill(encode_predicate);
 		});

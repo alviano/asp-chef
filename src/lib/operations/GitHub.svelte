@@ -12,10 +12,15 @@
 
     const GITHUB_DOMAIN = consts.GITHUB_DOMAIN;
 
-    async function fetch_content(url, predicate) {
+    async function fetch_content_internal(url, predicate, errors) {
         const response = await fetch(url, {
             cache: Utils.browser_cache_policy,
         });
+        if (response.status !== 200) {
+            const json = await response.json();
+            errors.push(json.message || json);
+            return;
+        }
         const contentType = response.headers.get("content-type");
         let content;
         if (contentType.startsWith("application/json")) {
@@ -28,6 +33,20 @@
         const encoded_content = `${predicate}("${content}")`;
         return Utils.parse_atom(encoded_content);
     }
+
+    async function fetch_content(url, predicate) {
+        let errors = [];
+        let res = await fetch_content_internal(Utils.public_url_github(url), predicate, errors);
+        if (res !== undefined) {
+            return res;
+        }
+        res = await fetch_content_internal(Utils.public_url_github(url, true), predicate, errors);
+        if (res !== undefined) {
+            return res;
+        }
+        throw new Error(errors.join('\n'));
+    }
+
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
@@ -46,9 +65,12 @@
                     res.push(new_part);
                     for (let atom of part) {
                         if (atom.predicate === options.predicate) {
-                            const url = Base64.decode(atom.terms[0].string);
+                            let url = Base64.decode(atom.terms[0].string);
+                            if (url.startsWith(consts.CDN_JSDELIVER_DOMAIN)) {
+                                url = Utils.public_url_github_from_jsDelivr(url);
+                            }
                             if (url.startsWith(`${GITHUB_DOMAIN}/`)) {
-                                new_part.push(await fetch_content(Utils.public_url_github(url), options.predicate));
+                                new_part.push(await fetch_content(url, options.predicate));
                             } else {
                                 Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
                                 return input;
@@ -59,8 +81,7 @@
                     }
                 }
             } else {
-                const url = Utils.public_url_github(options.url);
-                const atom = await fetch_content(url, options.predicate);
+                const atom = await fetch_content(options.url, options.predicate);
                 res = input.map(part => [...part, atom]);
             }
         } catch (error) {
@@ -99,7 +120,7 @@
         <p>
             <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/blob/version/filepath</code>.
             Use <strong>Set HTTP Cache Policy</strong> to configure the cache policy.
-            Note that jsDelivr may take some time to update.
+            Note that the GitHub API has a rate limit, while jsDelivr may take some time to update.
         </p>
         <p>
             The content is base64 encoded and wrapped by predicate <code>__base64__</code>.

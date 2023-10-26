@@ -22,6 +22,7 @@
     import AsyncLock from "async-lock";
     import {keydown} from "dumbo-svelte";
     import {v4 as uuidv4} from 'uuid';
+    import {consts} from "$lib/consts";
 
     let input_value = '';
     let encode_input = false;
@@ -35,6 +36,7 @@
         if (recipe_unsubscribe === null) {
             return;
         }
+        await Utils.delay(consts.UPDATE_URL_DELAY)
         location.hash = Recipe.serialize(input_value, {
             encode_input,
             decode_output,
@@ -187,9 +189,10 @@
         loading_operation_components.files = [];
 
         reload_recipe();
-        recipe_unsubscribe = recipe.subscribe(async () => {
-            await update_url(input_value, encode_input, decode_output);
-            await delayed_process(input_value, encode_input, decode_output, $pause_baking);
+        recipe_unsubscribe = recipe.subscribe(() => {
+            // update url and run recipe concurrently
+            update_url(input_value, encode_input, decode_output);
+            delayed_process(input_value, encode_input, decode_output, $pause_baking);
         });
     }
 </script>
