@@ -262,7 +262,7 @@ export class Recipe {
             }
             const json = await response.json();
             const expanded_url = new URL(Base64.decode(json.content));
-            return `${consts.DOMAIN}#${expanded_url.hash}`;
+            return `${consts.DOMAIN}${expanded_url.hash}`;
         } else {
             return recipe_url;
         }
