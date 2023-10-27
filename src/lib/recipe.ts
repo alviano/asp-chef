@@ -246,11 +246,10 @@ export class Recipe {
         const the_recipe_url = new URL(recipe_url);
         const parts = Utils.split_with_limit(the_recipe_url.pathname, "/", 3);
         if (parts.length === 3 && parts[1] === "s" && [Utils.split_with_limit(consts.DOMAIN, "://", 2)[1], "asp-chef.alviano.net"].includes(the_recipe_url.host)) {
-            const slug = parts[2];
+            const path = parts[2];
             const hash = the_recipe_url.hash;
             const user_repo = hash ? hash.substring(1) : "alviano/asp-chef-short-links";
-            const directory = the_recipe_url.searchParams.has("d") ? the_recipe_url.searchParams.get("d") : "";
-            const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${directory}/${slug}.url`;
+            const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${path}.url`;
             const options = {};
             if (get(github_api_token)) {
                 options.headers = {
@@ -263,7 +262,7 @@ export class Recipe {
             }
             const json = await response.json();
             const expanded_url = new URL(Base64.decode(json.content));
-            return `${consts.DOMAIN}/${expanded_url.hash}`;
+            return `${consts.DOMAIN}#${expanded_url.hash}`;
         } else {
             return recipe_url;
         }
