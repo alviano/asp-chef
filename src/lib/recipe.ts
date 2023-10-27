@@ -249,7 +249,7 @@ export class Recipe {
             const path = parts[2];
             const hash = the_recipe_url.hash;
             const user_repo = hash ? hash.substring(1) : "alviano/asp-chef-short-links";
-            const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${path}.url`;
+            const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents${path}.url`;
             const options = {};
             if (get(github_api_token)) {
                 options.headers = {
