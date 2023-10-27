@@ -3,9 +3,8 @@ import {Utils} from "$lib/utils";
 import {
     errors_at_index,
     github_api_token,
-    github_directory,
+    github_path,
     github_repository,
-    github_slug,
     github_username,
     processing_index,
     recipe,
@@ -245,10 +244,11 @@ export class Recipe {
     static async expand_if_short_link(recipe_url: string) : Promise<string> {
         const the_recipe_url = new URL(recipe_url);
         const parts = Utils.split_with_limit(the_recipe_url.pathname, "/", 3);
-        if (parts.length === 3 && parts[1] === "s" && [Utils.split_with_limit(consts.DOMAIN, "://", 2)[1], "asp-chef.alviano.net"].includes(the_recipe_url.host)) {
+        if (parts.length === 3 && parts[1] === "s" && [Utils.split_with_limit(consts.DOMAIN, "://", 2)[1], consts.SHORT_LINKS_DEFAULT_DOMAIN].includes(the_recipe_url.host)) {
             const path = parts[2];
+            console.log(path)
             const hash = the_recipe_url.hash;
-            const user_repo = hash ? hash.substring(1) : "alviano/asp-chef-short-links";
+            const user_repo = hash ? hash.substring(1) : `${consts.SHORT_LINKS_DEFAULT_USERNAME}/${consts.SHORT_LINKS_DEFAULT_REPOSITORY}`;
             const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents${path}.url`;
             const options = {};
             if (get(github_api_token)) {
@@ -272,11 +272,10 @@ export class Recipe {
         if (get(github_api_token) === '') {
             throw new Error("Missing GitHub API Token")
         }
-        const username = get(github_username) || "alviano";
-        const repository = get(github_repository) || "asp-chef-short-links";
-        const directory = get(github_directory) || "";
-        const slug = get(github_slug) || "short";
-        const url = `${consts.GITHUB_API_DOMAIN}/repos/${username}/${repository}/contents/${directory}/${slug}.url`;
+        const username = get(github_username) || consts.SHORT_LINKS_DEFAULT_USERNAME;
+        const repository = get(github_repository) || consts.SHORT_LINKS_DEFAULT_REPOSITORY;
+        const path = get(github_path) || uuidv4();
+        const url = `${consts.GITHUB_API_DOMAIN}/repos/${username}/${repository}/contents/${path}.url`;
         const headers = {
             "Authorization": `Bearer ${get(github_api_token)}`,
         };
@@ -305,9 +304,8 @@ export class Recipe {
             throw new Error("Failed to write on GitHub")
         }
 
-        const params = directory === "extras/ShortLinks" ? "" : `?d=${directory}`
-        const hash = username === "alviano" && repository === "asp-chef" ? "" : `#${username}/${repository}`;
-        return `${consts.DOMAIN}/s/${slug}${params}${hash}`;
+        const hash = username === consts.SHORT_LINKS_DEFAULT_USERNAME && repository === consts.SHORT_LINKS_DEFAULT_REPOSITORY ? "" : `#${username}/${repository}`;
+        return `${consts.DOMAIN}/s/${path}${hash}`;
     }
 
     static serialize_ingredients(start: number, how_many = 0) {

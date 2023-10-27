@@ -23,6 +23,9 @@ export const consts = {
   HACK_MD_DOMAIN: "https://hackmd.io",
   GITHUB_DOMAIN: "https://github.com",
   GITHUB_API_DOMAIN: "https://api.github.com",
+  SHORT_LINKS_DEFAULT_DOMAIN: "https://asp-chef.alviano.net",
+  SHORT_LINKS_DEFAULT_USERNAME: "alviano",
+  SHORT_LINKS_DEFAULT_REPOSITORY: "asp-chef-short-links",
   CDN_JSDELIVER_DOMAIN: "https://cdn.jsdelivr.net",
   NPM_DOMAIN: "https://www.npmjs.com/",
   SYMBOLS: {

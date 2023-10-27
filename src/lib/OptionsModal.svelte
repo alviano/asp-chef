@@ -1,9 +1,23 @@
 <script>
-    import {Button, FormGroup, Input, InputGroup, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
+    import {
+        Button,
+        FormGroup,
+        Input,
+        InputGroup,
+        InputGroupText,
+        Label,
+        Modal,
+        ModalBody,
+        ModalFooter,
+        ModalHeader
+    } from "sveltestrap";
     import {
         baking_delay,
         clingo_remote_url,
-        github_api_token, github_directory, github_repository, github_slug, github_username,
+        github_api_token,
+        github_path,
+        github_repository,
+        github_username,
         input_height,
         io_panel_width,
         operations_panel_width
@@ -94,15 +108,11 @@
                 />
             </InputGroup>
             <InputGroup>
+                <InputGroupText>/</InputGroupText>
                 <Input
-                        name="github-directory"
-                        bind:value={$github_directory}
-                        placeholder="directory"
-                />
-                <Input
-                        name="github-slug"
-                        bind:value={$github_slug}
-                        placeholder="slug"
+                        name="github-path"
+                        bind:value={$github_path}
+                        placeholder="path"
                 />
             </InputGroup>
         </FormGroup>

@@ -32,8 +32,7 @@ export const clingo_remote_on = writable((browser ? localStorage.getItem('clingo
 export const github_api_token = writable((browser ? localStorage.getItem('github-api-token') : '') || '');
 export const github_username = writable((browser ? localStorage.getItem('github-username') : '') || '');
 export const github_repository = writable((browser ? localStorage.getItem('github-repository') : '') || '');
-export const github_directory = writable((browser ? localStorage.getItem('github-directory') : '') || '');
-export const github_slug = writable((browser ? localStorage.getItem('github-slug') : '') || '');
+export const github_path = writable((browser ? localStorage.getItem('github-slug') : '') || '');
 
 privacy_policy.subscribe(value => {
   if (value) {
@@ -91,6 +90,6 @@ github_repository.subscribe(value => {
   localStorage.setItem('github-repository', '' + value);
 });
 
-github_slug.subscribe(value => {
+github_path.subscribe(value => {
   localStorage.setItem('github-slug', '' + value);
 });
