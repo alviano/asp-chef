@@ -248,8 +248,8 @@ export class Recipe {
         if (parts.length === 3 && parts[1] === "s" && [Utils.split_with_limit(consts.DOMAIN, "://", 2)[1], "asp-chef.alviano.net"].includes(the_recipe_url.host)) {
             const slug = parts[2];
             const hash = the_recipe_url.hash;
-            const user_repo = hash ? hash.substring(1) : "alviano/asp-chef";
-            const directory = the_recipe_url.searchParams.has("d") ? the_recipe_url.searchParams.get("d") : "extras/ShortLinks";
+            const user_repo = hash ? hash.substring(1) : "alviano/asp-chef-short-links";
+            const directory = the_recipe_url.searchParams.has("d") ? the_recipe_url.searchParams.get("d") : "";
             const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${directory}/${slug}.url`;
             const options = {};
             if (get(github_api_token)) {
@@ -262,7 +262,8 @@ export class Recipe {
                 throw new Error(`Cannot load ${url}`);
             }
             const json = await response.json();
-            return Base64.decode(json.content);
+            const expanded_url = new URL(Base64.decode(json.content));
+            return `${consts.DOMAIN}/${expanded_url.hash}`;
         } else {
             return recipe_url;
         }
@@ -273,8 +274,8 @@ export class Recipe {
             throw new Error("Missing GitHub API Token")
         }
         const username = get(github_username) || "alviano";
-        const repository = get(github_repository) || "asp-chef";
-        const directory = get(github_directory) || "extras/ShortLinks";
+        const repository = get(github_repository) || "asp-chef-short-links";
+        const directory = get(github_directory) || "";
         const slug = get(github_slug) || "short";
         const url = `${consts.GITHUB_API_DOMAIN}/repos/${username}/${repository}/contents/${directory}/${slug}.url`;
         const headers = {
