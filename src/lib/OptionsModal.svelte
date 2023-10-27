@@ -1,10 +1,9 @@
 <script>
-    import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
+    import {Button, FormGroup, Input, InputGroup, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
     import {
         baking_delay,
-        bitly_api_token,
         clingo_remote_url,
-        github_api_token,
+        github_api_token, github_directory, github_repository, github_slug, github_username,
         input_height,
         io_panel_width,
         operations_panel_width
@@ -73,20 +72,39 @@
             />
         </FormGroup>
         <FormGroup>
-            <Label>Bitly API Token (set it only on trusted browsers)</Label>
-            <Input
-                    type="password"
-                    name="bitly-token"
-                    bind:value={$bitly_api_token}
-            />
-        </FormGroup>
-        <FormGroup>
             <Label>GitHub API Token (set it only on trusted browsers)</Label>
             <Input
                     type="password"
                     name="github-token"
                     bind:value={$github_api_token}
             />
+        </FormGroup>
+        <FormGroup>
+            <Label>GitHub short links configuration</Label>
+            <InputGroup>
+                <Input
+                        name="github-username"
+                        bind:value={$github_username}
+                        placeholder="username"
+                />
+                <Input
+                        name="github-repository"
+                        bind:value={$github_repository}
+                        placeholder="repository"
+                />
+            </InputGroup>
+            <InputGroup>
+                <Input
+                        name="github-directory"
+                        bind:value={$github_directory}
+                        placeholder="directory"
+                />
+                <Input
+                        name="github-slug"
+                        bind:value={$github_slug}
+                        placeholder="slug"
+                />
+            </InputGroup>
         </FormGroup>
     </ModalBody>
     <ModalFooter>

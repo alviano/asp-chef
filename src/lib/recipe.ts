@@ -1,8 +1,12 @@
 import {get} from "svelte/store";
 import {Utils} from "$lib/utils";
 import {
-    bitly_api_token,
     errors_at_index,
+    github_api_token,
+    github_directory,
+    github_repository,
+    github_slug,
+    github_username,
     processing_index,
     recipe,
     registered_javascript,
@@ -239,42 +243,71 @@ export class Recipe {
     }
 
     static async expand_if_short_link(recipe_url: string) : Promise<string> {
-        if (get(bitly_api_token) === '') {
-            throw new Error("Missing Bitly API Token")
-        }
-        if (recipe_url.match(/^https?:\/\/bit.ly\//)) {
-            const code = new URL(recipe_url).pathname.substring(1);
-            const json = await fetch(
-                `https://api-ssl.bitly.com/v4/bitlinks/bit.ly/${code}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${get(bitly_api_token)}`,
-                    }
+        const the_recipe_url = new URL(recipe_url);
+        const parts = Utils.split_with_limit(the_recipe_url.pathname, "/", 3);
+        if (parts.length === 3 && parts[1] === "s" && [Utils.split_with_limit(consts.DOMAIN, "://", 2)[1], "asp-chef.alviano.net"].includes(the_recipe_url.host)) {
+            const slug = parts[2];
+            const hash = the_recipe_url.hash;
+            const user_repo = hash ? hash.substring(1) : "alviano/asp-chef";
+            const directory = the_recipe_url.searchParams.has("d") ? the_recipe_url.searchParams.get("d") : "extras/ShortLinks";
+            const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${directory}/${slug}.url`;
+            const options = {};
+            if (get(github_api_token)) {
+                options.headers = {
+                    "Authorization": `Bearer ${get(github_api_token)}`,
                 }
-            ).then(response => response.json());
-            return json.long_url;
+            }
+            const response = await fetch(url, options);
+            if (response.status !== 200) {
+                throw new Error(`Cannot load ${url}`);
+            }
+            const json = await response.json();
+            return Base64.decode(json.content);
+        } else {
+            return recipe_url;
         }
-        return recipe_url;
     }
 
     static async shorten_link(recipe_url: string) : Promise<string> {
-        if (get(bitly_api_token) === '') {
-            throw new Error("Missing Bitly API Token")
+        if (get(github_api_token) === '') {
+            throw new Error("Missing GitHub API Token")
         }
-        const json = await fetch(
-            "https://api-ssl.bitly.com/v4/shorten",
-            {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${get(bitly_api_token)}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    "long_url": recipe_url,
-                }),
-            }
-        ).then(response => response.json());
-        return json.link;
+        const username = get(github_username) || "alviano";
+        const repository = get(github_repository) || "asp-chef";
+        const directory = get(github_directory) || "extras/ShortLinks";
+        const slug = get(github_slug) || "short";
+        const url = `${consts.GITHUB_API_DOMAIN}/repos/${username}/${repository}/contents/${directory}/${slug}.url`;
+        const headers = {
+            "Authorization": `Bearer ${get(github_api_token)}`,
+        };
+
+        let response = await fetch(url, {
+            headers
+        });
+        const body = {
+            message: "short link",
+            committer: {
+                name: "ASP Chef",
+                email: "asp-chef@example.com",
+            },
+            content: Base64.encode(recipe_url),
+        };
+        if (response.status === 200) {
+            const json = await response.json();
+            body.sha = json.sha;
+        }
+        response = await fetch(url, {
+            method: "PUT",
+            headers,
+            body: JSON.stringify(body),
+        });
+        if (response.status !== 200 && response.status !== 201) {
+            throw new Error("Failed to write on GitHub")
+        }
+
+        const params = directory === "extras/ShortLinks" ? "" : `?d=${directory}`
+        const hash = username === "alviano" && repository === "asp-chef" ? "" : `#${username}/${repository}`;
+        return `${consts.DOMAIN}/s/${slug}${params}${hash}`;
     }
 
     static serialize_ingredients(start: number, how_many = 0) {
@@ -449,7 +482,7 @@ export class Recipe {
 
     static as_url() {
         const res = new URL(location.toString());
-        res.hash = this.last_serialization;
+        res.hash = this.last_serialization || '';
         return res.toString();
     }
 

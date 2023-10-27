@@ -1,0 +1,21 @@
+<!--
+https://tinyurl.com/aschef points to https://asp-chef.alviano.net/s
+
+register https://tinyurl.com/SOMETHING pointing to https://asp-chef.alviano.net/s?d=PATH#USERNAME/REPOSITORY
+to use this shortening service on other GitHub accounts and repository
+-->
+
+<script>
+    import {page} from '$app/stores';
+    import {Recipe} from "$lib/recipe";
+
+    async function fetch_url() {
+        location.href = await Recipe.expand_if_short_link($page.url)
+    }
+</script>
+
+{#await fetch_url()}
+    Loading URL...
+{:catch error}
+    {error}
+{/await}

@@ -11,13 +11,15 @@
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        const recipe_url = options.url;
+        let recipe_url = options.url;
         if (recipe_url !== options.url) {
             Utils.snackbar(`Fetched recipe ${recipe_url.substring(0, 25)}...`)
         }
         if (recipe_url === '') {
             return input;
-        } else  if (recipe_url.indexOf('#') === -1) {
+        }
+        recipe_url = await Recipe.expand_if_short_link(recipe_url);
+        if (recipe_url.indexOf('#') === -1) {
             Recipe.set_errors_at_index(index, 'Error: invalid URL, must contain #. Forward input.');
             return input;
         }
@@ -98,6 +100,21 @@
         Utils.snackbar("URL ready to be pasted!");
     }
 
+    async function resolve_url() {
+        options.url = await Recipe.expand_if_short_link(recipe_url);
+        edit();
+    }
+
+    async function shorten_url() {
+        Utils.confirm({
+            message: "The recipe contains no sensitive information and I want to create a short URL for it?",
+            onconfirm: async () => {
+                options.url = await Recipe.shorten_link(options.url);
+                edit();
+            },
+        });
+    }
+
     onMount(() => {
         listeners.set(id, (the_recipe_url, the_ingredients) => {
             recipe_url = the_recipe_url;
@@ -133,6 +150,15 @@
                on:input={edit}
                data-testid="Recipe-url"
         />
+        {#if recipe_url === options.url}
+            <Button size="sm" title="Shorten recipe URL (not suggested in case of sensitive information in the URL)" on:click={shorten_url}>
+                <Icon name="arrows-angle-contract" />
+            </Button>
+        {:else}
+            <Button size="sm" title="Replace shorten recipe URL with its long version" on:click={resolve_url}>
+                <Icon name="arrows-angle-expand" />
+            </Button>
+        {/if}
         <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(normalized_recipe_url(recipe_url))}>
             <Icon name="clipboard-plus" />
         </Button>

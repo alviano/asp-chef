@@ -3,29 +3,29 @@
     import {flip} from "svelte/animate";
     import {dndzone} from "svelte-dnd-action";
     import {
+        clingo_remote_on,
         drag_disabled,
         errors_at_index,
         pause_baking,
+        readonly_ingredients,
         recipe,
         show_help,
         show_ingredient_details,
-        readonly_ingredients,
-        show_ingredient_headers, clingo_remote_on,
+        show_ingredient_headers,
     } from "$lib/stores";
     import {Badge, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
     import {keydown} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";
     import {Utils} from "$lib/utils";
     import Nop from "$lib/operations/Nop.svelte";
-    import {onDestroy, onMount} from "svelte";
+    import {createEventDispatcher, onDestroy, onMount} from "svelte";
     import {v4 as uuidv4} from "uuid";
     import OptionsModal from "$lib/OptionsModal.svelte";
     import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
-	import { createEventDispatcher } from 'svelte';
     import Javascript from "$lib/operations/Javascript.svelte";
     import HiddenHeadersModal from "$lib/HiddenHeadersModal.svelte";
 
-	const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher();
 
     export let show_operations;
     export let show_io_panel;
@@ -47,7 +47,7 @@
 
     async function copy_short_url() {
         Utils.confirm({
-            message: "The recipe contains no sensitive information and I want to create a non-deletable short URL for it?",
+            message: "The recipe contains no sensitive information and I want to create a short URL for it?",
             onconfirm: async () => {
                 try {
                     const url = await Recipe.shorten_link(Recipe.as_url().replace("http://localhost:5188", "https://asp-chef.alviano.net"));
@@ -287,9 +287,9 @@
                     </Popover>
                     <Popover title="Copy short recipe URL">
                         <div slot="value">
-                            <p>Shorten recipe URL with a random short URL provided by <code>bitly.com</code> and copy it in the clipboard.</p>
-                            <p>Note that a new URL is created every time the button is clicked and an API token must be given in the options.</p>
-                            <p><strong>Important!</strong> Short URLs are easy to guess.</p>
+                            <p>Shorten recipe URL with a short URL (according to the options) and copy it in the clipboard.</p>
+                            <p>Note that a GitHub API token with write permission is required (use an ad-hoc repository).</p>
+                            <p><strong>Important!</strong> Don't include sensitive data in shortened recipes.</p>
                         </div>
                         <Button size="sm" on:click={copy_short_url}>
                             <Icon name="arrows-angle-contract" />

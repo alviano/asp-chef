@@ -29,8 +29,11 @@ export const baking_delay = writable(int_in_range_or_default('baking-delay', con
 export const clingo_remote_uuid = writable((browser ? localStorage.getItem('clingo-remote-uuid') : '') || uuidv4());
 export const clingo_remote_url = writable((browser ? localStorage.getItem('clingo-remote-url') : '') || 'http://localhost:8000');
 export const clingo_remote_on = writable((browser ? localStorage.getItem('clingo-remote-on') : 'false') === 'true');
-export const bitly_api_token = writable((browser ? localStorage.getItem('bitly-api-token') : '') || '');
 export const github_api_token = writable((browser ? localStorage.getItem('github-api-token') : '') || '');
+export const github_username = writable((browser ? localStorage.getItem('github-username') : '') || '');
+export const github_repository = writable((browser ? localStorage.getItem('github-repository') : '') || '');
+export const github_directory = writable((browser ? localStorage.getItem('github-directory') : '') || '');
+export const github_slug = writable((browser ? localStorage.getItem('github-slug') : '') || '');
 
 privacy_policy.subscribe(value => {
   if (value) {
@@ -78,4 +81,16 @@ clingo_remote_on.subscribe(value => {
 
 github_api_token.subscribe(value => {
   localStorage.setItem('github-api-token', '' + value);
+});
+
+github_username.subscribe(value => {
+  localStorage.setItem('github-username', '' + value);
+});
+
+github_repository.subscribe(value => {
+  localStorage.setItem('github-repository', '' + value);
+});
+
+github_slug.subscribe(value => {
+  localStorage.setItem('github-slug', '' + value);
 });
