@@ -5,7 +5,7 @@
     import {
         clingo_remote_on,
         drag_disabled,
-        errors_at_index,
+        errors_at_index, github_path,
         pause_baking,
         readonly_ingredients,
         recipe,
@@ -47,7 +47,7 @@
 
     async function copy_short_url() {
         Utils.confirm({
-            message: "The recipe contains no sensitive information and I want to create a short URL for it?",
+            message: `The recipe contains no sensitive information and I want to create a short URL (path ${$github_path}) for it.`,
             onconfirm: async () => {
                 try {
                     const url = await Recipe.shorten_link(Recipe.as_url().replace("http://localhost:5188", "https://asp-chef.alviano.net"));
