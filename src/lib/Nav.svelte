@@ -1,5 +1,5 @@
 <script>
-  import { Collapse, Icon, Nav, Navbar, NavbarBrand, NavItem, NavLink, NavbarToggler } from 'sveltestrap/src';
+  import {Collapse, Icon, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'sveltestrap/src';
   import Popover from "$lib/Popover.svelte";
 
   let isOpen = false;
@@ -27,11 +27,14 @@
             Proudly brought to you by Mario Alviano, Davide Cirimele and Luis Angel Rodriguez Reiners.
           </p>
           <p>
-            More details on the GitHub repository <code>https://github.com/alviano/asp-chef</code> (click to open).
+            More details on the GitHub repository <code>https://github.com/alviano/asp-chef</code>.
+          </p>
+          <p>
+            <strong>Click for some examples and tutorials!</strong>
           </p>
         </div>
         <NavItem>
-          <NavLink href="https://github.com/alviano/asp-chef" target="_blank"><Icon name="question-circle" /></NavLink>
+          <NavLink href="/s" target="_blank"><Icon name="question-circle" /></NavLink>
         </NavItem>
       </Popover>
     </Nav>
