@@ -132,9 +132,8 @@
     }
 
     onMount(() => {
-        const recipe_panel = document.getElementById('recipe_panel_column');
-
         $keydown.push([keydown_uuid, (event) => {
+            const recipe_panel = document.getElementById('recipe_panel_column');
             if (event.key === 'ArrowLeft') {
                 show_operations = !show_operations;
                 Utils.snackbar(show_operations ? "Operations panel shown..." : "Operations panel hidden...");
