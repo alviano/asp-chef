@@ -249,7 +249,7 @@ export class Recipe {
             console.log(path)
             const hash = the_recipe_url.hash;
             const user_repo = hash ? hash.substring(1) : `${consts.SHORT_LINKS_DEFAULT_USERNAME}/${consts.SHORT_LINKS_DEFAULT_REPOSITORY}`;
-            const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents${path}.url`;
+            const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${path}.url`;
             const options = {};
             if (get(github_api_token)) {
                 options.headers = {
