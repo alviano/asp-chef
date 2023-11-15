@@ -33,7 +33,6 @@
         if (contentType.startsWith("application/json")) {
             const json = await response.json();
             content = json.content.replace(/[\n\r]/g, "");
-            console.log(content)
         } else {
             const text = await response.text();
             content = Base64.encode(text);
