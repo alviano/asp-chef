@@ -161,6 +161,7 @@
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount, tick} from "svelte";
     import GraphCanvas from "$lib/operations/+GraphCanvas.svelte";
+    import {Popover} from "dumbo-svelte";
 
     export let id;
     export let options;
@@ -234,7 +235,12 @@
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Graph-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
-        <Button outline="{!copy_layout}" on:click={() => { copy_layout = !copy_layout; }}><Icon name="clipboard-plus" /></Button>
+        <Popover title="Copy layout">
+            <div slot="value">
+                <p>Copy the position of nodes in the clipboard when the graph is dragged.</p>
+            </div>
+            <Button outline="{!copy_layout}" on:click={() => { copy_layout = !copy_layout; }}><Icon name="clipboard-plus" /></Button>
+        </Popover>
     </InputGroup>
     {#if number_of_models !== 1}
         <InputGroup>
