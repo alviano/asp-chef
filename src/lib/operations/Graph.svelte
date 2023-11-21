@@ -223,6 +223,7 @@
         </p>
         <p>
             Labels can be searched in the graph.
+            Drag the graph with the mouse to copy the layout (position of nodes).
         </p>
     </div>
     <InputGroup>
@@ -249,6 +250,7 @@
         {#each graphs as graph}
             <GraphCanvas
                     {graph}
+                    predicate="{options.predicate}"
                     max_height="{options.height}"
                     search_pattern={options.search}
                     search_color={options.search_color}

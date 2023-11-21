@@ -30,6 +30,7 @@
     };
 
     export let graph;
+    export let predicate;
     export let max_height;
 
     let defaults = {
@@ -254,6 +255,8 @@
     }
 
     function drag_ended(currentEvent) {
+        copy_layout();
+
         if (!currentEvent.active) {
             simulation.alphaTarget(0);
         }
@@ -281,6 +284,14 @@
     const resizeObserver = new ResizeObserver(() => {
         init();
     });
+
+    async function copy_layout() {
+        await navigator.clipboard.writeText(
+            graph.nodes.map(
+                node => `${predicate}(node(${node.id}), fx(${Math.round(node.x)}), fy(${Math.round(node.y)})).`
+            ).join('\n')
+        );
+    }
 
     onMount(async () => {
         resizeObserver.observe(canvas);
