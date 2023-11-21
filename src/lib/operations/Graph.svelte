@@ -157,7 +157,7 @@
 </script>
 
 <script>
-    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Badge, Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount, tick} from "svelte";
     import GraphCanvas from "$lib/operations/+GraphCanvas.svelte";
@@ -167,6 +167,8 @@
     export let index;
     export let add_to_recipe;
     export let keybinding;
+
+    let copy_layout = false;
 
     let graphs = [];
     let number_of_models = 0;
@@ -223,7 +225,7 @@
         </p>
         <p>
             Labels can be searched in the graph.
-            Drag the graph with the mouse to copy the layout (position of nodes).
+            If <Badge><Icon name="clipboard-plus" /></Badge> is active, drag the graph with the mouse to copy the layout (position of nodes).
         </p>
     </div>
     <InputGroup>
@@ -232,6 +234,7 @@
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Graph-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
+        <Button outline="{!copy_layout}" on:click={() => { copy_layout = !copy_layout; }}><Icon name="clipboard-plus" /></Button>
     </InputGroup>
     {#if number_of_models !== 1}
         <InputGroup>
@@ -251,6 +254,7 @@
             <GraphCanvas
                     {graph}
                     predicate="{options.predicate}"
+                    {copy_layout}
                     max_height="{options.height}"
                     search_pattern={options.search}
                     search_color={options.search_color}

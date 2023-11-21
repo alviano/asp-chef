@@ -31,6 +31,7 @@
 
     export let graph;
     export let predicate;
+    export let copy_layout;
     export let max_height;
 
     let defaults = {
@@ -66,6 +67,17 @@
     const zoom_graph = d3.zoom()
         .scaleExtent([1 / 10, 8])
         .on("zoom", zoomed);
+
+
+    async function copy_layout_to_clipboard() {
+        if (copy_layout) {
+            await navigator.clipboard.writeText(
+                graph.nodes.map(
+                    node => `${predicate}(node(${node.id}), fx(${Math.round(node.x)}), fy(${Math.round(node.y)})).`
+                ).join('\n')
+            );
+        }
+    }
 
     function build_regex(search_pattern) {
         try {
@@ -255,7 +267,7 @@
     }
 
     function drag_ended(currentEvent) {
-        copy_layout();
+        copy_layout_to_clipboard();
 
         if (!currentEvent.active) {
             simulation.alphaTarget(0);
@@ -284,14 +296,6 @@
     const resizeObserver = new ResizeObserver(() => {
         init();
     });
-
-    async function copy_layout() {
-        await navigator.clipboard.writeText(
-            graph.nodes.map(
-                node => `${predicate}(node(${node.id}), fx(${Math.round(node.x)}), fy(${Math.round(node.y)})).`
-            ).join('\n')
-        );
-    }
 
     onMount(async () => {
         resizeObserver.observe(canvas);
