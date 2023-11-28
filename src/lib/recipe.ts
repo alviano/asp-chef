@@ -457,6 +457,20 @@ export class Recipe {
         recipe.set(the_recipe);
     }
 
+    static fix_operation(id: string, index: number, operation: string) {
+        this.invalidate_cached_output(index);
+        const the_recipe = this.recipe;
+        if (the_recipe[index].id === id) {
+            the_recipe[index].operation = operation;
+        } else {
+            const the_index = the_recipe.findIndex(ingredient => ingredient.id === id)
+            if (the_index !== -1) {
+                the_recipe[the_index].operation = operation;
+            }
+        }
+        recipe.set(the_recipe);
+    }
+
     static async process_input(input: string, encode: boolean) {
         if (encode) {
             return [[await Utils.parse_atom(`__base64__("${Base64.encode(input)}")`)]];

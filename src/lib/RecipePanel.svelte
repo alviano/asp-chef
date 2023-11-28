@@ -13,7 +13,7 @@
         show_ingredient_details,
         show_ingredient_headers,
     } from "$lib/stores";
-    import {Badge, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
+    import {Badge, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon, Input, InputGroup} from "sveltestrap";
     import {keydown} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";
     import {Utils} from "$lib/utils";
@@ -90,6 +90,11 @@
                 Recipe.remove_all_operations();
             }
         });
+    }
+
+    function fix_ingredient(index, id) {
+        const operation = document.querySelector(`div[data-fix-ingredient-index='${index}'] input`).value;
+        Recipe.fix_operation(id, index, operation);
     }
 
     let items = [];
@@ -329,9 +334,14 @@
                                           on:change_input />
                     {:else}
                         <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
-                        <div class="alert-warning" style="color: white">
+                        <div class="alert-warning" style="color: white" data-fix-ingredient-index="{index}">
                             <h5 class="alert-heading">Oops!</h5>
-                            Unknown operation replaced by Nop: {item.operation}
+                            Unknown operation replaced by Nop: {item.operation}.
+                            Can you fix it manually?
+                            <InputGroup>
+                                <Input rows="{10}" value="{item.operation}" />
+                                <Button on:click={() => fix_ingredient(index, item.id)}>Fix</Button>
+                            </InputGroup>
                         </div>
                     {/if}
                 </div>
