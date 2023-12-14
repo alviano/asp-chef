@@ -3,6 +3,7 @@
   publish = "build/"
 
 [context.production.environment]
+  NODE_VERSION = '18'
   VITE_DEBUG = 'false'
   VITE_DOMAIN = 'https://asp-chef.alviano.net'
   VITE_PURIFY_LOG_ERRORS = 'false'
