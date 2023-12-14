@@ -66,6 +66,7 @@
 
     function toggle_readonly_ingredients() {
         $readonly_ingredients = !$readonly_ingredients;
+        dispatch("rerun_recipe");
     }
 
     function toggle_show_ingredient_headers() {
@@ -74,6 +75,7 @@
 
     function toggle_show_details() {
         $show_ingredient_details = !$show_ingredient_details;
+        dispatch("rerun_recipe");
     }
 
     function toggle_pause_baking() {
@@ -226,6 +228,7 @@
                     <Popover title="Show details">
                         <div slot="value">
                             <p>You may want to hide details when ordering your recipe.</p>
+                            <p><em>It also invalidates the cache and runs the recipe.</em></p>
                             <p>Keybinding: <code>D</code></p>
                         </div>
                         <Button size="sm"
@@ -239,6 +242,7 @@
                         <div slot="value">
                             <p>Enable/disable editing of ingredients.</p>
                             <p>Note that the editing of some options is always enabled (e.g., search keys in <strong>Graph</strong> and <strong>Table</strong>).</p>
+                            <p><em>It also invalidates the cache and runs the recipe.</em></p>
                             <p>Keybinding: <code>E</code></p>
                         </div>
                         <Button size="sm"

@@ -58,6 +58,7 @@
                 <Popover title="Show ingredient details">
                     <div slot="value">
                         <p>Activate <Badge color="secondary"><Icon name="binoculars" /></Badge> to show the ingredient details.</p>
+                        <p><em>It also invalidates the cache and runs the ingredient.</em></p>
                     </div>
                     <Button size="sm" color="secondary" outline={!options.show} on:click={() => Recipe.toggle_show_operation(index)}>
                         <Icon name="binoculars" />
@@ -66,6 +67,7 @@
                 <Popover title="Show edit controls">
                     <div slot="value">
                         <p>Activate <Badge color="secondary"><Icon name="pencil" /></Badge> to modify the ingredient.</p>
+                        <p><em>It also invalidates the cache and runs the ingredient.</em></p>
                     </div>
                     <Button size="sm" color="secondary" outline={options.readonly} on:click={() => Recipe.toggle_readonly_operation(index)}>
                         <Icon name="pencil" />

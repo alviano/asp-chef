@@ -127,6 +127,10 @@
                 $pause_baking = data.pause_baking;
             }
         }
+        rerun_recipe();
+    }
+
+    function rerun_recipe() {
         Recipe.invalidate_cached_output(0);
         delayed_process(input_value, encode_input, decode_output, $pause_baking);
     }
@@ -215,6 +219,7 @@
             <RecipePanel
                     on:change_input={(event) => input_value = event.detail}
                     on:reload_recipe={reload_recipe}
+                    on:rerun_recipe={rerun_recipe}
                     bind:show_operations
                     bind:show_io_panel
             />
