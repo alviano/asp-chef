@@ -203,6 +203,13 @@
             context.strokeText(node.search_result.replaceAll(consts.SYMBOLS.SEARCH_FAIL, ' '), node.x, node.y);
         }
         context.fillText(node.label, node.x, node.y);
+
+        const image = node.image || defaults.image;
+        if (image) {
+            const img = new Image();
+            img.src = image;
+            context.drawImage(img, node.x - radius, node.y - radius, radius * 2, radius * 2);
+        }
     }
 
     function simulationUpdate() {

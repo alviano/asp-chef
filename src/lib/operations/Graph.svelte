@@ -37,6 +37,8 @@
             const terms = term.terms;
             if (property === 'label' && terms.length === 1) {
                 node.label = `${terms[0].string || terms[0].number || terms[0].str}`;
+            } else if (property === 'image' && terms.length === 1) {
+                node.image = terms[0].string || terms[0].str;
             } else if (property === 'color' && terms.length === 1) {
                 node.color = terms[0].string || terms[0].str;
             } else if (property === 'text_color' && terms.length === 1) {
@@ -102,6 +104,8 @@
             defaults.node_radius = terms[0].number;
         } else if (property === 'node_color' && terms.length === 1) {
             defaults.node_color = terms[0].string || terms[0].str;
+        } else if (property === 'node_image' && terms.length === 1) {
+            defaults.node_image = terms[0].string || terms[0].str;
         } else if (property === 'node_text_color' && terms.length === 1) {
             defaults.node_text_color = terms[0].string || terms[0].str;
         } else if (property === 'node_font' && terms.length === 1) {
@@ -205,7 +209,7 @@
             The other terms have the form <code>property(VALUE)</code>.
         </p>
         <p>
-            Node properties: label, color, draggable/undraggable, font, fx, fy, opacity, radius, shape, text_color.
+            Node properties: label, image, color, draggable/undraggable, font, fx, fy, opacity, radius, shape, text_color.
         </p>
         <p>
             Link properties: directed/undirected, label, color, opacity, text_color.
@@ -215,6 +219,7 @@
             node_color,
             node_draggable/node_undraggable,
             node_font,
+            node_image,
             node_opacity,
             node_radius (also defining the capture area for dragging nodes),
             node_shape,
