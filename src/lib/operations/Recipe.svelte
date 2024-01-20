@@ -6,6 +6,7 @@
     const operation = "Recipe";
     const default_extra_options = {
         url: '',
+        show_side_output: false,
     };
 
     const listeners = new Map();
@@ -47,10 +48,12 @@
 </script>
 
 <script>
-    import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Badge, Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import Popover from "$lib/Popover.svelte";
+    import Javascript from "$lib/operations/Javascript.svelte";
+    import Nop from "$lib/operations/Nop.svelte";
 
     export let id;
     export let options;
@@ -115,6 +118,14 @@
         });
     }
 
+    function leave_only_side_output(options) {
+        return {
+            ...options,
+            hide_header: true,
+            readonly: true
+        };
+    }
+
     onMount(() => {
         listeners.set(id, (the_recipe_url, the_ingredients) => {
             recipe_url = the_recipe_url;
@@ -141,6 +152,9 @@
         <p>
             The ingredients of the recipe ingredient can be added to the main recipe (explode button).
             Similarly, some ingredients can be imploded into the recipe ingredient (implode button), actually replacing it.
+        </p>
+        <p>
+            The side output of ingredients inside the <strong>{operation}</strong> ingredient can be shown by activating <Badge>SHOW SIDE OUTPUT</Badge>.
         </p>
     </div>
     <InputGroup>
@@ -200,6 +214,25 @@
                 <code>{ingredients.length} ingredients</code>
             </Popover>
         </InputGroupText>
-        <Input disabled="true" />
+        <Input disabled={true} />
+        <Button outline="{!options.show_side_output}" on:click={() => { options.show_side_output = !options.show_side_output; edit(); }}>Show side output</Button>
     </InputGroup>
+    <div slot="output">
+        {#if options.show_side_output}
+            {#each ingredients as item}
+                {#if Recipe.is_remote_javascript_operation(item.operation)}
+                    <Javascript remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+                {:else if Recipe.has_operation_type(item.operation)}
+                    <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+                {:else}
+                    <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                    <div class="alert-warning" style="color: white" data-fix-ingredient-index="{index}">
+                        <h5 class="alert-heading">Oops!</h5>
+                        Unknown operation replaced by Nop: {item.operation}.
+                        Explode the recipe, fix it, and implode it back.
+                    </div>
+                {/if}
+            {/each}
+        {/if}
+    </div>
 </Operation>
