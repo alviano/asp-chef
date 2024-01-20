@@ -25,6 +25,7 @@ export const operations_panel_width = writable(int_in_range_or_default('operatio
 export const io_panel_width = writable(int_in_range_or_default('io-panel-width', consts.IO_PANEL_MIN_VALUE, consts.IO_PANEL_MAX_VALUE, consts.IO_PANEL_DEFAULT_VALUE));
 export const input_height = writable(int_in_range_or_default('input-height', consts.INPUT_HEIGHT_MIN_VALUE, consts.INPUT_HEIGHT_MAX_VALUE, consts.INPUT_HEIGHT_DEFAULT_VALUE));
 export const registered_javascript = writable(browser ? JSON.parse(localStorage.getItem('registered-javascript') || "{}") : {});
+export const registered_recipes = writable(browser ? JSON.parse(localStorage.getItem('registered-recipes') || "{}") : {});
 export const baking_delay = writable(int_in_range_or_default('baking-delay', consts.BAKING_DELAY_MIN_VALUE, consts.BAKING_DELAY_MAX_VALUE, consts.BAKING_DELAY_DEFAULT_VALUE));
 export const clingo_remote_uuid = writable((browser ? localStorage.getItem('clingo-remote-uuid') : '') || uuidv4());
 export const clingo_remote_url = writable((browser ? localStorage.getItem('clingo-remote-url') : '') || 'http://localhost:8000');
@@ -60,6 +61,10 @@ input_height.subscribe(value => {
 
 registered_javascript.subscribe(value => {
   localStorage.setItem('registered-javascript', JSON.stringify(value));
+});
+
+registered_recipes.subscribe(value => {
+  localStorage.setItem('registered-recipes', JSON.stringify(value));
 });
 
 baking_delay.subscribe(value => {

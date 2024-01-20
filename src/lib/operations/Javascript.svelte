@@ -122,7 +122,7 @@ week
     });
 
     onDestroy(() => {
-        if (remote_name) {
+        if (remote_name === undefined) {
             listeners.set(id, null);
         }
     });

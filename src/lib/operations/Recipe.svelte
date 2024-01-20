@@ -5,6 +5,7 @@
 
     const operation = "Recipe";
     const default_extra_options = {
+        name: '',
         url: '',
         show_side_output: false,
     };
@@ -60,6 +61,7 @@
     export let index;
     export let add_to_recipe;
     export let keybinding;
+    export let remote_name = undefined;
 
     let recipe_url = '';
     let ingredients = [];
@@ -126,7 +128,23 @@
         };
     }
 
+    async function register(options) {
+        console.log(options)
+        await Recipe.new_remote_recipe_operation(options.name, options.url, options.show_side_output);
+        await Utils.snackbar("Registered! Search in the Operations panel to find the new operation");
+    }
+
     onMount(() => {
+        if (remote_name) {
+            const recipe = Recipe.get_remote_recipe_operation(remote_name);
+            if (options) {
+                options = {
+                    ...options,
+                    ...recipe,
+                };
+                edit();
+            }
+        }
         listeners.set(id, (the_recipe_url, the_ingredients) => {
             recipe_url = the_recipe_url;
             ingredients = the_ingredients;
@@ -139,7 +157,7 @@
     });
 </script>
 
-<Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
+<Operation {id} operation={remote_name || operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
         <p>The <strong>{operation}</strong> operation takes a URL representing another recipe and adds that recipe as an ingredient.</p>
         <p>
@@ -157,6 +175,16 @@
             The side output of ingredients inside the <strong>{operation}</strong> ingredient can be shown by activating <Badge>SHOW SIDE OUTPUT</Badge>.
         </p>
     </div>
+    <InputGroup>
+        <InputGroupText>Name</InputGroupText>
+        <Input type="text"
+               bind:value={options.name}
+               placeholder="Recipe name (possibly to register it as an operation)"
+               on:input={edit}
+               data-testid="Recipe-name"
+        />
+        <Button size="sm" disabled="{!options.name || !options.url}" on:click={() => register(options)}>Register</Button>
+    </InputGroup>
     <InputGroup>
         <Input type="text"
                bind:value="{options.url}"
@@ -222,6 +250,8 @@
             {#each ingredients as item}
                 {#if Recipe.is_remote_javascript_operation(item.operation)}
                     <Javascript remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+                {:else if Recipe.is_remote_recipe_operation(item.operation)}
+                    <svelte:self remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                 {:else if Recipe.has_operation_type(item.operation)}
                     <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                 {:else}
