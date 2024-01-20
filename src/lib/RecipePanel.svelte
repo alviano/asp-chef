@@ -23,7 +23,6 @@
     import OptionsModal from "$lib/OptionsModal.svelte";
     import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
     import Javascript from "$lib/operations/Javascript.svelte";
-    import RecipeOperation from "$lib/operations/Recipe.svelte";
     import HiddenHeadersModal from "$lib/HiddenHeadersModal.svelte";
 
     const dispatch = createEventDispatcher();
@@ -334,8 +333,6 @@
                 <div animate:flip="{{duration: flipDurationMs}}" class:mt-1={$show_ingredient_headers && !item.options.hide_header}>
                     {#if Recipe.is_remote_javascript_operation(item.operation)}
                         <Javascript remote_name={item.operation} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
-                    {:else if Recipe.is_remote_recipe_operation(item.operation)}
-                        <RecipeOperation remote_name={item.operation} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                     {:else if Recipe.has_operation_type(item.operation)}
                         <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined}
                                           on:change_input />

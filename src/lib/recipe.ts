@@ -91,14 +91,9 @@ export class Recipe {
 
         for (const [key, value] of [...this._remote_recipe_operations.entries()]) {
             let err = null;
-            try {
-                const new_key = await this.new_remote_recipe_operation(value.name, value.url, value.show_side_output, false);
-                if (new_key !== key) {
-                    this._remote_recipe_operations.delete(key);
-                }
-            } catch (error) {
-                await this._new_remote_recipe_operation(value.name, value.url, value.show_side_output);
-                err = `Oops! Cannot update ${key}... loaded latest fetched version.`;
+            const new_key = await this.new_remote_recipe_operation(value.name, value.url, value.doc,false);
+            if (new_key !== key) {
+                this._remote_recipe_operations.delete(key);
             }
             processed++;
             feedback(processed, total, key, false, err);
@@ -140,7 +135,7 @@ export class Recipe {
         return `&js-${prefix}/${name}`;
     }
 
-    static make_remote_recipe_operation_name(name: string) : string {
+    static make_remote_recipe_operation_name(name: string, prefix = "") : string {
         return `&r/${name}`;
     }
 
@@ -161,12 +156,12 @@ export class Recipe {
         return operation;
     }
 
-    private static async _new_remote_recipe_operation(name: string, url: string, show_side_output: boolean) {
+    private static async _new_remote_recipe_operation(name: string, url: string, doc: string) {
         const operation = this.make_remote_recipe_operation_name(name);
         this._remote_recipe_operations.set(operation, {
             name,
             url,
-            show_side_output,
+            doc,
         });
         this._operation_components.set(this.operation_type_filename(operation), operation);
         this._operation_types.set(operation, this._operation_types.get("Recipe"));
@@ -194,8 +189,8 @@ export class Recipe {
         return operation;
     }
 
-    static async new_remote_recipe_operation(name: string, url: string, show_side_output: boolean, update_store = true) {
-        const operation = await this._new_remote_recipe_operation(name, url, show_side_output);
+    static async new_remote_recipe_operation(name: string, url: string, doc: string, update_store = true) {
+        const operation = await this._new_remote_recipe_operation(name, url, doc);
         if (update_store) {
             this._update_registered_recipes_store();
         }
@@ -204,14 +199,27 @@ export class Recipe {
 
     static unregister_remote_javascript_operation(operation: string, update_store = true) {
         if (!this.is_remote_javascript_operation(operation)) {
-            throw new Error("Expecting a remote javascript operation");
+            throw new Error("Expecting a remote Javascript operation");
         }
         this._remote_javascript_operations.delete(operation);
         this._operation_components.delete(operation);
         this._operation_types.delete(operation);
 
         if (update_store) {
-            registered_javascript.set(Object.fromEntries(this._remote_javascript_operations.entries()));
+            this._update_registered_javascript_store();
+        }
+    }
+
+    static unregister_remote_recipe_operation(operation: string, update_store = true) {
+        if (!this.is_remote_recipe_operation(operation)) {
+            throw new Error("Expecting a remote Recipe operation");
+        }
+        this._remote_recipe_operations.delete(operation);
+        this._operation_components.delete(operation);
+        this._operation_types.delete(operation);
+
+        if (update_store) {
+            this._update_registered_recipes_store();
         }
     }
 
@@ -300,7 +308,7 @@ export class Recipe {
     static async expand_if_short_link(recipe_url: string) : Promise<string> {
         const the_recipe_url = new URL(recipe_url);
         const parts = Utils.split_with_limit(the_recipe_url.pathname, "/", 3);
-        if (parts.length === 3 && parts[1] === "s" && [Utils.split_with_limit(consts.DOMAIN, "://", 2)[1], consts.SHORT_LINKS_DEFAULT_DOMAIN].includes(the_recipe_url.host)) {
+        if (parts.length === 3 && parts[1] === "s" && [the_recipe_url.hostname, consts.SHORT_LINKS_DEFAULT_DOMAIN].includes(the_recipe_url.host)) {
             const path = parts[2];
             const hash = the_recipe_url.hash;
             const user_repo = hash ? hash.substring(1) : `${consts.SHORT_LINKS_DEFAULT_USERNAME}/${consts.SHORT_LINKS_DEFAULT_REPOSITORY}`;
@@ -468,8 +476,16 @@ export class Recipe {
         return await this._operation_types.get(ingredient.operation)(input, ingredient.options, index, ingredient.id);
     }
 
-
     static async add_operation(operation: string, options: object, index: number = undefined) {
+        if (this.is_remote_recipe_operation(operation)) {
+            const recipe = Recipe.get_remote_recipe_operation(operation);
+            options = {
+                ...options,
+                ...recipe,
+            };
+            operation = "Recipe";
+        }
+
         const ingredient = {
             id: uuidv4(),
             operation,

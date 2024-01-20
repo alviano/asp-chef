@@ -7,20 +7,19 @@
     const default_extra_options = {
         name: '',
         url: '',
-        show_side_output: false,
     };
 
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         let recipe_url = options.url;
-        if (recipe_url !== options.url) {
-            Utils.snackbar(`Fetched recipe ${recipe_url.substring(0, 25)}...`)
-        }
         if (recipe_url === '') {
             return input;
         }
         recipe_url = await Recipe.expand_if_short_link(recipe_url);
+        if (recipe_url !== options.url) {
+            Utils.snackbar(`Fetched recipe ${recipe_url.substring(0, 25)}...`);
+        }
         if (recipe_url.indexOf('#') === -1) {
             Recipe.set_errors_at_index(index, 'Error: invalid URL, must contain #. Forward input.');
             return input;
@@ -65,8 +64,8 @@
 
     let recipe_url = '';
     let ingredients = [];
-    let ingredients_length = 0;
     let number_of_ingredients_to_implode = 0;
+    let doc = '';
 
     function normalized_recipe_url(recipe_url) {
         try {
@@ -130,25 +129,18 @@
 
     async function register(options) {
         console.log(options)
-        await Recipe.new_remote_recipe_operation(options.name, options.url, options.show_side_output);
+        await Recipe.new_remote_recipe_operation(options.name, options.url, 'Undocumented recipe');
         await Utils.snackbar("Registered! Search in the Operations panel to find the new operation");
     }
 
     onMount(() => {
         if (remote_name) {
-            const recipe = Recipe.get_remote_recipe_operation(remote_name);
-            if (options) {
-                options = {
-                    ...options,
-                    ...recipe,
-                };
-                edit();
-            }
+            const remote = Recipe.get_remote_recipe_operation(remote_name);
+            doc = remote.doc;
         }
         listeners.set(id, (the_recipe_url, the_ingredients) => {
             recipe_url = the_recipe_url;
             ingredients = the_ingredients;
-            ingredients_length = the_ingredients.length;
         });
     });
 
@@ -159,21 +151,25 @@
 
 <Operation {id} operation={remote_name || operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
-        <p>The <strong>{operation}</strong> operation takes a URL representing another recipe and adds that recipe as an ingredient.</p>
-        <p>
-            This operation is practically equivalent to copy all ingredients of a recipe into another recipe.
-        </p>
-        <p>
-            Note that ASP Chef URLs also contains input, as well as flags to encode input and decode output.
-            Such content is ignored, as well as anything preceding <code>#</code>.
-        </p>
-        <p>
-            The ingredients of the recipe ingredient can be added to the main recipe (explode button).
-            Similarly, some ingredients can be imploded into the recipe ingredient (implode button), actually replacing it.
-        </p>
-        <p>
-            The side output of ingredients inside the <strong>{operation}</strong> ingredient can be shown by activating <Badge>SHOW SIDE OUTPUT</Badge>.
-        </p>
+        {#if remote_name}
+            {@html Utils.render_markdown(doc)}
+        {:else}
+            <p>The <strong>{operation}</strong> operation takes a URL representing another recipe and adds that recipe as an ingredient.</p>
+            <p>
+                This operation is practically equivalent to copy all ingredients of a recipe into another recipe.
+            </p>
+            <p>
+                Note that ASP Chef URLs also contains input, as well as flags to encode input and decode output.
+                Such content is ignored, as well as anything preceding <code>#</code>.
+            </p>
+            <p>
+                The ingredients of the recipe ingredient can be added to the main recipe (explode button).
+                Similarly, some ingredients can be imploded into the recipe ingredient (implode button), actually replacing it.
+            </p>
+            <p>
+                The side output of ingredients inside the <strong>{operation}</strong> ingredient can be shown by activating <Badge>SHOW SIDE OUTPUT</Badge>.
+            </p>
+        {/if}
     </div>
     <InputGroup>
         <InputGroupText>Name</InputGroupText>
@@ -243,26 +239,21 @@
             </Popover>
         </InputGroupText>
         <Input disabled={true} />
-        <Button outline="{!options.show_side_output}" on:click={() => { options.show_side_output = !options.show_side_output; edit(); }}>Show side output</Button>
     </InputGroup>
     <div slot="output">
-        {#if options.show_side_output}
-            {#each ingredients as item}
-                {#if Recipe.is_remote_javascript_operation(item.operation)}
-                    <Javascript remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
-                {:else if Recipe.is_remote_recipe_operation(item.operation)}
-                    <svelte:self remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
-                {:else if Recipe.has_operation_type(item.operation)}
-                    <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
-                {:else}
-                    <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
-                    <div class="alert-warning" style="color: white" data-fix-ingredient-index="{index}">
-                        <h5 class="alert-heading">Oops!</h5>
-                        Unknown operation replaced by Nop: {item.operation}.
-                        Explode the recipe, fix it, and implode it back.
-                    </div>
-                {/if}
-            {/each}
-        {/if}
+        {#each ingredients as item}
+            {#if Recipe.is_remote_javascript_operation(item.operation)}
+                <Javascript remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+            {:else if Recipe.has_operation_type(item.operation)}
+                <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+            {:else}
+                <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                <div class="alert-warning" style="color: white" data-fix-ingredient-index="{index}">
+                    <h5 class="alert-heading">Oops!</h5>
+                    Unknown operation replaced by Nop: {item.operation}.
+                    Explode the recipe, fix it, and implode it back.
+                </div>
+            {/if}
+        {/each}
     </div>
 </Operation>
