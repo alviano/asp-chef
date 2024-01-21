@@ -117,8 +117,8 @@
     <InputGroup>
         <InputGroupText style="width: 7em;">Predicate</InputGroupText>
         <Input type="text"
-               bind:value="{options.recipe}"
-               placeholder="__recipe__"
+               bind:value="{options.predicate}"
+               placeholder="__base64__"
                on:input={edit}
         />
     </InputGroup>
