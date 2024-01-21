@@ -51,7 +51,7 @@
         try {
             for (const part of input) {
                 for (const atom of part) {
-                    if (atom.predicate === options.url) {
+                    if (atom.predicate === options.predicate) {
                         const data = Utils.split_with_limit(
                             Base64.decode(atom.terms[0].string),
                             '\n',
