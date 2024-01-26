@@ -240,7 +240,7 @@
                         </Progress>
                     </Progress>
                 </div>
-                <div bind:this={output_panel_div} style="height: {100 - $input_height}vh; overflow-x: hidden; overflow-y: scroll;">
+                <div bind:this={output_panel_div} style="height: {100 - $input_height}vh; padding-bottom: 1em; overflow-x: hidden; overflow-y: scroll;">
                     <OutputPanel value={output_value} bind:decode={decode_output} on:change_input={(event) => input_value = event.detail} />
                 </div>
             </Col>

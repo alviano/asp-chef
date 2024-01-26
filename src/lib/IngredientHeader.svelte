@@ -18,7 +18,7 @@
                 <p>UUID: {id}</p>
             </div>
             #{index + 1}.
-            {operation}
+            {operation}{options.name ? ": " + options.name : ""}
         </Popover>
         <span class="float-end">
             {#if $processing_index === index}
