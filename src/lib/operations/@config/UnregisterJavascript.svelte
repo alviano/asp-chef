@@ -75,11 +75,13 @@
                placeholder="&amp;js-..."
         />
     </InputGroup>
-    {#each operations as operation}
-        <InputGroup>
-            <Input readonly value="{operation}" />
-            <Button on:click={() => unregister(operation)}>Unregister</Button>
-        </InputGroup>
-    {/each}
-    <Button block color="danger" disabled={operations.length === 0} on:click={unregister_all}>Unregister all</Button>
+    <div slot="output">
+        {#each operations as operation}
+            <InputGroup>
+                <Input readonly value="{operation}" />
+                <Button on:click={() => unregister(operation)}>Unregister</Button>
+            </InputGroup>
+        {/each}
+        <Button block color="danger" disabled={operations.length === 0} on:click={unregister_all}>Unregister all</Button>
+    </div>
 </Operation>

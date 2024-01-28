@@ -122,5 +122,7 @@
                on:input={edit}
         />
     </InputGroup>
-    <Button block on:click={register}>Register</Button>
+    <div slot="output">
+        <Button block on:click={register}>Register</Button>
+    </div>
 </Operation>
