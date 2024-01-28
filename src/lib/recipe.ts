@@ -309,7 +309,7 @@ export class Recipe {
         const the_recipe_url = new URL(recipe_url);
         const parts = Utils.split_with_limit(the_recipe_url.pathname, "/", 3);
         if (parts.length === 3 && parts[1] === "s" && [the_recipe_url.hostname, consts.SHORT_LINKS_DEFAULT_DOMAIN].includes(the_recipe_url.host)) {
-            const path = parts[2];
+            const path = decodeURI(parts[2]);
             const hash = the_recipe_url.hash;
             const user_repo = hash ? hash.substring(1) : `${consts.SHORT_LINKS_DEFAULT_USERNAME}/${consts.SHORT_LINKS_DEFAULT_REPOSITORY}`;
             const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${path}.url`;
