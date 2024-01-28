@@ -19,7 +19,7 @@
                 `, 0, false);
                 res.push(...models.map(model => Utils.parse_atoms(model)));
             } catch (error) {
-                Recipe.set_errors_at_index(index, error, res);;
+                Recipe.set_errors_at_index(index, error, res);
             }
         }
         return res;

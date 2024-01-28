@@ -231,7 +231,7 @@
                 }
                 the_output.push(output_part.join('\n'));
             }
-            output = the_output.join(consts.SYMBOLS.MODELS_SEPARATOR);
+            output = the_output.join('\n\n');
             await tick();
             renderMathInElement(output_div,  {
                 delimiters: [
