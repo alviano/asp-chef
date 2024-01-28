@@ -5,6 +5,7 @@
     const operation = "Select Predicates";
     const default_extra_options = {
         predicates: [],
+        other_predicates: [],
     };
 
     const listeners = new Map();
@@ -19,7 +20,7 @@
 </script>
 
 <script>
-    import {Input, InputGroup, Label} from "sveltestrap";
+    import {Button, Icon, Input, InputGroup} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
 
@@ -30,6 +31,9 @@
     export let keybinding;
 
     let input_predicates = [];
+    let program_predicates = new Set();
+
+    let new_predicate = '';
 
     function edit() {
         Recipe.edit_operation(id, index, options);
@@ -39,16 +43,45 @@
         const index_of_predicate = options.predicates.indexOf(predicate);
         if (index_of_predicate !== -1) {
             options.predicates.splice(index_of_predicate, 1);
+            options.other_predicates.push(predicate);
         } else {
+            const other_index_of_predicate = options.other_predicates.indexOf(predicate);
+            if (other_index_of_predicate) {
+                options.other_predicates.splice(other_index_of_predicate, 1);
+            }
             options.predicates.push(predicate);
         }
         edit();
     }
 
+    function remove_predicate(predicate) {
+        const index_of_predicate = options.predicates.indexOf(predicate);
+        if (index_of_predicate !== -1) {
+            options.predicates.splice(index_of_predicate, 1);
+        }
+        const other_index_of_predicate = options.other_predicates.indexOf(predicate);
+        if (other_index_of_predicate !== -1) {
+            options.other_predicates.splice(other_index_of_predicate, 1);
+        }
+        edit();
+    }
+
+    function add_predicate(predicate) {
+        if (options.predicates.includes(predicate)) {
+            Utils.snackbar(`${predicate} already included!`)
+        } else {
+            toggle_predicate(predicate);
+        }
+    }
+
     onMount(() => {
         if (id !== undefined) {
+            if (options.other_predicates === undefined) {
+                options.other_predicates = [];
+            }
             listeners.set(id, (input) => {
-                input_predicates = Utils.predicates(input);
+                program_predicates = new Set(Utils.predicates(input));
+                input_predicates = Array.from([...new Set([...program_predicates, ...options.predicates, ...options.other_predicates])]).sort();
             });
         }
     });
@@ -66,14 +99,32 @@
             The <strong>{operation}</strong> operation selects some predicates from the models in input.
         </p>
     </div>
-    <div class="m-3">
+    <div>
         {#each input_predicates as predicate}
-            <div on:click={() => toggle_predicate(predicate)}>
-                <InputGroup>
-                    <Input type="switch" checked="{options.predicates.includes(predicate)}" />
-                    <Label>{predicate}</Label>
-                </InputGroup>
-            </div>
+            <InputGroup>
+                <Button outline="{!options.predicates.includes(predicate)}" on:click={() => toggle_predicate(predicate)}
+                    title="Include/exclude this predicate in the output">
+                    <Icon name="{options.predicates.includes(predicate) ? 'eye' : 'eye-slash'}" />
+                </Button>
+                <Input disabled="{true}" value="{predicate}" />
+                {#if !program_predicates.has(predicate)}
+                    <Button on:click={(event) => { event.preventDefault(); remove_predicate(predicate); }}
+                        title="Forget this predicate (not occurring in the program)">
+                        <Icon name="trash" />
+                    </Button>
+                {/if}
+            </InputGroup>
         {/each}
+        <InputGroup>
+            <Input type="text"
+                   bind:value="{new_predicate}"
+                   placeholder="predicate"
+                   on:keydown={(event) => { if (event.key === 'Enter') { add_predicate(new_predicate) } }}
+            />
+            <Button on:click={() => add_predicate(new_predicate)}
+                title="Add as selected predicate">
+                <Icon name="cart-plus" />
+            </Button>
+        </InputGroup>
     </div>
 </Operation>
