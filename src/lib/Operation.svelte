@@ -27,9 +27,6 @@
     export let add_to_recipe;
     export let keybinding;
 
-    $: options.show, Recipe.invalidate_cached_output(index);
-    $: options.readonly, Recipe.invalidate_cached_output(index);
-
     if (add_to_recipe) {
         Recipe.add_operation(operation, options, index);
     }
