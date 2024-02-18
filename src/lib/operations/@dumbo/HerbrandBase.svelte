@@ -3,10 +3,11 @@
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/Move Up";
+    const operation = "@dumbo/Herbrand Base";
     const default_extra_options = {
         program_predicate: '__program__',
-        atoms: '',
+        echo_program: false,
+        herbrand_base_predicate: '__herbrand_base__',
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
@@ -18,15 +19,16 @@
                 part.forEach(atom => {
                     if (atom.predicate === options.program_predicate) {
                         program.push(Base64.decode(atom.terms[0].string));
-                        return;
+                        if (!options.echo_program) {
+                            return;
+                        }
                     }
                     input_part.push(atom);
                 });
-                const json = await Dumbo.fetch("move-up/", {
+                const json = await Dumbo.fetch("herbrand-base/", {
                     program: program.join('\n'),
-                    atoms: options.atoms,
                 });
-                input_part.push(Dumbo.encode_program(json.program, options.program_predicate));
+                input_part.push(Dumbo.encode_program(json.herbrand_base, options.herbrand_base_predicate));
                 res.push(input_part);
             } catch (error) {
                 Recipe.set_errors_at_index(index, error, res);
@@ -38,8 +40,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import CodeMirror from "svelte-codemirror-editor";
-    import {Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
 
     export let id;
     export let options;
@@ -55,12 +56,11 @@
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div slot="description">
         <p>
-            The <strong>{operation}</strong> operation can be used to reorder the program stored in <code>__program__</code>.
+            The <strong>{operation}</strong> operation returns the Herbrand base of the program stored in <code>__program__</code>.
         </p>
         <p>
-            One or more <em>atom patterns</em> can be specified.
-            (Each atom pattern is terminated by a dot, as for facts, but may contain variables.)
-            Rules matching (i.e., relaxed unifying with) any given pattern are moved up in the program.
+            The result is stored in predicate<code>__herbrand_base__</code>.
+            Atoms with predicate <code>__false__</code> are excluded from the base.
         </p>
     </div>
     <InputGroup>
@@ -70,13 +70,14 @@
                placeholder="program predicate"
                on:input={edit}
         />
+        <Button outline="{!options.echo_program}" on:click={() => { options.echo_program = !options.echo_program; edit(); }}>Echo</Button>
     </InputGroup>
     <InputGroup>
-        <InputGroupText class="w-100"><strong>Patterns</strong></InputGroupText>
+        <InputGroupText style="width: 8em;">Result</InputGroupText>
+        <Input type="text"
+               bind:value={options.herbrand_base_predicate}
+               placeholder="Herbrand base predicate"
+               on:input={edit}
+        />
     </InputGroup>
-    <CodeMirror bind:value={options.atoms}
-                lineWrapping="{true}"
-                placeholder="predicate(const,Var,...). ..."
-                on:change={edit}
-    />
 </Operation>

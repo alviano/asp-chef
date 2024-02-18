@@ -70,7 +70,7 @@
             Atoms with predicate <code>__false__</code> are injected in the input program, which is assumed to not already mentions the <code>__false__</code> predicate.
         </p>
         <p>
-            Atoms that are expected to be part of the Herbrand base of the program can be given (from a dumbo key or in the format facts).
+            Atoms that are expected to be part of the Herbrand base of the program can be given (from a predicate or in the format facts).
         </p>
     </div>
     <InputGroup>

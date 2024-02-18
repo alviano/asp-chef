@@ -6,6 +6,7 @@
     const operation = "@dumbo/Expand Global Variables";
     const default_extra_options = {
         program_predicate: '__program__',
+        herbrand_base_predicate: '',
         expand: {},
     };
 
@@ -17,14 +18,19 @@
             Dumbo.validate_one_model(input);
             const input_part = [];
             const program_parts = [];
+            const herbrand_base_parts = [];
             input[0].forEach(atom => {
                 if (atom.predicate === options.program_predicate) {
                     program_parts.push(Base64.decode(atom.terms[0].string));
                     return;
                 }
+                if (atom.predicate === options.herbrand_base_predicate) {
+                    herbrand_base_parts.push(Base64.decode(atom.terms[0].string));
+                }
                 input_part.push(atom);
             });
             let program = program_parts.join('\n');
+            let herbrand_base = herbrand_base_parts.join('\n');
 
             try {
                 await listeners.get(id)(program);
@@ -38,6 +44,7 @@
             }
             const json = await Dumbo.fetch("expand-global-safe-variables/", {
                 program,
+                herbrand_base,
                 expand,
             });
             input_part.push(Dumbo.encode_program(json.program, options.program_predicate));
@@ -117,8 +124,16 @@
                placeholder="program predicate"
                on:input={edit}
         />
-        <Button title="Clear expanded variables" on:click={clear}>Clear</Button>
     </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">Herbrand base</InputGroupText>
+        <Input type="text"
+               bind:value={options.herbrand_base_predicate}
+               placeholder="herbrand base predicate (optional)"
+               on:input={edit}
+        />
+    </InputGroup>
+    <Button block on:click={clear}>Clear expanded variables</Button>
     <div slot="output">
         {#each rules as {rule, variables}, rule_index}
             {#if variables.length > 0}
