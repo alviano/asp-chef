@@ -6,7 +6,7 @@ import AsyncLock from "async-lock";
 // import {run} from 'clingo-wasm'
 import ClingoWorker from '$lib/clingo.worker?worker';
 import JavascriptWorker from '$lib/javascript.worker?worker';
-import {clingo_remote_on, clingo_remote_url, clingo_remote_uuid} from "$lib/stores";
+import {clingo_remote_on, server_url, clingo_remote_uuid} from "$lib/stores";
 import {get} from "svelte/store";
 
 const dom_purify_config = new DOMPurifyConfig(consts);
@@ -136,7 +136,7 @@ export class Utils extends BaseUtils {
     }
 
     static async __remote_clingo(endpoint, data = {}) {
-        return fetch(`${get(clingo_remote_url)}/${endpoint}/`, {
+        return fetch(`${get(server_url)}/clingo/${endpoint}/`, {
             method: "POST",
             mode: "cors",
             cache: Utils.browser_cache_policy,
@@ -150,11 +150,11 @@ export class Utils extends BaseUtils {
     }
 
     static async __remote_clingo_terminate() {
-        await this.__remote_clingo("clingo-terminate");
+        await this.__remote_clingo("terminate");
     }
 
     static async __remote_clingo_run(program: string, number: number, options, timeout: number) {
-        const response = await this.__remote_clingo("clingo-run", {
+        const response = await this.__remote_clingo("run", {
             program,
             number,
             options,

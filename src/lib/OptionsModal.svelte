@@ -13,7 +13,7 @@
     } from "sveltestrap";
     import {
         baking_delay,
-        clingo_remote_url,
+        server_url,
         github_api_token,
         github_path,
         github_repository,
@@ -79,10 +79,10 @@
             />
         </FormGroup>
         <FormGroup>
-            <Label>Remote clingo</Label>
+            <Label>Server</Label>
             <Input
-                    name="clingo"
-                    bind:value={$clingo_remote_url}
+                    name="server"
+                    bind:value={$server_url}
             />
         </FormGroup>
         <FormGroup>

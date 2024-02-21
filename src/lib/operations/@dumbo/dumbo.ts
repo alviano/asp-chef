@@ -1,12 +1,12 @@
 import {Utils} from "$lib/utils";
 import {Base64} from "js-base64";
+import {get} from "svelte/store";
+import {server_url} from "$lib/stores";
 
 export class Dumbo {
     public static get PREDICATE() {
         return "__dumbo__";
     }
-
-    public static url = "http://localhost:8000";
 
     public static validate_one_model(input) {
         if (input.length !== 1) {
@@ -20,7 +20,7 @@ export class Dumbo {
     }
 
     public static async fetch(url, data, ) {
-        const response = await fetch(`${this.url}/${url}`, {
+        const response = await fetch(`${get(server_url)}/dumbo/${url}`, {
             method: "POST",
             mode: "cors",
             cache: Utils.browser_cache_policy,
