@@ -3,7 +3,7 @@
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/Move Up";
+    const operation = "@dumbo/Move Before";
     const default_extra_options = {
         program_predicate: '__program__',
         atoms: '',
@@ -22,7 +22,7 @@
                     }
                     input_part.push(atom);
                 });
-                const json = await Dumbo.fetch("move-up/", {
+                const json = await Dumbo.fetch("move-before/", {
                     program: program.join('\n'),
                     atoms: options.atoms,
                 });
