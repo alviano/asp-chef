@@ -227,25 +227,27 @@ export class Utils extends BaseUtils {
         ]);
         if (result.Result === 'ERROR') {
             throw new Error(result.Error);
-        } else if (raises && (result.Models.Optimal !== undefined ? result.Models.Optimal !== number : result.Models.Number !== number)) {
-            throw new Error(`Expecting ${number} optimal models, found ${result.Models.Optimal}`);
-        } else {
-            const res = result.Call[0].Witnesses
-                .filter(model => _.isEqual(model.Costs, result.Models.Costs))
-                .map(witness => witness.Value);
-            if (number !== 0) {
-                while (res.length > number) {
-                    res.shift();
-                }
-            }
-            if (cost_predicate && result.Models.Costs) {
-                const costs = result.Models.Costs.join(',');
-                const end = result.Models.Costs.length <= 1 ? "," : "";
-                const cost_atom = `${cost_predicate}((${costs}${end}))`;
-                res.forEach(model => model.push(cost_atom));
-            }
-            return res;
         }
+        const actual_number = result.Models.Optimal !== undefined ? result.Models.Optimal : result.Models.Number;
+        if (raises) {
+            if (actual_number !== number) {
+                throw new Error(`Expecting ${number} optimal models, found ${result.Models.Optimal}`);
+            }
+        }
+        const res = result.Call[0].Witnesses.slice(result.Call[0].Witnesses.length - actual_number)
+            .map(witness => witness.Value);
+        if (number !== 0) {
+            while (res.length > number) {
+                res.shift();
+            }
+        }
+        if (cost_predicate && result.Models.Costs) {
+            const costs = result.Models.Costs.join(',');
+            const end = result.Models.Costs.length <= 1 ? "," : "";
+            const cost_atom = `${cost_predicate}((${costs}${end}))`;
+            res.forEach(model => model.push(cost_atom));
+        }
+        return res;
     }
 
     static async cautious_consequences(program: string) {
