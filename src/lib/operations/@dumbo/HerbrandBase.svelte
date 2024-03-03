@@ -59,7 +59,7 @@
             The <strong>{operation}</strong> operation returns the Herbrand base of the program stored in <code>__program__</code>.
         </p>
         <p>
-            The result is stored in predicate<code>__herbrand_base__</code>.
+            The result is stored in predicate <code>__herbrand_base__</code>.
             Atoms with predicate <code>__false__</code> are excluded from the base.
         </p>
     </div>

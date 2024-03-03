@@ -9,6 +9,7 @@
         answer_set_predicate: '__answer_set__',
         herbrand_base_predicate: '__herbrand_base__',
         query_predicate: '__query__',
+        as_forest: false,
         url_predicate: '__url__',
     };
 
@@ -38,6 +39,7 @@
                     answer_set,
                     herbrand_base: herbrand_base.join('\n'),
                     query,
+                    as_forest: !!options.as_forest,
                 });
                  input_part.push(Dumbo.encode_program(json.url, options.url_predicate));
                 res.push(input_part);
@@ -51,7 +53,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import {Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
 
     export let id;
     export let options;
@@ -117,5 +119,8 @@
                placeholder="URL predicate"
                on:input={edit}
         />
+        <Button outline="{!options.as_forest}" on:click={() => { options.as_forest = !options.as_forest; edit(); }}>
+            As Forest
+        </Button>
     </InputGroup>
 </Operation>
