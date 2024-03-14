@@ -315,7 +315,7 @@ export class Recipe {
             const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${path}.url`;
             const options = {
                 headers: {
-                    Accept: "application/vnd.github.raw+json",
+                    Accept: "application/vnd.github.raw",
                 }
             };
             if (get(github_api_token)) {

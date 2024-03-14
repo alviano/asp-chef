@@ -16,7 +16,7 @@
         const request_options = {
             cache: Utils.browser_cache_policy,
             headers: {
-                Accept: "application/vnd.github.raw+json",
+                Accept: "application/vnd.github.raw",
             }
         };
         const github_api_token = localStorage.getItem('github-api-token')
