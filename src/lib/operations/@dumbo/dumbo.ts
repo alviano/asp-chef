@@ -14,9 +14,9 @@ export class Dumbo {
         }
     }
 
-    public static encode_program(program, predicate) {
+    public static encode_program(program, predicate, prefix = "") {
         const encoded_term = Base64.encode(program);
-        return Utils.parse_atom(`${predicate}("${encoded_term}")`);
+        return Utils.parse_atom(`${predicate}(${prefix}"${encoded_term}")`);
     }
 
     public static async fetch(url, data, ) {

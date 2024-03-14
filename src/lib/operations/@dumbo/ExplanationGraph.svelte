@@ -9,6 +9,7 @@
         answer_set_predicate: '__answer_set__',
         herbrand_base_predicate: '__herbrand_base__',
         query_predicate: '__query__',
+        pus_predicate: '',
         as_forest: false,
         url_predicate: '__url__',
     };
@@ -40,8 +41,12 @@
                     herbrand_base: herbrand_base.join('\n'),
                     query,
                     as_forest: !!options.as_forest,
+                    collect_pus_program: !!options.pus_predicate,
                 });
                  input_part.push(Dumbo.encode_program(json.url, options.url_predicate));
+                 json.pus_program.forEach((program, index) => {
+                     input_part.push(Dumbo.encode_program(program, options.pus_predicate, `${index},`));
+                 });
                 res.push(input_part);
             } catch (error) {
                 Recipe.set_errors_at_index(index, error, res);
@@ -109,6 +114,14 @@
         <Input type="text"
                bind:value={options.query_predicate}
                placeholder="query predicate"
+               on:input={edit}
+        />
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">PUS Program</InputGroupText>
+        <Input type="text"
+               bind:value={options.pus_predicate}
+               placeholder="PUS Program predicate"
                on:input={edit}
         />
     </InputGroup>
