@@ -313,18 +313,20 @@ export class Recipe {
             const hash = the_recipe_url.hash;
             const user_repo = hash ? hash.substring(1) : `${consts.SHORT_LINKS_DEFAULT_USERNAME}/${consts.SHORT_LINKS_DEFAULT_REPOSITORY}`;
             const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${path}.url`;
-            const options = {};
-            if (get(github_api_token)) {
-                options.headers = {
-                    "Authorization": `Bearer ${get(github_api_token)}`,
+            const options = {
+                headers: {
+                    Accept: "application/vnd.github.raw+json",
                 }
+            };
+            if (get(github_api_token)) {
+                options.headers["Authorization"] = `Bearer ${get(github_api_token)}`;
             }
             const response = await fetch(url, options);
             if (response.status !== 200) {
                 throw new Error(`Cannot load ${url}`);
             }
-            const json = await response.json();
-            const expanded_url = new URL(Base64.decode(json.content));
+            const text = await response.text();
+            const expanded_url = new URL(text);
             return `${consts.DOMAIN}${expanded_url.hash}`;
         } else {
             return recipe_url;
