@@ -315,7 +315,7 @@ export class Recipe {
             const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${path}.url`;
             const options = {
                 headers: {
-                    Accept: "application/vnd.github.raw",
+                    Accept: "application/vnd.github.raw+json",
                 }
             };
             if (get(github_api_token)) {
@@ -325,8 +325,15 @@ export class Recipe {
             if (response.status !== 200) {
                 throw new Error(`Cannot load ${url}`);
             }
-            const text = await response.text();
-            const expanded_url = new URL(text);
+            const contentType = response.headers.get("content-type");
+            let content;
+            if (contentType.startsWith("application/json")) {
+                const json = await response.json();
+                content = Base64.decode(json.content)
+            } else {
+                content = await response.text();
+            }
+            const expanded_url = new URL(content);
             return `${consts.DOMAIN}${expanded_url.hash}`;
         } else {
             return recipe_url;
