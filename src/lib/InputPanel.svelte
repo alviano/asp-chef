@@ -62,7 +62,7 @@
             </div>
             <div data-testid="InputPanel-textarea">
                 <CodeMirror bind:this={editor} bind:value
-                            placeholder={`One or more models separated by ${consts.SYMBOLS.MODELS_SEPARATOR}`}
+                            placeholder={`One or more models separated by ${consts.SYMBOLS.MODELS_SEPARATOR}\n\nDON'T KNOW HOW TO USE ASP CHEF?!?\nHave a look at our tutorials and examples at\n    ${consts.DOMAIN}/s/`}
                             lineWrapping="{true}"
                 />
                 <pre class="d-test">{value}</pre>
