@@ -36,7 +36,7 @@
             const property = term.functor;
             const terms = term.terms;
             if (property === 'label' && terms.length === 1) {
-                node.label = `${terms[0].string || terms[0].number || terms[0].str}`;
+                node.label = terms[0].str === 'none' ? '' : `${terms[0].string || terms[0].number || terms[0].str}`;
             } else if (property === 'image' && terms.length === 1) {
                 node.image = terms[0].string || terms[0].str;
             } else if (property === 'color' && terms.length === 1) {
@@ -50,11 +50,11 @@
             } else if (property === 'shape' && terms.length > 0) {
                 node.shape = terms.length > 1 ? terms.map(term => term.number) : terms[0].string || terms[0].str;
             } else if (property === 'opacity' && terms.length === 1) {
-                node.opacity = terms[0].number / 100;
+                node.opacity = terms[0].str === "none" ? null : terms[0].number / 100;
             } else if (property === 'fx' && terms.length === 1) {
-                node.fx = terms[0].number;
+                node.fx = terms[0].str === "none" ? null : terms[0].number;
             } else if (property === 'fy' && terms.length === 1) {
-                node.fy = terms[0].number;
+                node.fy = terms[0].str === "none" ? null : terms[0].number;
             } else if (property === 'draggable' && terms.length === 0) {
                 node.undraggable = false;
             } else if (property === 'undraggable' && terms.length === 0) {
@@ -80,7 +80,7 @@
             const property = term.functor;
             const terms = term.terms;
             if (property === 'label' && terms.length === 1) {
-                link.label = `${terms[0].string || terms[0].number || terms[0].str}`;
+                link.label = terms[0].str === 'none' ? '' : `${terms[0].string || terms[0].number || terms[0].str}`;
             } else if (property === 'color' && terms.length === 1) {
                 link.color = terms[0].string || terms[0].str;
             } else if (property === 'undirected' && terms.length === 0) {

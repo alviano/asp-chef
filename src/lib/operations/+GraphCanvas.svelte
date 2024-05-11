@@ -130,7 +130,7 @@
         const angle = Math.atan2(dy, dx);
         const length = Math.sqrt(dx * dx + dy * dy) - source_radius - target_radius;
 
-        context.globalAlpha = link.opacity || defaults.link_opacity;
+        context.globalAlpha = link.opacity !== null ? link.opacity : defaults.link_opacity;
         context.lineWidth = 6;
         context.fillStyle = context.strokeStyle = link.search_result !== null && search_color !== '' ? search_color : (link.color || defaults.link_color);
         context.beginPath();
@@ -165,7 +165,7 @@
     }
 
     function draw_node(node) {
-        context.globalAlpha = node.opacity || defaults.node_opacity;
+        context.globalAlpha = node.opacity !== null ? node.opacity : defaults.node_opacity;
         context.beginPath();
         const radius = node.radius || defaults.node_radius;
         const shape = node.shape || defaults.node_shape;
