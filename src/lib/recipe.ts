@@ -353,7 +353,8 @@ export class Recipe {
         };
 
         let response = await fetch(url, {
-            headers
+            headers,
+            cache: "no-store",
         });
         const body = {
             message: "short link",
