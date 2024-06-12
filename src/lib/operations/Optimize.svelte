@@ -98,7 +98,7 @@
                     lineWrapping="{true}"
                     on:change={edit}
         />
-        <pre class="d-test">{options.content}</pre>
+        <pre class="d-test">{options.rules}</pre>
     </div>
     <InputGroup>
         <InputGroupText>Costs</InputGroupText>

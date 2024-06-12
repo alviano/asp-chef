@@ -97,7 +97,7 @@
                     lineWrapping="{true}"
                     on:change={edit}
         />
-        <pre type="textarea" class="d-test">{options.content}</pre>
+        <pre type="textarea" class="d-test">{options.rules}</pre>
     </div>
     <InputGroup>
         <InputGroupText># of models</InputGroupText>

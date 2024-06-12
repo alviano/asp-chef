@@ -100,6 +100,10 @@ export class Utils extends BaseUtils {
         return options !== "DESCRIBE" ? res.map(part => part.map(atom => Utils.parse_atom(atom.str))) : res;
     }
 
+    static get clingo_timeout() {
+        return this._clingo_timeout;
+    }
+
     static set clingo_timeout(value: number) {
         this._clingo_timeout = value;
     }
