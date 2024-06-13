@@ -25,6 +25,13 @@
 
     function process_output(output_predicate, variable, value) {
         if (Array.isArray(value)) {
+            if (value.length > 0 && Array.isArray(value[0])) {
+                return [Utils.parse_atom(`${output_predicate}("${variable}", array2d)`)].concat(value.flatMap(
+                    (element, outer_index) => element.map(
+                        (element, inner_index) => Utils.parse_atom(`${output_predicate}("${variable}", ${outer_index}, ${inner_index}, ${process_output_value(element)})`)
+                    )
+                ));
+            }
             return [Utils.parse_atom(`${output_predicate}("${variable}", array)`)].concat(value.map(
                 (element, index) => Utils.parse_atom(`${output_predicate}("${variable}", ${index}, ${process_output_value(element)})`)
             ));
@@ -72,8 +79,8 @@
                 const input_variable_type = {};
                 const input_variable_value = {};
                 input_atoms.filter(atom => {
-                    if (atom.terms.length === 2 && ["value", "array", "set"].includes(atom.terms[1].functor)) {
-                        input_variable_type[atom.terms[0].string] = atom.terms[1].functor;
+                    if (atom.terms.length === 2 && ["value", "array", "array2d", "set"].includes(atom.terms[1].functor)) {
+                        input_variable_type[atom.terms[0].string] = atom.terms[1].str;
                         if (atom.terms[1].functor !== "value") {
                             input_variable_value[atom.terms[0].string] = [];
                         }
@@ -88,6 +95,11 @@
                         input_variable_value[atom.terms[0].string] = process_input_value(atom.terms[1]);
                     } else if (input_variable_type[atom.terms[0].string] === "array") {
                         input_variable_value[atom.terms[0].string][atom.terms[1].number] = process_input_value(atom.terms[2]);
+                    } else if (input_variable_type[atom.terms[0].string] === "array2d") {
+                        if (input_variable_value[atom.terms[0].string][atom.terms[1].number] === undefined) {
+                            input_variable_value[atom.terms[0].string][atom.terms[1].number] = [];
+                        }
+                        input_variable_value[atom.terms[0].string][atom.terms[1].number][atom.terms[2].number] = process_input_value(atom.terms[3]);
                     } else if (input_variable_type[atom.terms[0].string] === "set") {
                         if (atom.terms.length === 2) {
                             input_variable_value[atom.terms[0].string].push([process_input_value(atom.terms[1])]);
@@ -156,9 +168,10 @@
         <p>
             The <code>__input__</code> predicate is passed to MiniZinc.
             In each atom, the first argument is the name of the variable.
-            For each variable, one atom is expected to provide the type (one of <code>value</code>, <code>array</code>, and <code>set</code>).
+            For each variable, one atom is expected to provide the type (one of <code>value</code>, <code>array</code>, <code>array2d</code>, and <code>set</code>).
             For a variable of type <code>value</code>, its value is provided by another atom.
             For a variable of type <code>array</code>, its values are provided by other atoms (each one giving index and value).
+            For a variable of type <code>array2s</code>, its values are provided by other atoms (each one giving indices and value).
             For a variable of type <code>set</code>, its values are provided by other atoms (each one giving either an element, or an interval).
         </p>
         <p>
@@ -180,7 +193,7 @@
                style="max-width: 5em;"
                on:input={edit}
         />
-        <InputGroupText>Constant</InputGroupText>
+        <InputGroupText>Input</InputGroupText>
         <Input type="text"
                bind:value={options.input_predicate}
                placeholder="input predicate"
