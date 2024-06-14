@@ -28,12 +28,12 @@
             if (value.length > 0 && Array.isArray(value[0])) {
                 return [Utils.parse_atom(`${output_predicate}("${variable}", array2d)`)].concat(value.flatMap(
                     (element, outer_index) => element.map(
-                        (element, inner_index) => Utils.parse_atom(`${output_predicate}("${variable}", ${outer_index}, ${inner_index}, ${process_output_value(element)})`)
+                        (element, inner_index) => Utils.parse_atom(`${output_predicate}("${variable}", ${outer_index+1}, ${inner_index+1}, ${process_output_value(element)})`)
                     )
                 ));
             }
             return [Utils.parse_atom(`${output_predicate}("${variable}", array)`)].concat(value.map(
-                (element, index) => Utils.parse_atom(`${output_predicate}("${variable}", ${index}, ${process_output_value(element)})`)
+                (element, index) => Utils.parse_atom(`${output_predicate}("${variable}", ${index+1}, ${process_output_value(element)})`)
             ));
         } else if (Object.hasOwn(value, "set")) {
             return [Utils.parse_atom(`${output_predicate}("${variable}", set)`)].concat(value.set.map(
