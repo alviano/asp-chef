@@ -94,12 +94,12 @@
                         }
                         input_variable_value[atom.terms[0].string] = process_input_value(atom.terms[1]);
                     } else if (input_variable_type[atom.terms[0].string] === "array") {
-                        input_variable_value[atom.terms[0].string][atom.terms[1].number] = process_input_value(atom.terms[2]);
+                        input_variable_value[atom.terms[0].string][atom.terms[1].number - 1] = process_input_value(atom.terms[2]);
                     } else if (input_variable_type[atom.terms[0].string] === "array2d") {
-                        if (input_variable_value[atom.terms[0].string][atom.terms[1].number] === undefined) {
-                            input_variable_value[atom.terms[0].string][atom.terms[1].number] = [];
+                        if (input_variable_value[atom.terms[0].string][atom.terms[1].number - 1] === undefined) {
+                            input_variable_value[atom.terms[0].string][atom.terms[1].number - 1] = [];
                         }
-                        input_variable_value[atom.terms[0].string][atom.terms[1].number][atom.terms[2].number] = process_input_value(atom.terms[3]);
+                        input_variable_value[atom.terms[0].string][atom.terms[1].number - 1][atom.terms[2].number - 1] = process_input_value(atom.terms[3]);
                     } else if (input_variable_type[atom.terms[0].string] === "set") {
                         if (atom.terms.length === 2) {
                             input_variable_value[atom.terms[0].string].push([process_input_value(atom.terms[1])]);
@@ -114,6 +114,7 @@
                     }
                 });
                 if (Object.keys(input_variable_value).length > 0) {
+                    console.log(input_variable_value)
                     minizinc_model.addJson(input_variable_value);
                 }
 
