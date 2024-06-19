@@ -263,6 +263,10 @@ export class TestRecipe {
 		});
 	}
 
+	async reverse_models() {
+		return this.ingredient('Reverse Models');
+	}
+
 	async unique(...predicates: string[]) {
 		return this.ingredient('Unique', async ingredient => {
 			for (const predicate of predicates) {
