@@ -29,6 +29,9 @@
         try {
             const url = recipe_url.split('#')[1];
             const recipe_ingredients = Recipe.extract_recipe_from_serialization(url);
+            try {
+                listeners.get(id)(recipe_url, recipe_ingredients);
+            } catch (error) { /* component not mounted, possibly because of headless mode */ }
             for (const ingredient of recipe_ingredients) {
                 if (ingredient.options.apply) {
                     res = await Recipe.apply_operation_type(index, ingredient, res);
@@ -37,9 +40,6 @@
                     break;
                 }
             }
-            try {
-                listeners.get(id)(recipe_url, recipe_ingredients);
-            } catch (error) { /* component not mounted, possibly because of headless mode */ }
         } catch (error) {
             Recipe.set_errors_at_index(index, error, res);
         }
