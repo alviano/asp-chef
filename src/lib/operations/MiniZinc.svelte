@@ -114,7 +114,6 @@
                     }
                 });
                 if (Object.keys(input_variable_value).length > 0) {
-                    console.log(input_variable_value)
                     minizinc_model.addJson(input_variable_value);
                 }
 

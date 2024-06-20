@@ -29,9 +29,6 @@
         try {
             const url = recipe_url.split('#')[1];
             const recipe_ingredients = Recipe.extract_recipe_from_serialization(url);
-            try {
-                listeners.get(id)(recipe_url, recipe_ingredients);
-            } catch (error) { /* component not mounted, possibly because of headless mode */ }
             for (const ingredient of recipe_ingredients) {
                 if (ingredient.options.apply) {
                     res = await Recipe.apply_operation_type(index, ingredient, res);
@@ -40,6 +37,9 @@
                     break;
                 }
             }
+            try {
+                listeners.get(id)(recipe_url, recipe_ingredients);
+            } catch (error) { /* component not mounted, possibly because of headless mode */ }
         } catch (error) {
             Recipe.set_errors_at_index(index, error, res);
         }
@@ -128,9 +128,8 @@
     }
 
     async function register(options) {
-        console.log(options)
         await Recipe.new_remote_recipe_operation(options.name, options.url, 'Undocumented recipe');
-        await Utils.snackbar("Registered! Search in the Operations panel to find the new operation");
+        Utils.snackbar("Registered! Search in the Operations panel to find the new operation");
     }
 
     onMount(() => {
@@ -241,19 +240,21 @@
         <Input disabled={true} />
     </InputGroup>
     <div slot="output">
-        {#each ingredients as item}
-            {#if Recipe.is_remote_javascript_operation(item.operation)}
-                <Javascript remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
-            {:else if Recipe.has_operation_type(item.operation)}
-                <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
-            {:else}
-                <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
-                <div class="alert-warning" style="color: white" data-fix-ingredient-index="{index}">
-                    <h5 class="alert-heading">Oops!</h5>
-                    Unknown operation replaced by Nop: {item.operation}.
-                    Explode the recipe, fix it, and implode it back.
-                </div>
-            {/if}
-        {/each}
+        {#key ingredients}
+            {#each ingredients as item}
+                {#if Recipe.is_remote_javascript_operation(item.operation)}
+                    <Javascript remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+                {:else if Recipe.has_operation_type(item.operation)}
+                    <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+                {:else}
+                    <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
+                    <div class="alert-warning" style="color: white" data-fix-ingredient-index="{index}">
+                        <h5 class="alert-heading">Oops!</h5>
+                        Unknown operation replaced by Nop: {item.operation}.
+                        Explode the recipe, fix it, and implode it back.
+                    </div>
+                {/if}
+            {/each}
+        {/key}
     </div>
 </Operation>
