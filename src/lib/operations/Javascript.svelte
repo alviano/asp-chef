@@ -30,12 +30,16 @@ week
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
+        if (!options.code) {
+            return input;
+        }
+
         try {
             await listeners.get(id)();
         } catch (error) { /* component not mounted, possibly because of headless mode */ }
 
         try {
-            return options.code ? await Utils.worker_run(options.code, input, options.options) : input;
+            return await Utils.worker_run(options.code, input, options.options);
         } catch (error) {
             const res = [...input];
             Recipe.set_errors_at_index(index, error, res);
@@ -98,7 +102,7 @@ week
             }
             set_options(describe);
         } catch (error) {
-            Recipe.set_errors_at_index(index, error);
+            console.log("Error in Javascript DESCRIBE:", index, error);
         }
     }
 
