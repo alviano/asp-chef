@@ -21,7 +21,7 @@
                     }
                     input_part.push(atom);
                 });
-                const json = await Dumbo.fetch("sdl", {
+                const json = await Dumbo.fetch("sdl/", {
                     program: program.join('\n'),
                 });
                 input_part.push(Dumbo.encode_program(json.program, options.program_predicate));
