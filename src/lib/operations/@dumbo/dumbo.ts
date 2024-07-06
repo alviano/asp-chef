@@ -20,7 +20,7 @@ export class Dumbo {
     }
 
     public static async fetch(url, data, ) {
-        const response = await fetch(`${get(server_url)}/dumbo/${url}`, {
+        const response = await fetch(`${get(server_url)}/dumbo/${url}/`, {
             method: "POST",
             mode: "cors",
             cache: Utils.browser_cache_policy,
