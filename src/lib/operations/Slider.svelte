@@ -22,7 +22,7 @@
 </script>
 
 <script>
-    import {Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Tooltip} from "dumbo-svelte";
@@ -40,6 +40,34 @@
 
     function edit() {
         Recipe.edit_operation(id, index, options);
+    }
+
+    function start() {
+        if (options.value > min) {
+            options.value = min;
+            edit();
+        }
+    }
+
+    function prev() {
+        if (options.value > min) {
+            options.value -= 1;
+            edit();
+        }
+    }
+
+    function next() {
+        if (options.value < max) {
+            options.value += 1;
+            edit();
+        }
+    }
+
+    function end() {
+        if (options.value < max) {
+            options.value = max;
+            edit();
+        }
     }
 
     onMount(() => {
@@ -115,7 +143,19 @@
         {#if readonly && options.label}
             <InputGroup>
                 <Input readonly="true" value="{options.label}" />
+                <Button size="sm" title="Start" disabled={options.value <= min} on:click={() => start()}>
+                    <Icon name="skip-start" />
+                </Button>
+                <Button size="sm" title="Previous" disabled={options.value <= min} on:click={() => prev()}>
+                    <Icon name="arrow-left" />
+                </Button>
                 <InputGroupText class="float-end"><code>{options.value} in range {min}..{max}</code></InputGroupText>
+                <Button size="sm" title="Next" disabled={options.value >= max} on:click={() => next()}>
+                    <Icon name="arrow-right" />
+                </Button>
+                <Button size="sm" title="End" disabled={options.value >= max} on:click={() => end()}>
+                    <Icon name="skip-end" />
+                </Button>
             </InputGroup>
         {/if}
         <div class="m-3">
