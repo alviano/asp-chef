@@ -205,7 +205,7 @@ week
                 <Input type="{option.type}"
                        placeholder="{option.placeholder}"
                        value="{options.options[option.name]}"
-                       on:input={(event) => change_option(option.name, event.srcElement.value)}/>
+                       on:input={(event) => change_option(option.name, event.target.value)}/>
             </InputGroup>
         {:else}
             <Button block outline="{!options.options[option.name]}"

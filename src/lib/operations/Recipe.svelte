@@ -7,11 +7,25 @@
     const default_extra_options = {
         name: '',
         url: '',
+        locked: false,
+        predicate_mapping: [],
     };
 
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
+        const predicate_mapping = new Map(
+            options.predicate_mapping
+                .filter(([key, value]) => key !== value && Utils.is_valid_predicate(key) && Utils.is_valid_predicate(value))
+                .map(([key, value]) => [value, key])
+        );
+        input = input.map((part) => part.map((atom) => {
+            if (predicate_mapping.has(atom.predicate)) {
+                return Utils.rename_predicate(atom, predicate_mapping.get(atom.predicate));
+            }
+            return atom;
+        }));
+
         let recipe_url = options.url;
         if (recipe_url === '') {
             return input;
@@ -54,6 +68,7 @@
     import Popover from "$lib/Popover.svelte";
     import Javascript from "$lib/operations/Javascript.svelte";
     import Nop from "$lib/operations/Nop.svelte";
+    import RecipeOperation from "$lib/operations/Recipe.svelte";
 
     export let id;
     export let options;
@@ -66,6 +81,7 @@
     let ingredients = [];
     let number_of_ingredients_to_implode = 0;
     let doc = '';
+    let predicate_mapping = [];
 
     function normalized_recipe_url(recipe_url) {
         try {
@@ -75,7 +91,35 @@
         }
     }
 
+    function add_predicate_mapping() {
+        predicate_mapping.push([]);
+        predicate_mapping = predicate_mapping;
+        edit();
+    }
+
+    function change_predicate_mapping(index, source, value) {
+        predicate_mapping[index][source] = value;
+        edit();
+    }
+
+    function remove_predicate_mapping(index) {
+        predicate_mapping.splice(index, 1)
+        predicate_mapping = predicate_mapping;
+        edit();
+    }
+
+    function edit_recipe() {
+        options.locked = false;
+        edit();
+    }
+
+    function lock_recipe() {
+        options.locked = true;
+        edit();
+    }
+
     function edit() {
+        options.predicate_mapping = [...predicate_mapping];
         Recipe.edit_operation(id, index, options);
     }
 
@@ -128,7 +172,7 @@
     }
 
     async function register(options) {
-        await Recipe.new_remote_recipe_operation(options.name, options.url, 'Undocumented recipe');
+        await Recipe.new_remote_recipe_operation(options.name, options.url, options.predicate_mapping.map(([a, _]) => a), 'Undocumented recipe');
         Utils.snackbar("Registered! Search in the Operations panel to find the new operation");
     }
 
@@ -136,6 +180,9 @@
         if (remote_name) {
             const remote = Recipe.get_remote_recipe_operation(remote_name);
             doc = remote.doc;
+        }
+        if (options) {
+            predicate_mapping = options.predicate_mapping;
         }
         listeners.set(id, (the_recipe_url, the_ingredients) => {
             recipe_url = the_recipe_url;
@@ -170,80 +217,129 @@
             </p>
         {/if}
     </div>
+    {#if !options.locked}
+        <InputGroup>
+            <InputGroupText>Name</InputGroupText>
+            <Input type="text"
+                   bind:value={options.name}
+                   placeholder="Recipe name (possibly to register it as an operation)"
+                   on:input={edit}
+                   data-testid="Recipe-name"
+            />
+            <Button size="sm" disabled="{!options.name || !options.url}" on:click={() => register(options)}>Register</Button>
+        </InputGroup>
+        <InputGroup>
+            <Input type="text"
+                   bind:value="{options.url}"
+                   placeholder="{consts.DOMAIN + '#/...%21'}"
+                   on:input={edit}
+                   data-testid="Recipe-url"
+            />
+            {#if recipe_url === options.url}
+                <Button size="sm" title="Shorten recipe URL (not suggested in case of sensitive information in the URL)" on:click={shorten_url}>
+                    <Icon name="arrows-angle-contract" />
+                </Button>
+            {:else}
+                <Button size="sm" title="Replace shorten recipe URL with its long version" on:click={resolve_url}>
+                    <Icon name="arrows-angle-expand" />
+                </Button>
+            {/if}
+            <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(normalized_recipe_url(recipe_url))}>
+                <Icon name="clipboard-plus" />
+            </Button>
+            <Button href="{normalized_recipe_url(recipe_url)}" target="_blank">
+                Open in new tab
+            </Button>
+        </InputGroup>
+    {/if}
     <InputGroup>
-        <InputGroupText>Name</InputGroupText>
-        <Input type="text"
-               bind:value={options.name}
-               placeholder="Recipe name (possibly to register it as an operation)"
-               on:input={edit}
-               data-testid="Recipe-name"
-        />
-        <Button size="sm" disabled="{!options.name || !options.url}" on:click={() => register(options)}>Register</Button>
-    </InputGroup>
-    <InputGroup>
-        <Input type="text"
-               bind:value="{options.url}"
-               placeholder="{consts.DOMAIN + '#/...%21'}"
-               on:input={edit}
-               data-testid="Recipe-url"
-        />
-        {#if recipe_url === options.url}
-            <Button size="sm" title="Shorten recipe URL (not suggested in case of sensitive information in the URL)" on:click={shorten_url}>
-                <Icon name="arrows-angle-contract" />
+        <Input type="text" value="Predicate mapping" disabled={true} />
+        {#if options.locked}
+            <Button on:click={edit_recipe}>
+                Edit recipe
             </Button>
         {:else}
-            <Button size="sm" title="Replace shorten recipe URL with its long version" on:click={resolve_url}>
-                <Icon name="arrows-angle-expand" />
+            <Button on:click={lock_recipe}>
+                Lock recipe
+            </Button>
+            <Button on:click={add_predicate_mapping} title="Add new predicate mapping">
+                <Icon name="cart-plus" />
             </Button>
         {/if}
-        <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(normalized_recipe_url(recipe_url))}>
-            <Icon name="clipboard-plus" />
-        </Button>
-        <Button href="{normalized_recipe_url(recipe_url)}" target="_blank">
-            Open in new tab
-        </Button>
     </InputGroup>
     <InputGroup>
-        <Button on:click={() => implode(number_of_ingredients_to_implode)}>
-            Implode
-        </Button>
-        <Input type="number"
-               bind:value={number_of_ingredients_to_implode}
-               min="0"
-               title="Number of ingredients below to implode (0 for all)"
-               data-testid="Recipe-number-of-ingredients-to-implode"
-        />
-        <InputGroupText>
-            ingredients, from #{index + 2} to #{number_of_ingredients_to_implode ? index + 1 + number_of_ingredients_to_implode : 'end'}
-        </InputGroupText>
+        {#each predicate_mapping as [predicate, source], index}
+            <InputGroup>
+                <InputGroupText></InputGroupText>
+                <Input type="text"
+                       value={predicate}
+                       placeholder="A predicate used in the recipe"
+                       on:input={(event) => change_predicate_mapping(index, 0, event.target.value)}
+                       data-testid="predicate"
+                       invalid="{predicate && !Utils.is_valid_predicate(predicate)}"
+                       disabled="{options.locked}"
+                />
+                <InputGroupText>from</InputGroupText>
+                <Input type="text"
+                       value={source}
+                       placeholder="A predicate in input (to be replaced with the predicate in the recipe)"
+                       on:input={(event) => change_predicate_mapping(index, 1, event.target.value)}
+                       data-testid="source"
+                       invalid="{source && !Utils.is_valid_predicate(source)}"
+                />
+                {#if !options.locked}
+                    <Button on:click={(event) => { event.preventDefault(); remove_predicate_mapping(index); }}>
+                        <Icon name="trash" />
+                    </Button>
+                {/if}
+            </InputGroup>
+        {/each}
     </InputGroup>
-    <InputGroup>
-        <Button on:click={explode}>Explode</Button>
-        <InputGroupText>
-            <Popover title="Ingredients in the Recipe">
-                <div slot="value">
-                    {#each ingredients as ingredient, index}
-                        <span>
-                            #{index + 1}. {ingredient.operation}
-                            {#if !ingredient.options.apply}
-                                [not applied]
-                            {/if}
-                            {#if ingredient.options.stop}
-                                [STOP!]
-                            {/if}
-                        </span><br />
-                    {/each}
-                </div>
-                <code>{ingredients.length} ingredients</code>
-            </Popover>
-        </InputGroupText>
-        <Input disabled={true} />
-    </InputGroup>
+    {#if !options.locked}
+        <InputGroup>
+            <Button on:click={() => implode(number_of_ingredients_to_implode)}>
+                Implode
+            </Button>
+            <Input type="number"
+                   bind:value={number_of_ingredients_to_implode}
+                   min="0"
+                   title="Number of ingredients below to implode (0 for all)"
+                   data-testid="Recipe-number-of-ingredients-to-implode"
+            />
+            <InputGroupText>
+                ingredients, from #{index + 2} to #{number_of_ingredients_to_implode ? index + 1 + number_of_ingredients_to_implode : 'end'}
+            </InputGroupText>
+        </InputGroup>
+        <InputGroup>
+            <Button on:click={explode}>Explode</Button>
+            <InputGroupText>
+                <Popover title="Ingredients in the Recipe">
+                    <div slot="value">
+                        {#each ingredients as ingredient, index}
+                            <span>
+                                #{index + 1}. {ingredient.operation}
+                                {#if !ingredient.options.apply}
+                                    [not applied]
+                                {/if}
+                                {#if ingredient.options.stop}
+                                    [STOP!]
+                                {/if}
+                            </span><br />
+                        {/each}
+                    </div>
+                    <code>{ingredients.length} ingredients</code>
+                </Popover>
+            </InputGroupText>
+            <Input disabled={true} />
+        </InputGroup>
+    {/if}
     <div slot="output">
         {#key ingredients}
             {#each ingredients as item}
                 {#if Recipe.is_remote_javascript_operation(item.operation)}
                     <Javascript remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+                {:else if Recipe.is_remote_recipe_operation(item.operation)}
+                    <RecipeOperation remote_name={item.operation} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                 {:else if Recipe.has_operation_type(item.operation)}
                     <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{leave_only_side_output(item.options)}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                 {:else}

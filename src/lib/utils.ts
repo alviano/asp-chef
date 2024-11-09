@@ -299,6 +299,19 @@ export class Utils extends BaseUtils {
         return Array.from(res).sort();
     }
 
+    static rename_predicate(atom, predicate: string) {
+        return Utils.parse_atom(atom.str.replace(atom.predicate, predicate))
+    }
+
+    static is_valid_predicate(pred: string) {
+        try {
+            const parsed = PARSER.parse(pred);
+            return parsed.predicate === parsed.str;
+        } catch (error) {
+            return false;
+        }
+    }
+
     static parse_atom(atom: string) {
         return PARSER.parse(atom);
     }
@@ -397,7 +410,7 @@ term
 / "(" space? ")" { return { functor : '', terms : [], str : '()' }; }
 
 string_id
-= prefix:[_]* head:[a-z] tail:[A-Za-z0-9_]* { return prefix.join("") + head + tail.join(""); }
+= prefix:[_']* head:[a-z] tail:[A-Za-z0-9'_]* { return prefix.join("") + head + tail.join(""); }
 
 quoted_string
 = '"' str:('\\\\"' / [^"${consts.SYMBOLS.MODELS_SEPARATOR}])* '"' { return str.join(""); }

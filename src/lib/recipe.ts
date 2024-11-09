@@ -91,7 +91,7 @@ export class Recipe {
 
         for (const [key, value] of [...this._remote_recipe_operations.entries()]) {
             let err = null;
-            const new_key = await this.new_remote_recipe_operation(value.name, value.url, value.doc,false);
+            const new_key = await this.new_remote_recipe_operation(value.name, value.url, value.remappable_predicates, value.doc,false);
             if (new_key !== key) {
                 this._remote_recipe_operations.delete(key);
             }
@@ -156,11 +156,12 @@ export class Recipe {
         return operation;
     }
 
-    private static async _new_remote_recipe_operation(name: string, url: string, doc: string) {
+    private static async _new_remote_recipe_operation(name: string, url: string, remappable_predicates: string[], doc: string) {
         const operation = this.make_remote_recipe_operation_name(name);
         this._remote_recipe_operations.set(operation, {
             name,
             url,
+            remappable_predicates,
             doc,
         });
         this._operation_components.set(this.operation_type_filename(operation), operation);
@@ -189,8 +190,8 @@ export class Recipe {
         return operation;
     }
 
-    static async new_remote_recipe_operation(name: string, url: string, doc: string, update_store = true) {
-        const operation = await this._new_remote_recipe_operation(name, url, doc);
+    static async new_remote_recipe_operation(name: string, url: string, remappable_predicates: string[], doc: string, update_store = true) {
+        const operation = await this._new_remote_recipe_operation(name, url, remappable_predicates, doc);
         if (update_store) {
             this._update_registered_recipes_store();
         }
@@ -229,6 +230,10 @@ export class Recipe {
 
     static is_remote_recipe_operation(operation: string) {
         return this._remote_recipe_operations.has(operation);
+    }
+
+    static remappable_predicate_in_remove_recipe_operation(operation: string) {
+        return this._remote_recipe_operations.get
     }
 
     static get_remote_javascript_operation(operation: string) {
@@ -492,7 +497,10 @@ export class Recipe {
             options = {
                 ...options,
                 ...recipe,
+                predicate_mapping: Recipe.get_remote_recipe_operation(operation).remappable_predicates.map((pred) => [pred, '']),
+                locked: true,
             };
+            options.remappable_predicates = undefined;
             operation = "Recipe";
         }
 

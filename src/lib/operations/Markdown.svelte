@@ -294,7 +294,7 @@
             Ordered and unordered lists can be specified by the varadics predicates <code>ol</code> and <code>ul</code>.
         </p>
         <p>
-            Predicates <code>png/1</code>, <code>gif/1</code> and <code>jpeg/1</code> can be used to show a Base64-encoded PNG image.
+            Predicates <code>png/1</code>, <code>gif/1</code> and <code>jpeg/1</code> can be used to show a Base64-encoded image.
         </p>
         <p>
             Predicate <code>base64/1</code> decodes Base64-encoded content.

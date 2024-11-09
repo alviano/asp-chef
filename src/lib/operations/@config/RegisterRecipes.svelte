@@ -37,8 +37,8 @@
         Recipe.edit_operation(id, index, options);
     }
 
-    async function register_url(name, url, doc) {
-        const operation = await Recipe.new_remote_recipe_operation(`${options.prefix}/${name}`, url, doc);
+    async function register_url(name, url, remappable_predicates, doc) {
+        const operation = await Recipe.new_remote_recipe_operation(`${options.prefix}/${name}`, url, remappable_predicates, doc);
         Utils.snackbar("Registered " + operation);
     }
 
@@ -55,12 +55,13 @@
                         const data = Utils.split_with_limit(
                             Base64.decode(atom.terms[0].string),
                             '\n',
-                            3,
+                            4,
                         );
                         const name = data[0];
                         const url = data[1];
-                        const doc = data.length > 2 ? data[2] : '';
-                        await register_url(name, url, doc);
+                        const remappable_predicates = data.length > 2 ? data[2].split(' ') : [];
+                        const doc = data.length > 3 ? data[3] : '';
+                        await register_url(name, url, remappable_predicates, doc);
                     }
                 }
             }
@@ -85,7 +86,8 @@
         <p>The <strong>{operation}</strong> operation adds operations to the local storage of the browser.</p>
         <p>
             New operations are given in predicate <code>__base64__</code> (it can be changed).
-            Each Base64-encoded atom must provide a name in the first line, a URL in the second line, and an optional
+            Each Base64-encoded atom must provide a name in the first line, a URL in the second line,
+            a space-separated list of predicates (to be remapped) in the third line, and an optional
             (but strongly suggested) documentation in the remaining lines (Markdown can be used).
             The <strong>Encode</strong> operation can be used to pack data for a new Recipe operation.
         </p>
