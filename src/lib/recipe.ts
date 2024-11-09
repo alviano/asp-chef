@@ -497,7 +497,7 @@ export class Recipe {
             options = {
                 ...options,
                 ...recipe,
-                predicate_mapping: Recipe.get_remote_recipe_operation(operation).remappable_predicates.map((pred) => [pred, '']),
+                predicate_mapping: (Recipe.get_remote_recipe_operation(operation).remappable_predicates || []).map((pred) => [pred, '']),
                 locked: true,
             };
             options.remappable_predicates = undefined;
