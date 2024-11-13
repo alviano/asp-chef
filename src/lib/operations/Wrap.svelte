@@ -37,19 +37,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation considers the elements in input as terms of a unary predicate.
-        </p>
-        <p>
-            Each model in input is mapped to a model comprising facts of the form <br />
-            <code class="ms-3">__atom__(ATOM).</code><br />
-            where <code>ATOM</code> is an atom in the model.
-        </p>
-        <p>
-            The name of the unary predicate <code>__atom__</code> can be specified in the recipe.
-        </p>
-    </div>
     <Input type="text"
            bind:value="{options.predicate}"
            placeholder="predicate"

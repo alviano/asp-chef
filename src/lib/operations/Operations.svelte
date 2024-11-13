@@ -22,10 +22,5 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation does nothing... but can be used to add other ingredients above it!
-        </p>
-    </div>
     <OperationsList slot="output" {index} style="height: 50vh; overflow-y: scroll" />
 </Operation>

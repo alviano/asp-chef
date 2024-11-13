@@ -41,17 +41,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation replaces each model according to the specified <code>#show</code> directives.
-        </p>
-        <p>
-            Each model in input is used as the input of a program given in the recipe.
-        </p>
-        <p>
-            A program can be specified in general, but the target should be the set of <code>#show</code> directives.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

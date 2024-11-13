@@ -64,21 +64,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation shows a particles animation.
-        </p>
-        <p>
-            One call to the <code>confetti()</code> function if a configuration object (in JSON) is provided, and for each instance of the specified predicate (if any).
-        </p>
-        <p>
-            Go to https://confetti.js.org/more.html to find inspiration!
-        </p>
-        <p>
-            <strong>Attention!</strong>
-            This operation is also an example of how to use dynamic imports to avoid a strong binding for operations that are not expected to be used frequently.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

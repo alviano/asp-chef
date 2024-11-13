@@ -19,6 +19,7 @@ export class Recipe {
     private static _operation_types = new Map();
     private static _operation_components = new Map();
     private static _operation_keys = [];
+    private static _operation_doc = new Map();
     private static uncachable_operations_types = new Set();
     private static _remote_javascript_operations = new Map();
     private static _remote_recipe_operations = new Map();
@@ -33,6 +34,17 @@ export class Recipe {
 
     private static get errors_at_index() {
         return get(errors_at_index);
+    }
+
+    static operations(filter: string) {
+        const res = [];
+        this._sort_operation_keys();
+        for (const key of this._operation_keys) {
+            if (String(key).match(new RegExp(filter, 'i'))) {
+                res.push(key);
+            }
+        }
+        return res;
     }
 
     static operation_component(operation_type: string) {
@@ -116,11 +128,21 @@ export class Recipe {
         }
     }
 
-    static register_operation_type(
+    static async markdown_doc(operation: string) {
+        const response = await fetch(`doc/${this.operation_type_filename(operation)}.md`);
+        return Utils.render_markdown(await response.text());
+    }
+
+    static async register_operation_type(
         operation: string,
         apply: (input: string[][], options: object, index: number, id: string) => Promise<string[][]>,
     ) {
         this._operation_types.set(operation, apply);
+        this._operation_doc.set(operation, await this.markdown_doc(operation));
+    }
+
+    static operation_doc(operation: string) : string {
+        return this._operation_doc.get(operation);
     }
 
     static operation_type_filename(operation: string) : string {
@@ -152,6 +174,7 @@ export class Recipe {
         });
         this._operation_components.set(this.operation_type_filename(operation), operation);
         this._operation_types.set(operation, this._operation_types.get("Javascript"));
+        this._operation_doc.set(operation, doc);
 
         return operation;
     }
@@ -166,6 +189,7 @@ export class Recipe {
         });
         this._operation_components.set(this.operation_type_filename(operation), operation);
         this._operation_types.set(operation, this._operation_types.get("Recipe"));
+        this._operation_doc.set(operation, doc);
 
         return operation;
     }

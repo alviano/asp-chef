@@ -34,14 +34,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation stores input in memory.
-        </p>
-        <p>
-            The ID of the ingredient is associated with the input and can be restored later by the <em>Restore</em> operation.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>ID</InputGroupText>
         <Input value="{id}" readonly data-testid="Store-id" />

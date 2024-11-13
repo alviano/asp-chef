@@ -50,11 +50,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation rewrites the Structured Declarative Language (SDL) program stored in <code>__program__</code> into an equivalent ASP version.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 8em;">Program</InputGroupText>
         <Input type="text"

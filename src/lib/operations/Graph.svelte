@@ -199,41 +199,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation shows one model in input as a graph.
-        </p>
-        <p>
-            The graph is encoded by predicate <code>__graph__</code>.
-            The first term is one of <code>node(ID)</code>, <code>link(SOURCE,TARGET)</code>, <code>defaults</code>.
-            The other terms have the form <code>property(VALUE)</code>.
-        </p>
-        <p>
-            Node properties: label, image, color, draggable/undraggable, font, fx, fy, opacity, radius, shape, text_color.
-        </p>
-        <p>
-            Link properties: directed/undirected, label, color, opacity, text_color.
-        </p>
-        <p>
-            Default properties:
-            node_color,
-            node_draggable/node_undraggable,
-            node_font,
-            node_image,
-            node_opacity,
-            node_radius (also defining the capture area for dragging nodes),
-            node_shape,
-            node_text_color,
-            link_color,
-            link_text_color,
-            link_opacity,
-            directed/undirected.
-        </p>
-        <p>
-            Labels can be searched in the graph.
-            If <Badge><Icon name="clipboard-plus" /></Badge> is active, drag the graph with the mouse to copy the layout (position of nodes).
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number" min="50" step="50" bind:value={options.height} on:input={edit} style="max-width: 5em;" />

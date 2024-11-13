@@ -62,25 +62,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation invalidate the cache after an interval (of 1 second or more).
-        </p>
-        <p>
-            It can be used to implement <em>regular polling</em> to external servers (e.g., if followed by <strong>HackMD</strong>).
-        </p>
-        <p>
-            If an output predicate is specified, the current time is added as a fact of the form <code>__timer__(HOURS, MINUTES, SECONDS).</code>
-        </p>
-        <p>
-            <strong>Attention!</strong>
-            Skipping a timer ingredient does not clear the installed interval.
-            If you want to temporarily disable a timer, click the <Badge>ACTIVE</Badge> button <strong>before</strong> skipping the ingredient.
-        </p>
-        <p>
-            Default value: <code>5 seconds</code>
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 10em;">Output predicate</InputGroupText>
         <Input type="text"

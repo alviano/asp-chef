@@ -67,34 +67,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation applies JSON Path queries to Base64 encoded JSON documents
-            (use an Encode operation).
-        </p>
-        <p>
-            Each object in the answer is mapped to a fact.
-            Strings are quoted.
-            Arrays are expanded to arguments.
-            Objects are mapped to functions (keys are expected to be valid terms).
-            An example is reported below.
-        </p>
-        <code class="d-block ms-3">{'{'}</code>
-        <code class="d-block ms-3">&nbsp;&nbsp;"nodes": [1, 2, 3],</code>
-        <code class="d-block ms-3">&nbsp;&nbsp;"links": [</code>
-        <code class="d-block ms-3">&nbsp;&nbsp;&nbsp;&nbsp;[1, 2],</code>
-        <code class="d-block ms-3">&nbsp;&nbsp;&nbsp;&nbsp;[2, 3],</code>
-        <code class="d-block ms-3">&nbsp;&nbsp;&nbsp;&nbsp;[3, 1]</code>
-        <code class="d-block ms-3">&nbsp;&nbsp;]</code>
-        <code class="d-block ms-3">{'}'}</code>
-        <p>
-            Two JSON Path queries, <code>$.nodes.*</code> and <code>$.links.*</code> can produce
-        </p>
-        <code class="d-block ms-3">node(1). node(2). node(3).</code>
-        <code class="d-block ms-3">link(1,2).</code>
-        <code class="d-block ms-3">link(2,3).</code>
-        <code class="d-block ms-3">link(3,1).</code>
-    </div>
     <InputGroup>
         <InputGroupText>Decode</InputGroupText>
         <Input type="text"

@@ -66,6 +66,7 @@
 {:else}
     <Popover block placement="right" title="Add {operation} Operation" class="mw-70">
         <div slot="value">
+            {@html Recipe.operation_doc(operation)}
             <slot name="description" />
             {#if keybinding !== undefined}
                 <p>Keybinding: <code>{keybinding}</code></p>

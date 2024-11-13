@@ -53,16 +53,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation can be used to reorder the program stored in <code>__program__</code>.
-        </p>
-        <p>
-            One or more <em>atom patterns</em> can be specified.
-            (Each atom pattern is terminated by a dot, as for facts, but may contain variables.)
-            Rules matching (i.e., relaxed unifying with) any given pattern are moved up in the program.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 8em;">Program</InputGroupText>
         <Input type="text"

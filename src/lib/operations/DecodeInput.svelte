@@ -46,19 +46,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation expand the input with the base64 encoded content in the specified predicate.</p>
-        <p>
-            The expanded input is processed according to the input format, that is, using the separator {consts.SYMBOLS.MODELS_SEPARATOR} to separated models.
-        </p>
-        <p>
-            The name of the unary predicate <code>__base64__</code> used to wrap the base64 content can be specified in the recipe.
-        </p>
-        <p>
-            The instances of <code>__base64__</code> can be echoed or suppressed.
-            Other predicates in input can be included or excluded.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text"

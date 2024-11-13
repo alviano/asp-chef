@@ -68,18 +68,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation removes each model that is <strong>immediately</strong> preceded by another copy of the model.</p>
-        <p>
-            Each model is compared with the previous model and provided in output only if they are different.
-            A list of predicates can be ignored.
-        </p>
-        <p>
-            Note that order of elements in models does matter, that is, models with the same elements but in different orders will be considered different models.
-            A <strong>Sort Canonical</strong> operation can be used to make the ordering immaterial.
-            A <strong>Sort Models Canonically</strong> operation can be used to obtain a behavior analogous to the <strong>Unique</strong> operation (even if it would make more sense to opt for the <strong>Unique</strong> operation in this case).
-        </p>
-    </div>
     <div class="m-3">
         <Label>Excluded predicates</Label>
         {#each input_predicates as predicate}

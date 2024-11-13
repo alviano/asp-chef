@@ -22,12 +22,4 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation sorts the models in input by decreasing size.
-        </p>
-        <p>
-            Models with more atoms will come first.
-        </p>
-    </div>
 </Operation>

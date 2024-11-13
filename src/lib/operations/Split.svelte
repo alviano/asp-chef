@@ -42,20 +42,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation reverses the Merge operation.</p>
-        <p>
-            Atoms in input of the form<br />
-            <code class="ms-3">__model__(INDEX, ATOM).</code><br />
-            are mapped to model #<code>INDEX</code>.
-        </p>
-        <p>
-            The name of the binary predicate <code>__model__</code> can be specified in the recipe.
-        </p>
-        <p>
-            The order of models is not necessarily preserved.
-        </p>
-    </div>
     <Input type="text"
            bind:value="{options.predicate}"
            placeholder="predicate"

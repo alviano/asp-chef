@@ -67,17 +67,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation shows input models in tables.
-        </p>
-        <p>
-            Each table comprises one row for each atom in the associated model.
-        </p>
-        <p>
-            The input is echoed in output.
-        </p>
-    </div>
     <div slot="output">
         <InputGroup>
             <InputGroupText>Search</InputGroupText>

@@ -90,26 +90,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation adds operations to the local storage of the browser.</p>
-        <p>
-            New operations can be fetched from a remote URL, from multiple remote URLs stored in a given predicate, or from Base64-encoded terms.
-            The code must adhere to the <strong>Javascript</strong> operation (providing name and doc).
-        </p>
-        <p>
-            HackMD and GitHub URLs are rewritten to their public counterparts.
-            The input is forwarded to the next ingredient.
-        </p>
-        <p>
-            <strong>Important!</strong>
-            Button <Badge>REGISTER</Badge> must be clicked.
-            The new operations are available in the <strong>Operations</strong> panel after a refresh or after modifying the filter, also for other recipes.
-        </p>
-        <p>
-            Note that this operation is intended as a way to configure and customize ASP Chef.
-            <strong>It is strongly suggested to register new operations only on recently loaded pages, so that the list of registered operations is aligned to the local storage of the browser.</strong>
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 7em;">&amp;js-</InputGroupText>
         <Input type="text"

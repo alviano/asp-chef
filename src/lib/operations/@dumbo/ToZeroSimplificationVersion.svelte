@@ -62,17 +62,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation rewrites the program stored in <code>__program__</code> into an equivalent version that inhibit grounding simplifications.
-        </p>
-        <p>
-            Atoms with predicate <code>__false__</code> are injected in the input program, which is assumed to not already mentions the <code>__false__</code> predicate.
-        </p>
-        <p>
-            Atoms that are expected to be part of the Herbrand base of the program can be given (from a predicate or in the format facts).
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 8em;">Program</InputGroupText>
         <Input type="text"

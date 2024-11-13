@@ -52,14 +52,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation shows the output of the previous operation.
-        </p>
-        <p>
-            The input is echoed in output.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

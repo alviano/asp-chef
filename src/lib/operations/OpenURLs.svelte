@@ -54,12 +54,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation adds buttons to open URLs Base64-encoded in predicate <code>__url__</code>.</p>
-        <p>
-            The input is forwarded to the next ingredient.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 7em;">Predicate</InputGroupText>
         <Input type="text"

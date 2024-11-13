@@ -53,22 +53,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation sorts each model in input according to the specified criteria.
-        </p>
-        <p>
-            If the specified index is 0, atoms are sorted by predicate.
-            Otherwise, atoms are sorted by the term at the specified index.
-        </p>
-        <p>
-            The order can be ascending (the default) or descending.
-        </p>
-        <p>
-            Note that a stable sort algorithm is used.
-            Ordering of ties can be specified by adding another {operation} operation (first criteria come after in the recipe).
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Index</InputGroupText>
         <Input type="number"

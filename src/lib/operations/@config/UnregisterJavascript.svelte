@@ -56,18 +56,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation removes operations from the local storage of the browser.</p>
-        <p>
-            <strong>Important!</strong>
-            Button <Badge>UNREGISTER</Badge> or <Badge color="danger">UNREGISTER ALL</Badge> must be clicked.
-            The <strong>Operations</strong> panel is updated after a refresh or after modifying the filter, also for other recipes.
-        </p>
-        <p>
-            Note that this operation is intended as a way to configure and customize ASP Chef.
-            <strong>It is strongly suggested to unregister operations only on recently loaded pages, so that the list of registered operations is aligned to the local storage of the browser.</strong>
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 7em;">Filter</InputGroupText>
         <Input type="search"

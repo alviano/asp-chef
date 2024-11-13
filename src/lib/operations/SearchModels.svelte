@@ -56,22 +56,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation replaces each model in input with a sequence of models.
-        </p>
-        <p>
-            Each model in input is used as the input of a program given in the recipe, either as facts (the defaults) or as constraints.
-            <em>Weak constraints should not be included in the program; use the <strong>Optimize</strong> operation.</em>
-        </p>
-        <p>
-            A unary predicate is decoded as part of the program (default <code>__base64__/1</code>).
-        </p>
-        <p>
-            In addition to the rules of the program, the number of models can be specified (0 for unbounded).
-            An error can be raised if the specified number of models is not produced (if 0, the program is expected to be incoherent).
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

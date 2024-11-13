@@ -38,18 +38,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation combines all models in a single model.</p>
-        <p>
-            Each model in input is encoded by a sequence of facts of the form <br />
-            <code class="ms-3">__model__(INDEX). __model__(INDEX, ATOM).</code><br />
-            where <code>INDEX</code> is an identifier for the model (starting from 1) and
-            <code>ATOM</code> is an atom in the model.
-        </p>
-        <p>
-            The name of the binary predicate <code>__model__</code> can be specified in the recipe.
-        </p>
-    </div>
     <Input type="text"
            bind:value="{options.predicate}"
            placeholder="predicate"

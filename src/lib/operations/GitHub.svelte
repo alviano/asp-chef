@@ -123,24 +123,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public file on GitHub and fetches its content (possibly via jsDelivr).</p>
-        <p>
-            <strong>Important!</strong> The URL must be in the format <code>https://github.com/user/repo/blob/version/filepath</code>.
-            Use <strong>Set HTTP Cache Policy</strong> to configure the cache policy.
-            Note that the GitHub API has a rate limit, while jsDelivr may take some time to update.
-        </p>
-        <p>
-            The content is base64 encoded and wrapped by predicate <code>__base64__</code>.
-        </p>
-        <p>
-            The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
-            If the wildcard <code>*</code> is used as URL, URLs are actually taken from the <code>__base64__</code> atoms.
-        </p>
-        <p>
-            The encoded content can be consumed by operations such as <strong>Markdown</strong> and <strong>Search Models</strong>.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text"

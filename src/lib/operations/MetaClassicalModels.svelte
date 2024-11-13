@@ -66,23 +66,6 @@ atom(|L|) :- weighted_literal_tuple(_,L).
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation extends models in input with some encoded meta programming encoding.
-        </p>
-        <p>
-            The meta encoding can be used to compute classical models of a reified program (see the <strong>Reify Program</strong> operation).
-        </p>
-        <p>
-            The definitions are base64 encoded and wrapped by predicate <code>__base64__</code>.
-        </p>
-        <p>
-            The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
-        </p>
-        <p>
-            Encoding from <em>https://teaching.potassco.org/meta/</em>
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 10em;">Encode predicate</InputGroupText>
         <Input type="text"

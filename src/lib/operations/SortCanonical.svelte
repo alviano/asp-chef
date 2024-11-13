@@ -22,9 +22,4 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation sorts elements of each model according to their string representation.
-        </p>
-    </div>
 </Operation>

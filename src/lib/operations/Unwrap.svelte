@@ -37,20 +37,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation reverse the Wrap operation.
-        </p>
-        <p>
-            Each atom in input of the form <br />
-            <code class="ms-3">__atom__(ATOM).</code><br />
-            is replaced by <br />
-            <code class="ms-3">ATOM.</code><br />
-        </p>
-        <p>
-            The name of the unary predicate <code>__atom__</code> can be specified in the recipe.
-        </p>
-    </div>
     <Input type="text"
            bind:value="{options.predicate}"
            placeholder="predicate"

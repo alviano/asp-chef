@@ -40,15 +40,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation extends models in input with some encoded content (usually rules).</p>
-        <p>
-            The content is base64 encoded and wrapped by predicate <code>__base64__</code>.
-        </p>
-        <p>
-            The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

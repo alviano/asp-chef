@@ -136,39 +136,6 @@ week
     <div slot="description">
         {#if remote_name}
             {@html Utils.render_markdown(doc)}
-        {:else}
-            <p>
-                The <strong>{operation}</strong> operation executes Javascript code over the <code>input</code> models.
-            </p>
-            <p>
-                A function with arguments <code>input</code> and <code>options</code>, and the provided code is created and run in a worker.
-                It must return an array of arrays of objects, where each object has the <code>str</code> property (which must be a parsable atom).
-                Auxiliary functions can be defined within the code given in the ingredient.
-            </p>
-            <p>
-                If <code>options</code> is <code>"DESCRIBE"</code>, the function must return an object with properties <code>name</code>, <code>doc</code> and <code>options</code>, where <code>options</code> is an array of strings of the form <code>OPTION_NAME|TYPE|PLACEHOLDER|DEFAULT_VALUE</code>.
-                It is also acceptable to return just the array of options.
-                <code>TYPE</code> must be one of {TYPES.join(', ')}.
-            </p>
-            <p>
-                If the worker is terminated while executing the code given in the ingredient (for example, due to a change in the recipe), an <code>Error: Terminated</code> is reported.
-            </p>
-            <p>
-                The <em>input</em> is an array of models.
-                A <em>model</em> is an array of atoms.<br>
-                An <em>atom</em> is an object with properties <code>predicate</code> (a string), <code>terms</code> (an array of terms) and <code>str</code> (a string).<br />
-                A <em>term</em> is an object with property <code>str</code> (the string representation of the term) and one of the following properties:
-                <code>number</code>,
-                <code>string</code>,
-                <code>functor</code> (a string; in this case there is also a property <code>terms</code>).
-            </p>
-            <p>
-                <strong>Important!</strong>
-                The Javascript code is run in an isolated worker and cannot access any library imported by ASP Chef.
-                Dynamic imports are permitted.
-                For example, <em>lodash</em> can be imported using<br />
-                <code>const _ = (await import("https://esm.run/lodash")).default;</code>
-            </p>
         {/if}
     </div>
     {#if !remote_name}

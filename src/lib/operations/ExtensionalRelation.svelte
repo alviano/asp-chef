@@ -43,14 +43,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation adds to each model the given extensional relation.
-        </p>
-        <p>
-            Each provided row is mapped to a fact of the specified predicate (default to <code>__edb__</code>).
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

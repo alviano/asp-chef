@@ -137,34 +137,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation reverts the reification process (as much as possible).</p>
-        <p>
-            Predicates
-            <code>atom_tuple</code>,
-            <code>literal_tuple</code>,
-            <code>output</code>,
-            <code>rule</code> and
-            <code>weighted_literal_tuple</code>
-            in input are mapped to a program.
-            Rules are made of
-            <code>disjunction</code>,
-            <code>choice</code>,
-            <code>normal</code> and
-            <code>sum</code>.
-        </p>
-        <p>
-            The program is base64 encoded and wrapped by predicate <code>__base64__</code>.
-            The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
-        </p>
-        <p>
-            Predicates defining the program can be echoed in the output.
-        </p>
-        <p>
-            Note that the operation does an attempt to reconstruct names of atoms from output directives, but this is not always possible.
-            Atoms without a name are identified by predicate <code>__atom__</code> (or anything else specified in the recipe).
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 10em;">Encode predicate</InputGroupText>
         <Input type="text"

@@ -50,19 +50,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation extends each model in input with the base64 encoding of the input itself.</p>
-        <p>
-            If the input comprises a single model, it can be used by <strong>Search Models</strong> and similar operations.
-            If the input comprises multiple models, very likely you are going to use it in a <strong>Decode Input</strong> operation.
-        </p>
-        <p>
-            The name of the unary predicate <code>__base64__</code> used to wrap the base64 content can be specified in the recipe.
-        </p>
-        <p>
-            The input can be echoed or suppressed.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text"

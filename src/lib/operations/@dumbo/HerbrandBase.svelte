@@ -54,15 +54,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation returns the Herbrand base of the program stored in <code>__program__</code>.
-        </p>
-        <p>
-            The result is stored in predicate <code>__herbrand_base__</code>.
-            Atoms with predicate <code>__false__</code> are excluded from the base.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 8em;">Program</InputGroupText>
         <Input type="text"

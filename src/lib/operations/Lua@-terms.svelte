@@ -51,25 +51,6 @@ ${options.content}
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation extends models in input with some encoded Lua content
-            (usually functions defining @-terms or propagators).
-        </p>
-        <p>
-            For example
-            <code class="d-block ms-3">function successor(x)</code>
-            <code class="d-block ms-3">&nbsp;&nbsp;&nbsp;&nbsp;return x.number + 1</code>
-            <code class="d-block ms-3">end</code>
-            to later use <code>@successor(1)</code> and obtain <code>2</code>.
-        </p>
-        <p>
-            The content is base64 encoded and wrapped by predicate <code>__base64__</code>.
-        </p>
-        <p>
-            The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

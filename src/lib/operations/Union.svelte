@@ -49,18 +49,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation replaces each model in input with a sequence of <em>brave consequences</em>.
-        </p>
-        <p>
-            A unary predicate is decoded as part of the program (default <code>__base64__/1</code>).
-        </p>
-        <p>
-            Each model in input is used as the input of a program given in the recipe, and its brave consequences are computed.
-            <em>Weak constraints should not be included in the program; use the <strong>Optimize</strong> operation.</em>
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

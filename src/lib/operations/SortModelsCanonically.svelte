@@ -61,14 +61,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation sorts the array of models in input according to their string representation.
-        </p>
-        <p>
-            A list of predicates can be ignored.
-        </p>
-    </div>
     <div class="m-3">
         <Label>Excluded predicates</Label>
         {#each input_predicates as predicate}

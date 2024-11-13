@@ -70,24 +70,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation adds a user-defined keybinding.
-        </p>
-        <p>
-            Keybindings are captured when no element has the focus (press <code>Escape</code> to release the focus).
-            An atom of the form <code>__key__(KEY, index(INDEX), time(HOUR,MINUTES,SECONDS))</code> is added to each model in input (if predicate <code>__key__</code> is given).
-        </p>
-        <p>
-            The cache is invalidated when the keybinding is pressed.
-            It can be used to implement <em>regular polling</em> to external servers (e.g., if followed by <strong>HackMD</strong>).
-        </p>
-        <p>
-            <strong>Attention!</strong>
-            User-defined keybindings have priority over UI keybindings.
-            Duplicated user-defined keybindings can result in unexpected behavior.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 9em;">Key</InputGroupText>
         <Input bind:value={options.key} />

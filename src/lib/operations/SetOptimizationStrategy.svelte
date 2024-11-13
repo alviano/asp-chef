@@ -70,28 +70,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation sets the optimization strategy of clingo.
-        </p>
-        <p>
-            Model-guided and code-guided algorithms are available.
-        <p>
-            Algorithm <code>k</code> comes with a parameter for setting the size of the cardinality constraints added by the unsatisfiable core analysis.
-            Value <code>0</code> means <em>dynamic</em>.
-        </p>
-        <p>
-            The number of conflicts in the shrinking can be limited (value <code>0</code> for no limit).
-        </p>
-        <p>
-            Additional options:
-        </p>
-        <ul>
-            {#each Object.keys(usc_options) as key}
-                <li><code>{key}:</code> {usc_options[key]}</li>
-            {/each}
-        </ul>
-    </div>
     <div class="m-3">
         <InputGroup>
             <InputGroupText style="width: 9em;">Algorithm</InputGroupText>

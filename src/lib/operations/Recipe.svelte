@@ -199,22 +199,6 @@
     <div slot="description">
         {#if remote_name}
             {@html Utils.render_markdown(doc)}
-        {:else}
-            <p>The <strong>{operation}</strong> operation takes a URL representing another recipe and adds that recipe as an ingredient.</p>
-            <p>
-                This operation is practically equivalent to copy all ingredients of a recipe into another recipe.
-            </p>
-            <p>
-                Note that ASP Chef URLs also contains input, as well as flags to encode input and decode output.
-                Such content is ignored, as well as anything preceding <code>#</code>.
-            </p>
-            <p>
-                The ingredients of the recipe ingredient can be added to the main recipe (explode button).
-                Similarly, some ingredients can be imploded into the recipe ingredient (implode button), actually replacing it.
-            </p>
-            <p>
-                The side output of ingredients inside the <strong>{operation}</strong> ingredient can be shown by activating <Badge>SHOW SIDE OUTPUT</Badge>.
-            </p>
         {/if}
     </div>
     {#if !options.locked}

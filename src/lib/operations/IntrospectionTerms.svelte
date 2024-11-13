@@ -96,18 +96,6 @@ end
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation extends models in input with some encoded Lua content.
-        </p>
-        <p>
-            The definitions are base64 encoded and wrapped by predicate <code>__base64__</code>.
-        </p>
-        <p>
-            The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
-            Also the name of the @-terms defined by this can be customized.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 10em;">Encode predicate</InputGroupText>
         <Input type="text"

@@ -57,14 +57,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation discards empty models.
-        </p>
-        <p>
-            A list of predicates can be ignored, and a model is discarded if it is empty after discarding instances of the ignored predicates.
-        </p>
-    </div>
     <div class="m-3">
         <Label>Excluded predicates</Label>
         {#each input_predicates as predicate}

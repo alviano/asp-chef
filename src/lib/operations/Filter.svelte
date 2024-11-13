@@ -29,13 +29,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation filters the atoms in input using a regular expression.</p>
-        <p>
-            Each atom of each model in input is matched against the given pattern.
-            Atoms not matching the pattern are discarded.
-        </p>
-    </div>
     <Input type="search"
            bind:value="{options.pattern}"
            placeholder="Filter..."

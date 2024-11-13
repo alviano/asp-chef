@@ -31,14 +31,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation discards input parts being errors.
-        </p>
-        <p>
-            The errors to be discarded can be specified by means of a regular expression.
-        </p>
-    </div>
     <Input type="search"
            bind:value="{options.filter}"
            placeholder="filter..."

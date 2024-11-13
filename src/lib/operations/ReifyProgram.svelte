@@ -52,17 +52,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation extends each model in input with the given rules, and <em>reify</em> the resulting programs.
-        </p>
-        <p>
-            Reification is obtained by running <code>clingo</code> with <code>--output=reify</code>.
-        </p>
-        <p>
-            A unary predicate is decoded as part of the program (default <code>__base64__/1</code>).
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

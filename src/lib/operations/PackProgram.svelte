@@ -46,14 +46,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation packs each input part to a program.
-        </p>
-        <p>
-            Each program is stored in a <code>__base64__</code> predicate.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Decode/Encode</InputGroupText>
         <Input type="text"

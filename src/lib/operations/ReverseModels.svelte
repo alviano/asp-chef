@@ -24,12 +24,4 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation reverses the models in input.
-        </p>
-        <p>
-            The last model becomes the first and so on.
-        </p>
-    </div>
 </Operation>

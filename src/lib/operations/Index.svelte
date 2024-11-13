@@ -37,18 +37,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation associates each element of each model with the index of the element in the model.</p>
-        <p>
-            Each model in input is encoded by a sequence of facts of the form <br />
-            <code class="ms-3">__index__(INDEX, ATOM).</code><br />
-            where <code>INDEX</code> is an identifier for the atom in the model (starting from 1) and
-            <code>ATOM</code> is an atom in the model.
-        </p>
-        <p>
-            The name of the binary predicate <code>__index__</code> can be specified in the recipe.
-        </p>
-    </div>
     <Input type="text"
            bind:value="{options.predicate}"
            placeholder="predicate"

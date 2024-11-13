@@ -74,22 +74,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation takes a URL pointing to a public file on npm and fetches its content (via jsDelivr).</p>
-        <p>
-            <strong>Important!</strong> The URL must be in the format <code>https://cdn.jsdelivr.net/npm/package@version/file</code>.
-            Use <strong>Set HTTP Cache Policy</strong> to configure the cache policy.
-        </p>
-        <p>
-            The content is base64 encoded and wrapped by predicate <code>__base64__</code>.
-        </p>
-        <p>
-            The name of the unary predicate <code>__base64__</code> can be specified in the recipe.
-        </p>
-        <p>
-            The encoded content can be consumed by operations such as <strong>Markdown</strong> and <strong>Search Models</strong>.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText style="width: 7em;">Predicate</InputGroupText>
         <Input type="text"

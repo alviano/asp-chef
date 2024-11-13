@@ -34,18 +34,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation sets the timeout for subsequent calls to clingo.
-        </p>
-        <p>
-            An error is generated if the timeout is reached.
-            Note that some extra time is required to recover the system, and refreshing the page is also required in some cases.
-        </p>
-        <p>
-            Default value: <code>5 seconds</code>
-        </p>
-    </div>
     <div class="m-3">
         <Input type="range"
                min="{0}"

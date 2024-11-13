@@ -48,11 +48,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation selects one model among those in input.
-        </p>
-    </div>
     <div class="m-3" slot="output">
         <Input type="range"
                min="{1}"

@@ -265,47 +265,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation shows the markdown encoded content in each model in input.
-            Latex math expressions are supported; e.g., <code>\\(x = 4\\)</code> or <code>\\[x = 4\\]</code>.
-        </p>
-        <p>
-            Models can be queried with the mustache syntax
-            <code>{`{{ program with #show directives }}`}</code>
-            (or <code>{`{{= (terms) : conjunctive_query }}`}</code> as a shortcut for <code>{`{{ #show (terms) : conjunctive_query. }}`}</code>).
-        </p>
-        <p>
-            Output can be ordered via the varadics predicate <code>sort</code>, specifying the indices of the terms to use (positive for ascending, negative for descending).
-        </p>
-        <p>
-            The separator of the obtained substitutions can be specified with
-            <code>separator("\n")</code>.
-            Similarly, <code>term_separator/1</code>, <code>prefix/1</code> and <code>suffix/1</code> can be used to customize the print of each obtained substitution.
-        </p>
-        <p>
-            Tables can be specified by the varadics predicates <code>th</code> and <code>tr</code>.
-            Alignment of columns (by default left) can be specified in <code>th</code> by terms <code>left("column header")</code>, <code>center("col")</code>, <code>right("col")</code>.
-            Alternatively, <code>matrix/3</code> can be used to produce a table by specifying values for each cell.
-            Row 0 can be used to provide header cells.
-            Columns are indexed by 1.
-        </p>
-        <p>
-            Ordered and unordered lists can be specified by the varadics predicates <code>ol</code> and <code>ul</code>.
-        </p>
-        <p>
-            Predicates <code>png/1</code>, <code>gif/1</code> and <code>jpeg/1</code> can be used to show a Base64-encoded image.
-        </p>
-        <p>
-            Predicate <code>base64/1</code> decodes Base64-encoded content.
-        </p>
-        <p>
-            Predicate <code>qrcode/1</code> (and links <code>[...](qrcode)</code>) are shown as QR-codes.
-        </p>
-        <p>
-            The input is echoed in output.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Markdown-predicate" />

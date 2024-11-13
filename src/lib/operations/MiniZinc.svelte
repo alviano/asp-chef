@@ -158,32 +158,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation replaces each interpretation in input with a sequence of interpretation.
-        </p>
-        <p>
-            Each interpretation in input is used as the input of a MiniZinc model given in the recipe.
-        </p>
-        <p>
-            The <code>__input__</code> predicate is passed to MiniZinc.
-            In each atom, the first argument is the name of the variable.
-            For each variable, one atom is expected to provide the type (one of <code>value</code>, <code>array</code>, <code>array2d</code>, and <code>set</code>).
-            For a variable of type <code>value</code>, its value is provided by another atom.
-            For a variable of type <code>array</code>, its values are provided by other atoms (each one giving index and value).
-            For a variable of type <code>array2s</code>, its values are provided by other atoms (each one giving indices and value).
-            For a variable of type <code>set</code>, its values are provided by other atoms (each one giving either an element, or an interval).
-        </p>
-        <p>
-            A unary predicate is decoded as part of the MiniZinc model (default <code>__base64__/1</code>).
-        </p>
-        <p>
-            The output is mapped to predicate <code>__output__</code>, with the same format used by <code>__input__</code>.
-        </p>
-        <p>
-            The number of solutions can be specified (0 for unbounded).
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Height</InputGroupText>
         <Input type="number"

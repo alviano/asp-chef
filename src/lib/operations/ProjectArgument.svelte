@@ -44,11 +44,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation drops arguments of the specified index.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Index</InputGroupText>
         <Input type="number"

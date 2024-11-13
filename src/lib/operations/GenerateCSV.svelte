@@ -88,15 +88,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>The <strong>{operation}</strong> operation maps constants to facts.</p>
-        <p>
-            Each constant value <code>v</code> in row <code>r</code> and column <code>c</code> is mapped to fact <code>__cell__(r,c,v).</code>
-        </p>
-        <p>
-            The name of the ternary predicate <code>__cell__</code> can be specified in the recipe.
-        </p>
-    </div>
     <InputGroup>
         <InputGroupText>Input predicate</InputGroupText>
         <Input type="text"

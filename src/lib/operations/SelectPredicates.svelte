@@ -94,11 +94,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation selects some predicates from the models in input.
-        </p>
-    </div>
     <div>
         {#each input_predicates as predicate}
             <InputGroup>

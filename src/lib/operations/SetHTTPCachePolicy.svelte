@@ -32,19 +32,6 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation sets the cache policy of any subsequent fetch request.
-        </p>
-        <p>
-            Possible values:
-        </p>
-        <ul>
-            {#each Object.keys(values) as key}
-                <li><code>{key}:</code> {values[key]}</li>
-            {/each}
-        </ul>
-    </div>
     <div class="m-3">
         <Input type="select" bind:value={options.value} on:change={edit}>
             {#each Object.keys(values) as key}

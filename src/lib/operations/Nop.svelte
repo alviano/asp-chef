@@ -21,12 +21,4 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div slot="description">
-        <p>
-            The <strong>{operation}</strong> operation does nothing!
-        </p>
-        <p>
-            It can be used to set breakpoints in the recipe.
-        </p>
-    </div>
 </Operation>
