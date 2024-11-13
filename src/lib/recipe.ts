@@ -174,7 +174,7 @@ export class Recipe {
         });
         this._operation_components.set(this.operation_type_filename(operation), operation);
         this._operation_types.set(operation, this._operation_types.get("Javascript"));
-        this._operation_doc.set(operation, doc);
+        this._operation_doc.set(operation, Utils.render_markdown(doc));
 
         return operation;
     }
@@ -189,7 +189,7 @@ export class Recipe {
         });
         this._operation_components.set(this.operation_type_filename(operation), operation);
         this._operation_types.set(operation, this._operation_types.get("Recipe"));
-        this._operation_doc.set(operation, doc);
+        this._operation_doc.set(operation, Utils.render_markdown(doc));
 
         return operation;
     }

@@ -3,7 +3,7 @@
 
     const operation = "Documentation";
     const default_extra_options = {
-        height: 200,
+        height: 500,
         filter: "",
     };
 
