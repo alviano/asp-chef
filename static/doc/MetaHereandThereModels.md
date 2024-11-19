@@ -6,4 +6,4 @@ The definitions are base64 encoded and wrapped by predicate `__base64__`.
 
 The name of the unary predicate `__base64__` can be specified in the recipe.
 
-Encoding from _https://teaching.potassco.org/meta/_
+Encoding from https://teaching.potassco.org/meta/
