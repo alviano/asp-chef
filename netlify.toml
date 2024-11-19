@@ -2,7 +2,6 @@
   command = "npm run build"
   publish = "build/"
   NODE_VERSION = '20'
-  NPM_FLAGS = '--force'
 
 [context.production.environment]
   VITE_DEBUG = 'false'
