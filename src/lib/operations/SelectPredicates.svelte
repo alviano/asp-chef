@@ -98,7 +98,8 @@
         {#each input_predicates as predicate}
             <InputGroup>
                 <Button outline="{!options.predicates.includes(predicate)}" on:click={() => toggle_predicate(predicate)}
-                    title="Include/exclude this predicate in the output">
+                    title="Include/exclude this predicate in the output"
+                    data-testid="SelectPredicates-{predicate}">
                     <Icon name="{options.predicates.includes(predicate) ? 'eye' : 'eye-slash'}" />
                 </Button>
                 <Input disabled="{true}" value="{predicate}" />

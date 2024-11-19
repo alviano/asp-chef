@@ -4,7 +4,7 @@
     Recipe.load_operation_components();
 </script>
 <script>
-    import {Col, Input, Row} from "sveltestrap";
+    import {Input} from "sveltestrap";
 
     let filter = "";
 </script>
@@ -16,9 +16,17 @@
        autocomplete="off"
        autofocus
 />
-{#each Recipe.operations(filter) as operation}
-    <div class="mb-2">
-        <h2>{operation}</h2>
-        {@html Recipe.operation_doc(operation)}
-    </div>
-{/each}
+{#await Recipe.load_operation_components()}
+    <em>Loading operations...</em>
+{:then _}
+    {#each Recipe.operations(filter) as operation}
+        <div class="mb-2">
+            <h2>{operation}</h2>
+            {#await Recipe.operation_doc(operation)}
+                <em>Loading documentation...</em>
+            {:then doc}
+                {@html doc}
+            {/await}
+        </div>
+    {/each}
+{/await}

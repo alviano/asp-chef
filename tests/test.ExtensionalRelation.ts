@@ -2,8 +2,10 @@ import {test} from '@playwright/test';
 import {TestRecipe} from "./utils.js";
 
 async function check(recipe, input, content, predicate, expected_output) {
+	await recipe.click_pause_baking();
 	await recipe.input(input);
 	await recipe.extensional_relation(content.trim(), predicate);
+	await recipe.click_pause_baking();
 	await recipe.output(expected_output);
 }
 

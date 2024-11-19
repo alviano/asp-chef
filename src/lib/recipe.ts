@@ -133,16 +133,16 @@ export class Recipe {
         return Utils.render_markdown(await response.text());
     }
 
-    static async register_operation_type(
+    static register_operation_type(
         operation: string,
         apply: (input: string[][], options: object, index: number, id: string) => Promise<string[][]>,
     ) {
         this._operation_types.set(operation, apply);
-        this._operation_doc.set(operation, await this.markdown_doc(operation));
+        this._operation_doc.set(operation, this.markdown_doc(operation));
     }
 
-    static operation_doc(operation: string) : string {
-        return this._operation_doc.get(operation);
+    static async operation_doc(operation: string) : Promise<string> {
+        return await this._operation_doc.get(operation);
     }
 
     static operation_type_filename(operation: string) : string {

@@ -117,7 +117,7 @@ export class TestRecipe {
 	async select_predicates(...predicates: string[]) {
 		return await this.ingredient('Select Predicates', async ingredient => {
 			for (const predicate of predicates) {
-				await ingredient.locator('div.input-group').filter({ hasText: predicate }).click();
+				await ingredient.getByTestId(`SelectPredicates-${predicate}`).click();
 			}
 		});
 	}

@@ -49,7 +49,11 @@
         {#each Recipe.operations(options.filter) as operation}
             <div style="margin: 0.5em">
                 <h2>{operation}</h2>
-                {@html Recipe.operation_doc(operation)}
+                {#await Recipe.operation_doc(operation)}
+                    <em>Loading documentation...</em>
+                {:then doc}
+                    {@html doc}
+                {/await}
             </div>
         {/each}
     </div>
