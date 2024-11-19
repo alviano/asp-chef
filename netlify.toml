@@ -1,9 +1,10 @@
 [build]
   command = "npm run build"
   publish = "build/"
+  NODE_VERSION = '20'
+  NPM_FLAGS = '--force'
 
 [context.production.environment]
-  NODE_VERSION = '20'
   VITE_DEBUG = 'false'
   VITE_DOMAIN = 'https://asp-chef.alviano.net'
   VITE_PURIFY_LOG_ERRORS = 'false'
