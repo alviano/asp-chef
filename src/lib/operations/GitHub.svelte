@@ -59,7 +59,7 @@
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
             return input;
-        } else  if (options.url !== "*" && !options.url.startsWith(`${GITHUB_DOMAIN}/`)) {
+        } else if (options.url !== "*" && !options.url.startsWith(`${GITHUB_DOMAIN}/`)) {
             Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
             return input;
         }

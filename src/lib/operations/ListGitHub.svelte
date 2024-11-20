@@ -14,55 +14,83 @@
     const GITHUB_DOMAIN = consts.GITHUB_DOMAIN;
     const CDN_JSDELIVER_DOMAIN = consts.CDN_JSDELIVER_DOMAIN;
 
+    async function fetch_urls(url, filter, predicate) {
+        let errors = [];
+        let files;
+        const request_options = {
+            cache: Utils.browser_cache_policy,
+        };
+        const github_api_token = localStorage.getItem('github-api-token')
+        if (github_api_token) {
+            request_options.headers = {
+                Authorization: `Bearer ${github_api_token}`
+            };
+        }
+        let response = await fetch(Utils.public_url_github(url), request_options);
+        let json = await response.json();
+        if (response.status === 200) {
+            files = Array.from(json)
+                .map(entry => entry.html_url)
+                .filter(url => url.match(new RegExp(filter, 'i')));
+        } else {  // second attempt via jsDelivr
+            errors.push(json.message || json);
+            response = await fetch(Utils.public_url_github(url, true), {
+                cache: Utils.browser_cache_policy,
+            });
+            if (response.status === 200) {
+                const text = await response.text();
+                files = text.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.startsWith('<a rel="nofollow" href="'))
+                    .map(line => CDN_JSDELIVER_DOMAIN + line.substring(24).split('">')[0])
+                    .filter(url => url.match(new RegExp(filter, 'i')));
+            } else {
+                json = await response.json();
+                errors.push(json.message || json);
+                throw new Error(errors.join('\n'));
+            }
+        }
+
+        const encoded_content = files.map(file => `${predicate}("${Base64.encode(file)}")`);
+        return Utils.parse_atoms(encoded_content);
+    }
+
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
             return input;
-        } else  if (!options.url.startsWith(`${GITHUB_DOMAIN}/`)) {
+        } else if (options.url !== "*" && !options.url.startsWith(`${GITHUB_DOMAIN}/`)) {
             Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
             return input;
         }
 
         let res = input;
         try {
-            let errors = [];
-            let files;
-            const request_options = {
-                cache: Utils.browser_cache_policy,
-            };
-            const github_api_token = localStorage.getItem('github-api-token')
-            if (github_api_token) {
-                request_options.headers = {
-                    Authorization: `Bearer ${github_api_token}`
-                };
-            }
-            let response = await fetch(Utils.public_url_github(options.url), request_options);
-            let json = await response.json();
-            if (response.status === 200) {
-                files = Array.from(json)
-                    .map(entry => entry.html_url)
-                    .filter(url => url.match(new RegExp(options.filter, 'i')));
-            } else {  // second attempt via jsDelivr
-                errors.push(json.message || json);
-                response = await fetch(Utils.public_url_github(options.url, true), {
-                    cache: Utils.browser_cache_policy,
-                });
-                if (response.status === 200) {
-                    const text = await response.text();
-                    files = text.split('\n')
-                        .map(line => line.trim())
-                        .filter(line => line.startsWith('<a rel="nofollow" href="'))
-                        .map(line => CDN_JSDELIVER_DOMAIN + line.substring(24).split('">')[0])
-                } else {
-                    json = await response.json();
-                    errors.push(json.message || json);
-                    Recipe.set_errors_at_index(index, errors.join('\n'), res);
-                    return res;
+            if (options.url === '*') {
+                res = [];
+                for (let part of input) {
+                    const new_part = [];
+                    res.push(new_part);
+                    for (let atom of part) {
+                        if (atom.predicate === options.predicate) {
+                            let url = Base64.decode(atom.terms[0].string);
+                            if (url.startsWith(consts.CDN_JSDELIVER_DOMAIN)) {
+                                url = Utils.public_url_github_from_jsDelivr(url);
+                            }
+                            if (url.startsWith(`${GITHUB_DOMAIN}/`)) {
+                                new_part.push(...await fetch_urls(url, options.filter, options.predicate));
+                            } else {
+                                Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
+                                return input;
+                            }
+                        } else {
+                            new_part.push(atom);
+                        }
+                    }
                 }
+            } else {
+                const atoms = await fetch_urls(options.url, options.filter, options.predicate);
+                res = res.map(part => [...part, ...atoms]);
             }
-
-            const encoded_content = files.map(file => `${options.predicate}("${Base64.encode(file)}")`);
-            const atoms = Utils.parse_atoms(encoded_content);
-            res = res.map(part => [...part, ...atoms]);
         } catch (error) {
             Recipe.set_errors_at_index(index, error, res);
         }
@@ -108,9 +136,9 @@
     <InputGroup>
         <Input type="text"
                bind:value="{options.url}"
-               placeholder="{GITHUB_DOMAIN}..."
+               placeholder="* | {GITHUB_DOMAIN}..."
                on:input={edit}
-               data-testid="npm-url"
+               data-testid="ListGitHub-url"
         />
         <Button size="sm" title="Copy to clipboard" on:click={() => copy_to_clipboard(options.url)}>
             <Icon name="clipboard-plus" />

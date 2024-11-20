@@ -7,5 +7,6 @@ URLs can be filtered by a case-insensitive regular expression. For example, use 
 Each URL in output is base64 encoded and wrapped by predicate `__base64__`.
 
 The name of the unary predicate `__base64__` can be specified in the recipe.
+If the wildcard `*` is used as URL, URLs are actually taken from the `__base64__` atoms.
 
 The encoded content can be consumed by operations such as **@config/Register Javascript**.
