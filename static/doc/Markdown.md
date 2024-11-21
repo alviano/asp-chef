@@ -1,6 +1,8 @@
 The **Markdown** operation shows the markdown encoded content in each model in input. Latex math expressions are supported; e.g., `\\(x = 4\\)` or `\\[x = 4\\]`.
 
-Models can be queried with the mustache syntax ``{`{{ program with #show directives }}`}`` (or ``{`{{= (terms) : conjunctive_query }}`}`` as a shortcut for ``{`{{ #show (terms) : conjunctive_query. }}`}``).
+Models can be queried with the mustache syntax 
+`{{ program with #show directives }}`
+(or `{{= (terms) : conjunctive_query }}` as a shortcut for `{{ #show (terms) : conjunctive_query. }}`).
 
 Output can be ordered via the varadics predicate `sort`, specifying the indices of the terms to use (positive for ascending, negative for descending).
 
