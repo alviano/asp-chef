@@ -14,11 +14,11 @@
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        const predicate_mapping = new Map(
+        const predicate_mapping = options.predicate_mapping ? new Map(
             options.predicate_mapping
                 .filter(([key, value]) => key !== value && Utils.is_valid_predicate(key) && Utils.is_valid_predicate(value))
                 .map(([key, value]) => [value, key])
-        );
+        ) : new Map();
         input = input.map((part) => part.map((atom) => {
             if (predicate_mapping.has(atom.predicate)) {
                 return Utils.rename_predicate(atom, predicate_mapping.get(atom.predicate));
