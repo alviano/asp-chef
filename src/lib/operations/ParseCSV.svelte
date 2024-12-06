@@ -34,7 +34,7 @@
             return row_data.map((value, col) => {
                 return `${options.output_predicate}(${row + 1},${col + 1},${value.t === 'n' ?
                     (Number.isInteger(value.v) ? value.v : `real("${value.v}")`) :
-                    '"' + value.v.replaceAll('"', '\\"').replaceAll('\n', '\\n') + '"'}).`;
+                    '"' + value.v.replaceAll('\\', '\\\\"').replaceAll('"', '\\"').replaceAll('\n', '\\n') + '"'}).`;
             }).join('\n');
         }).join('\n');
     }
