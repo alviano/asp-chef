@@ -24,7 +24,23 @@
         if (term.functor === 'undefined') {
             return undefined;
         }
-        return term.string || term.str;
+        if (term.functor === 'json' && term.terms.length === 1) {
+            try {
+                return JSON.parse(term.terms[0].string.replaceAll('\\"', '"'));
+            } catch (err) {
+                Utils.snackbar(`Tabulator: ${err}`);
+                return undefined;
+            }
+        }
+        if (term.functor === 'json\'' && term.terms.length === 1) {
+            try {
+                return JSON.parse(term.terms[0].string.replaceAll('\'', '"'));
+            } catch (err) {
+                Utils.snackbar(`Tabulator: ${err}`);
+                return undefined;
+            }
+        }
+        return term.string || term.number || term.str;
     }
 
     model.forEach(atom => {
@@ -47,7 +63,7 @@
                 columns.push({});
             }
             columns[index - 1] = {
-                field: `a${index - 1}`,
+                field: `${index}`,
                 title: `Column ${index}`,
             };
             atom.terms.forEach((term, idx) => {
@@ -61,7 +77,7 @@
                 }
             });
         } else if (atom.functor === "") {
-            data.push(Object.fromEntries([...atom.terms.map((term, index) => [`a${index}`, get_value(term)])]));
+            data.push(Object.fromEntries([...atom.terms.map((term, index) => [`${index + 1}`, get_value(term)])]));
         } else {
             Utils.snackbar(`Unexpected term ${atom.predicate}/${atom.terms.length} in Tabulator`);
         }

@@ -13,6 +13,11 @@ The first column term is the index of the column (1-indexed), and the other colu
 
 Row terms are data to be shown in a row of the table. 
 
+Values can be (double-quoted) strings, numbers or functions.
+Some functors have a special meaning:
+- `json(content)`: the content is interpreted as a JSON object (double-quotes must be escaped);
+- `json'(content)`: single quotes in the content are first replaced by double-quotes, and the content is interpreted as a JSON object.
+
 The input is echoed in output.
 It's possible to show/hide the index of the model above each table.
 
