@@ -141,8 +141,10 @@ export class Recipe {
         this._operation_doc.set(operation, this.markdown_doc(operation));
     }
 
-    static async operation_doc(operation: string) : Promise<string> {
-        return await this._operation_doc.get(operation);
+    static async operation_doc(operation: string, short = false) : Promise<string> {
+        const doc = await this._operation_doc.get(operation);
+        const split = Utils.split_with_limit(doc, '§§§§', 2);
+        return short ? split[0] : split[0] + split[1];
     }
 
     static operation_type_filename(operation: string) : string {

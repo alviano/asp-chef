@@ -1,6 +1,6 @@
 {
 	"name": "asp-chef",
-	"version": "1.12.12",
+	"version": "1.13.0",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --port 5188",
@@ -61,6 +61,7 @@
 		"svelte-codemirror-editor": "^1.1.0",
 		"svelte-qrcode": "^1.0.0",
 		"sveltestrap": "^5.11.3",
+		"tabulator-tables": "^6.3.1",
 		"uuid": "^9.0.0",
 		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 	}

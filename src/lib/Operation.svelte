@@ -66,7 +66,7 @@
 {:else}
     <Popover block placement="right" title="Add {operation} Operation" class="mw-70">
         <div slot="value">
-            {#await Recipe.operation_doc(operation)}
+            {#await Recipe.operation_doc(operation, true)}
                 <em>Loading documentation...</em>
             {:then doc}
                 {@html doc}
