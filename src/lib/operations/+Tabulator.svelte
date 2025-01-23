@@ -61,7 +61,7 @@
                 }
             });
         } else if (atom.functor === "") {
-            data.push(Object.fromEntries([...atom.terms.map((term, index) => [`a${index}`, term.str])]));
+            data.push(Object.fromEntries([...atom.terms.map((term, index) => [`a${index}`, get_value(term)])]));
         } else {
             Utils.snackbar(`Unexpected term ${atom.predicate}/${atom.terms.length} in Tabulator`);
         }
