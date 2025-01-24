@@ -1,0 +1,1 @@
+The **@llm/Completions** operation documentation is not written iet :(
