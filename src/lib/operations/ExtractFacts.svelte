@@ -6,47 +6,64 @@
 
     const operation = "Extract Facts";
     const default_extra_options = {
-        height: 200,
         predicate: '__base64__',
+        echo: false,
+        block_process: false,
+        raise_error: false,
     };
 
-    const listeners = new Map();
-    
-    Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        let res = []
-        const regex = /\b[a-zA-Z][\w_]*\([^)]*\)/g;
-        try {
-            listeners.get(id)(input);
-            const predicates = input.find(part => part.some(atom => atom.predicate === options.predicate))
-            if (predicates) {
-                const facts = [];
-                for (const p of predicates) {
-                    const text = Base64.decode(p.terms[0].string);
-                    const matches = text.match(regex);
-                    if (matches)
-                        matches.forEach(m => facts.push(`${m}.`));
-                }
-                const content = Base64.encode(facts.join('\n'));
-                const encoded_content = Utils.parse_atom(`${options.predicate}("${content}")`);
-                input.forEach(part => {
-                    const t = []
-                    part.forEach(a => {
-                        if (a.predicate != options.predicate)
-                            t.push(a)
-                    })
-                    res.push([...t, encoded_content])
+    const regex = /\b[_']*[a-z][A-Za-z0-9'_]*\s*\([^)]*\)/g;
+
+    function handle_error(error, raise_error, index, res) {
+        if (raise_error) {
+            Recipe.set_errors_at_index(index, error, res);
+        } else {
+            Utils.snackbar(`Error at index ${index}: ${error}`)
+        }
+    }
+
+    Recipe.register_operation_type(operation, async (input, options, index) => {
+        let res = [];
+        for (const part of input) {
+            try {
+                const res_part = [];
+                part.forEach(atom => {
+                    if (atom.predicate === options.predicate) {
+                        if (options.echo) {
+                            res_part.push(atom);
+                        }
+
+                        const text = Base64.decode(atom.terms[0].string);
+                        const matches = text.match(regex);
+                        if (matches) {
+                            matches.forEach(m => {
+                                if (options.block_process) {
+                                    res_part.push(Utils.parse_atom(m))
+                                } else {
+                                    try {
+                                        res_part.push(Utils.parse_atom(m))
+                                    } catch (error) {
+                                        handle_error(error, options.raise_error, index, res);
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        res_part.push(atom);
+                    }
                 });
+                res.push(res_part);
+            } catch (error) {
+                handle_error(error, options.raise_error, index, res);
             }
-            
-        } catch (error) { /* component not mounted, possibly because of headless mode */ }
+        }
         return res;
     });
 
 </script>
 
 <script>
-    import {Input, InputGroup, InputGroupText} from "sveltestrap";
-    import {onDestroy, onMount} from "svelte";
+    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
 
     export let id;
@@ -55,38 +72,22 @@
     export let add_to_recipe;
     export let keybinding;
 
-    let models = [];
-
     function edit() {
         Recipe.edit_operation(id, index, options);
     }
-
-    onMount(() => {
-        listeners.set(id, (input) => {
-            models = input;
-        });
-    });
-
-    onDestroy(() => {
-        listeners.set(id, null);
-    });
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <InputGroup>
-        <InputGroupText>Height</InputGroupText>
-        <Input type="number"
-               bind:value={options.height}
-               min="20"
-               step="20"
-               style="max-width: 5em;"
-               on:input={edit}
-        />
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text"
                bind:value="{options.predicate}"
                placeholder="predicate"
                on:input={edit}
+               data-testid="ExtractFacts-predicate"
         />
+        <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
+        <Button outline="{!options.block_process}" on:click={() => { options.block_process = !options.block_process; edit(); }}>Block Process</Button>
+        <Button outline="{!options.raise_error}" on:click={() => { options.raise_error = !options.raise_error; edit(); }}>Raise Error</Button>
     </InputGroup>
 </Operation>

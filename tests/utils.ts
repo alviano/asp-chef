@@ -458,6 +458,27 @@ export class TestRecipe {
 			}
 		});
 	}
+
+	async extract_facts({
+		predicate = '__base64__',
+		echo = false,
+		block_process = false,
+		raise_error = false,
+				 } = {}) {
+		return this.ingredient('Extract Facts', async ingredient => {
+			await ingredient.getByTestId('ExtractFacts-predicate').fill(`${predicate}`);
+			if (echo) {
+				await ingredient.getByRole('button', { name: 'Echo' }).click();
+			}
+			if (block_process) {
+				await ingredient.getByRole('button', { name: 'Block Process' }).click();
+			}
+			if (raise_error) {
+				await ingredient.getByRole('button', { name: 'Raise Error' }).click();
+			}
+		});
+	}
+
 }
 
 export async function visit_homepage_and_accept_privacy_policy(page) {
