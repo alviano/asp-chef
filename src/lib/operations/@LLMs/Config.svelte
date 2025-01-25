@@ -15,13 +15,13 @@
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         const facts = [];
         if (options.server) {
-            Utils.parse_atom(`${options.predicate}(server, "${Base64.encode(options.server)}")`);
+            facts.push(Utils.parse_atom(`${options.predicate}(server, "${Base64.encode(options.server)}")`));
         }
         if (options.endpoint) {
-            Utils.parse_atom(`${options.predicate}(endpoint, "${Base64.encode(options.endpoint)}")`);
+            facts.push(Utils.parse_atom(`${options.predicate}(endpoint, "${Base64.encode(options.endpoint)}")`));
         }
         if (options.model) {
-            Utils.parse_atom(`${options.predicate}(model, "${Base64.encode(options.model)}")`);
+            facts.push(Utils.parse_atom(`${options.predicate}(model, "${Base64.encode(options.model)}")`));
         }
         return input.map(part => [...part, ...facts]);
     });

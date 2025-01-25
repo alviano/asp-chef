@@ -7,7 +7,7 @@
     const operation = "@LLMs/Chat Completion";
     const default_extra_options = {
         config: '__llms_config__',
-        roles: 'user',
+        roles: 'system user',
         echo: false,
         output: '__base64__',
     };
@@ -102,12 +102,9 @@
                 messages,
             }),
         });
-        if (response.status !== 200) {
-            throw new Error(`${operation}: unexpected status code ${response.status}`);
-        }
         const json = await response.json();
         if (json.error) {
-            throw new Error(`${operation}: ${json.error.messages}`);
+            throw new Error(`${operation}: ${json.error.message}`);
         }
         return json;
     }
