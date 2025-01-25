@@ -7,14 +7,17 @@
     const operation = "@LLMs/Chat Completion";
     const default_extra_options = {
         config: '__llms_config__',
-        roles: 'system user',
-        echo: false,
+        system: '__system__',
+        user: '__user__',
+        assistant: '__assistant__',
+        echo_system: false,
+        echo_user: false,
+        echo_assistant: false,
         output: '__base64__',
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        const roles = options.roles.split(' ').filter(role => role);
-        if (!options.config || !options.config || !options.output || !roles) {
+        if (!options.config || !options.config || !options.output || (!options.system && !options.user && !options.assistant)) {
             return input;
         }
 
@@ -43,12 +46,14 @@
                                 Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`)
                             }
                         }
-                    } else if (atom.terms && atom.terms.length === 1 && atom.terms[0].string && roles.includes(atom.predicate)) {
+                    } else if (atom.terms && atom.terms.length === 1 && atom.terms[0].string && atom.predicate &&
+                        (atom.predicate === options.system || atom.predicate === options.user || atom.predicate === options.assistant)) {
+                        const role = atom.predicate === options.system ? "system" : atom.predicate === options.user ? "user" : "assistant";
                         messages.push({
-                            role: atom.predicate,
+                            role: role,
                             content: Base64.decode(atom.terms[0].string),
                         });
-                        if (!options.echo) {
+                        if (!options[`echo_${role}`]) {
                             return;
                         }
                     }
@@ -137,14 +142,34 @@
         />
     </InputGroup>
     <InputGroup>
-        <InputGroupText style="width: 8em;">Roles</InputGroupText>
+        <InputGroupText style="width: 8em;">System role</InputGroupText>
         <Input type="text"
-               bind:value={options.roles}
-               placeholder="user system assistant ..."
+               bind:value={options.system}
+               placeholder="__system__"
                on:input={edit}
-               data-testid="@LLMs/ChatCompletion-roles"
+               data-testid="@LLMs/ChatCompletion-system-role"
         />
-        <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
+        <Button outline="{!options.echo_system}" on:click={() => { options.echo_system = !options.echo_system; edit(); }}>Echo</Button>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">User role</InputGroupText>
+        <Input type="text"
+               bind:value={options.user}
+               placeholder="__user__"
+               on:input={edit}
+               data-testid="@LLMs/ChatCompletion-user-role"
+        />
+        <Button outline="{!options.echo_user}" on:click={() => { options.echo_user = !options.echo_user; edit(); }}>Echo</Button>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">Assistant role</InputGroupText>
+        <Input type="text"
+               bind:value={options.assistant}
+               placeholder="__assistant__"
+               on:input={edit}
+               data-testid="@LLMs/ChatCompletion-assistant-role"
+        />
+        <Button outline="{!options.echo_assistant}" on:click={() => { options.echo_assistant = !options.echo_assistant; edit(); }}>Echo</Button>
     </InputGroup>
     <InputGroup>
         <InputGroupText style="width: 8em;">Output</InputGroupText>

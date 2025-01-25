@@ -56,13 +56,11 @@ export class LLMs {
                             resolve(api_keys[server]);
                         },
                         oncancel: () => {
-                            Utils.snackbar("Access to API key forbidden!")
-                            resolve(null);
+                            reject("Access to API key forbidden!");
                         },
                     });
                 } else {
-                    Utils.snackbar(`No API key found for this server: ${server}`);
-                    resolve(null);
+                    reject(`No API key found for this server: ${server}`);
                 }
             }
         });
