@@ -8,6 +8,7 @@ import ClingoWorker from '$lib/clingo.worker?worker';
 import JavascriptWorker from '$lib/javascript.worker?worker';
 import {clingo_remote_on, server_url, clingo_remote_uuid} from "$lib/stores";
 import {get} from "svelte/store";
+import {Base64} from "js-base64";
 
 const dom_purify_config = new DOMPurifyConfig(consts);
 
@@ -385,6 +386,171 @@ export class Utils extends BaseUtils {
         }
         return array;
     }
+
+    static check_one_term_string(atom) {
+        if (!atom.terms || atom.terms.length !== 1) {
+            Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`)
+            return false;
+        } else if (atom.terms[0].string === undefined) {
+            Utils.snackbar(`Wrong argument in \#${index}. Markdown: ${atom.str}`)
+            return false
+        } else {
+            return true;
+        }
+    }
+
+    static markdown_process_match(query_answer, index) {
+        if (query_answer.length === 0) {
+            throw Error("Expected one model, 0 found");
+        }
+
+        let matrix = null;
+        let separator = '\n';
+        let term_separator = ', ';
+        let prefix = '';
+        let suffix = '';
+        const sort = [];
+
+        const replacement = [];
+        let output_atoms = [];
+        Utils.parse_atoms(query_answer[0]).forEach(atom => {
+            if (atom.functor === undefined && atom.predicate === undefined) {
+                atom.functor = '';
+                atom.terms = [atom];
+            }
+            if (atom.functor === '' || atom.predicate === 'base64' || atom.predicate === 'qrcode' ||
+                atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
+                output_atoms.push(atom);
+            } else if (atom.predicate === 'th' || atom.predicate === 'tr') {
+                output_atoms.push(atom);
+            } else if (atom.predicate === 'ol' || atom.predicate === 'ul') {
+                output_atoms.push(atom);
+            } else if (atom.predicate === 'matrix') {
+                output_atoms.push(atom);
+            } else if (atom.predicate === 'prefix') {
+                if (this.check_one_term_string(atom)) {
+                    prefix = atom.terms[0].string.replaceAll('\\n', '\n');
+                }
+            } else if (atom.predicate === 'suffix') {
+                if (this.check_one_term_string(atom)) {
+                    suffix = atom.terms[0].string.replaceAll('\\n', '\n');
+                }
+            } else if (atom.predicate === 'separator') {
+                if (this.check_one_term_string(atom)) {
+                    separator = atom.terms[0].string.replaceAll('\\n', '\n');
+                }
+            } else if (atom.predicate === 'term_separator') {
+                if (this.check_one_term_string(atom)) {
+                    term_separator = atom.terms[0].string.replaceAll('\\n', '\n');
+                }
+            } else if (atom.predicate === 'sort') {
+                if (atom.terms.length === 0) {
+                    Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
+                } else if (atom.terms.filter(term => term.number === undefined || term.number === 0).length > 0) {
+                    Utils.snackbar(`Wrong term in \#${index}. Markdown: ${atom.str}`);
+                } else {
+                    sort.push(atom.terms.map(term => term.number));
+                }
+            } else {
+                Utils.snackbar(`Unknown predicate in \#${index}. Markdown: ${atom.predicate}`);
+            }
+        });
+        sort.forEach(terms => {
+            const comparator = terms.map(sort_index => {
+                return atom => {
+                    if (atom.functor !== '' && atom.predicate !== 'tr' && atom.predicate !== 'ul' && atom.predicate !== 'ol') {
+                        return undefined;
+                    }
+                    const term = atom.terms[Math.abs(sort_index) - 1];
+                    if (term === undefined) {
+                        return undefined
+                    } else if (term.number !== undefined) {
+                        return term.number;
+                    } else {
+                        return term.str;
+                    }
+                }
+            });
+            output_atoms = _.orderBy(output_atoms, comparator, terms.map(sort_index => sort_index > 0 ? "asc" : "desc"));
+        });
+        output_atoms = _.orderBy(output_atoms, [ atom => {
+            if (atom.predicate === 'th') {
+                return 0;
+            } else if (atom.predicate === 'tr') {
+                return 1;
+            }
+        }]);
+        output_atoms.forEach(atom => {
+            const terms = atom.terms.map(term => term.string !== undefined ? term.string : term.str);
+            if (atom.functor === '') {
+                replacement.push(prefix + terms.join(term_separator) + suffix);
+            } else if (atom.predicate === 'base64') {
+                replacement.push(`${prefix}${terms.map(term => Base64.decode(term)).join(term_separator)}${suffix}`);
+            } else if (atom.predicate === 'qrcode') {
+                if (atom.terms.length !== 1) {
+                    Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
+                } else {
+                    replacement.push(`${prefix}[${terms.join(term_separator)}](qrcode)${suffix}`);
+                }
+            } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
+                if (atom.terms.length !== 1) {
+                    Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
+                } else {
+                    replacement.push(`${prefix}![](data:image/${atom.predicate};base64,${terms.join(term_separator)})${suffix}`);
+                }
+            } else if (atom.predicate === 'th') {
+                replacement.push('|' + atom.terms.map((term, index) =>
+                    term.terms === undefined ? terms[index] :
+                        term.terms[0].string !== undefined ? term.terms[0].string : term.terms[0].str
+                ).join('|') + '|');
+                replacement.push('|' + atom.terms.map((term) =>
+                    term.terms === undefined ? ":-" :
+                        term.functor === 'center' ? ":-:" :
+                            term.functor === 'right' ? "-:" : "-"
+                ).join('|') + '|');
+            } else if (atom.predicate === 'tr') {
+                replacement.push(`|${terms.join('|')}|`);
+            } else if (atom.predicate === 'ul') {
+                replacement.push(`- ${prefix}${terms.join(term_separator)}${suffix}`);
+            } else if (atom.predicate === 'ol') {
+                replacement.push(`1. ${prefix}${terms.join(term_separator)}${suffix}`);
+            } else if (atom.predicate === 'matrix') {
+                if (matrix === null) {
+                    matrix = [];
+                }
+                if (atom.terms.length < 3) {
+                    Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`)
+                } else {
+                    const row = atom.terms[0].number;
+                    const col = atom.terms[1].number;
+                    const value = prefix + terms.slice(2).join(term_separator) + suffix;
+
+                    while (matrix.length <= row) {
+                        matrix.push([]);
+                    }
+                    while (matrix[row].length < col) {
+                        matrix[row].push("");
+                    }
+                    while (matrix[0].length < col) {
+                        matrix[0].push("");
+                    }
+
+                    matrix[row][col-1] = value;
+                }
+            }
+        });
+        if (matrix !== null) {
+            replacement.push(matrix.map((row, index) => {
+                let res = "|" + row.join("|") + "|";
+                if (index === 0) {
+                    res += "\n|" + row.map(() => "-").join("|") + "|";
+                }
+                return res;
+            }).join("\n"));
+        }
+        return replacement.join(separator);
+    }
+
 }
 
 const GRAMMAR = `

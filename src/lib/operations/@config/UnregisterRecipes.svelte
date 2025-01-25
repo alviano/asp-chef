@@ -5,19 +5,13 @@
     const default_extra_options = {
     };
 
-    const listeners = new Map();
-
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        try {
-            await listeners.get(id)(input);
-        } catch (error) { /* component not mounted, possibly because of headless mode */ }
-
         return input;
     });
 </script>
 
 <script>
-    import {Badge, Button, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {Utils} from "$lib/utils";
 
@@ -28,7 +22,6 @@
     export let keybinding;
 
     let filter = '';
-    let counter = 0;
     let operations;
     $: get_operations(filter);
 

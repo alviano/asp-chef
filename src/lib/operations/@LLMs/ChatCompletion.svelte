@@ -1,0 +1,161 @@
+<script context="module">
+    import {Recipe} from "$lib/recipe";
+    import {Base64} from "js-base64";
+    import {LLMs} from "$lib/operations/@LLMs/llms";
+    import {Utils} from "$lib/utils";
+
+    const operation = "@LLMs/Chat Completion";
+    const default_extra_options = {
+        config: '__llms_config__',
+        roles: 'user',
+        echo: false,
+        output: '__base64__',
+    };
+
+    Recipe.register_operation_type(operation, async (input, options, index, id) => {
+        const roles = options.roles.split(' ').filter(role => role);
+        if (!options.config || !options.config || !options.output || !roles) {
+            return input;
+        }
+
+        let res = [];
+        for (const part of input) {
+            try {
+                const res_part = [];
+
+                let server = null;
+                let endpoint = '';
+                let model = null;
+                const messages = [];
+
+                part.forEach(atom => {
+                    if (atom.predicate === options.config) {
+                        if (!atom.terms || atom.terms.length !== 2 || !atom.terms[0].functor || (atom.terms[0].terms && atom.terms[0].terms.length > 0) || (atom.terms[1].string !== "" && !atom.terms[1].string)) {
+                            Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`)
+                        } else {
+                            if (atom.terms[0].functor === 'server') {
+                                server = Base64.decode(atom.terms[1].string);
+                            } else if (atom.terms[0].functor === 'endpoint') {
+                                endpoint = Base64.decode(atom.terms[1].string);
+                            } else if (atom.terms[0].functor === 'model') {
+                                model = Base64.decode(atom.terms[1].string);
+                            } else {
+                                Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`)
+                            }
+                        }
+                    } else if (atom.terms && atom.terms.length === 1 && atom.terms[0].string && roles.includes(atom.predicate)) {
+                        messages.push({
+                            role: atom.predicate,
+                            content: Base64.decode(atom.terms[0].string),
+                        });
+                        if (!options.echo) {
+                            return;
+                        }
+                    }
+
+                    res_part.push(atom);
+                });
+
+                if (server && model && messages) {
+                    const api_key = await LLMs.access_api_key(server);
+                    if (api_key) {
+                        for (let message_index = 0; message_index < messages.length; message_index++) {
+                            let message = messages[message_index].content;
+                            const matches = message.matchAll(/\{\{(=?)(((?!}}).)*)}}/gs);
+                            if (matches !== null) {
+                                for (let the_match of matches) {
+                                    const inline = the_match[1].trim();
+                                    const match = the_match[2].trim();
+                                    const program = part.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n' +
+                                        (inline ? '#show ' : '') + match + (match.endsWith('.') ? '' : '.');
+                                    const query_answer = await Utils.search_models(program, 1, true);
+                                    message = message.replace(the_match[0], Utils.markdown_process_match(query_answer, index));
+                                }
+                            }
+                            messages[message_index].content = message;
+                        }
+                        const response = await call_server(server, api_key, endpoint, model, messages);
+                        const text = response.choices[0].message.content;
+                        const content = Base64.encode(text);
+                        const encoded_content = Utils.parse_atom(`${options.output}("${content}")`);
+                        res_part.push(encoded_content);
+                    }
+                }
+
+                res.push(res_part);
+            } catch (error) {
+                Recipe.set_errors_at_index(index, error, res);
+            }
+        }
+        return res;
+    });
+
+	async function call_server(server, api_key, endpoint, model, messages) {
+        const response = await fetch(`${server}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`, {
+            method: "POST",
+            mode: "cors",
+            cache: Utils.browser_cache_policy,
+            credentials: "same-origin",
+            headers: new Headers([["Content-Type", "application/json"], ["Authorization", `Bearer ${api_key}`]]),
+            body: JSON.stringify({
+                model,
+                messages,
+            }),
+        });
+        if (response.status !== 200) {
+            throw new Error(`${operation}: unexpected status code ${response.status}`);
+        }
+        const json = await response.json();
+        if (json.error) {
+            throw new Error(`${operation}: ${json.error.messages}`);
+        }
+        return json;
+    }
+
+</script>
+
+<script>
+    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import Operation from "$lib/Operation.svelte";
+
+    export let id;
+    export let options;
+    export let index;
+    export let add_to_recipe;
+    export let keybinding;
+
+    function edit() {
+        Recipe.edit_operation(id, index, options);
+    }
+</script>
+
+<Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">Configuration</InputGroupText>
+        <Input type="text"
+               bind:value="{options.config}"
+               placeholder="__config__"
+               on:input={edit}
+               data-testid="@LLMs/ChatCompletion-config"
+        />
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">Roles</InputGroupText>
+        <Input type="text"
+               bind:value={options.roles}
+               placeholder="user system assistant ..."
+               on:input={edit}
+               data-testid="@LLMs/ChatCompletion-roles"
+        />
+        <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">Output</InputGroupText>
+        <Input type="text"
+               bind:value="{options.output}"
+               placeholder="__base64__"
+               on:input={edit}
+               data-testid="@LLMs/ChatCompletion-output"
+        />
+    </InputGroup>
+</Operation>

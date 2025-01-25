@@ -5,13 +5,7 @@
     const default_extra_options = {
     };
 
-    const listeners = new Map();
-
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        try {
-            await listeners.get(id)(input);
-        } catch (error) { /* component not mounted, possibly because of headless mode */ }
-
         return input;
     });
 </script>
@@ -28,7 +22,6 @@
     export let keybinding;
 
     let filter = '';
-    let counter = 0;
     let operations;
     $: get_operations(filter);
 

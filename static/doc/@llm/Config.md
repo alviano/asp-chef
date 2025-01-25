@@ -1,1 +1,0 @@
-The **@llm/Config** operation documentation is not written iet :(
