@@ -32,7 +32,7 @@
 
     function register_in_session_storage() {
         LLMs.add_api_key_in_session_storage(options.server, api_key);
-        Utils.snackbar("LLMs API key registered in local storage!");
+        Utils.snackbar("LLMs API key registered in session storage!");
     }
 
     function register_in_local_storage() {
