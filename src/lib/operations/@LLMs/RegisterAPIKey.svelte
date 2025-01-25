@@ -54,7 +54,7 @@
         </InputGroup>
         <InputGroup>
             <InputGroupText style="width: 7em;">Api Key</InputGroupText>
-            <Input type="text"
+            <Input type="password"
                 bind:value="{api_key}"
                 placeholder="gsk_...."
             />

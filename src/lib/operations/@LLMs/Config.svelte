@@ -7,17 +7,22 @@
     const operation = "@LLMs/Config";
     const default_extra_options = {
         server: LLMs.DEFAULT_SERVER(),
-        endpoint: '',
-        model: 'llama3.3:70b',
+        endpoint: '/chat/completions',
+        model: 'llama3-70b-8192',
         predicate: '__llms_config__',
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        const facts = [
-            Utils.parse_atom(`${options.predicate}(server, "${Base64.encode(options.server)}")`),
-            Utils.parse_atom(`${options.predicate}(endpoint, "${Base64.encode(options.endpoint)}")`),
-            Utils.parse_atom(`${options.predicate}(model, "${Base64.encode(options.model)}")`),
-        ];
+        const facts = [];
+        if (options.server) {
+            Utils.parse_atom(`${options.predicate}(server, "${Base64.encode(options.server)}")`);
+        }
+        if (options.endpoint) {
+            Utils.parse_atom(`${options.predicate}(endpoint, "${Base64.encode(options.endpoint)}")`);
+        }
+        if (options.model) {
+            Utils.parse_atom(`${options.predicate}(model, "${Base64.encode(options.model)}")`);
+        }
         return input.map(part => [...part, ...facts]);
     });
 </script>
