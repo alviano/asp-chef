@@ -7,9 +7,11 @@
     const operation = "@LLMs/Chat Completion";
     const default_extra_options = {
         config: '__llms_config__',
+        message: '__message__',
         system: '__system__',
         user: '__user__',
         assistant: '__assistant__',
+        echo_message: false,
         echo_system: false,
         echo_user: false,
         echo_assistant: false,
@@ -17,7 +19,7 @@
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
-        if (!options.config || !options.config || !options.output || (!options.system && !options.user && !options.assistant)) {
+        if (!options.config || !options.config || !options.output || (!options.message && !options.system && !options.user && !options.assistant)) {
             return input;
         }
 
@@ -46,7 +48,16 @@
                                 Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`)
                             }
                         }
-                    } else if (atom.terms && atom.terms.length === 1 && atom.terms[0].string && atom.predicate &&
+                    } else if (atom.predicate === options.message && atom.terms && atom.terms.length === 1 &&
+                        ["system", "user", "assistant"].includes(atom.terms[0].functor) && atom.terms[0].terms.length === 1 && atom.terms[0].terms[0].string) {
+                        messages.push({
+                            role: atom.terms[0].functor,
+                            content: atom.terms[0].terms[0].string,
+                        });
+                        if (!options.echo_message) {
+                            return;
+                        }
+                    } else if (atom.terms && atom.terms.length === 1 && atom.terms[0].string &&
                         (atom.predicate === options.system || atom.predicate === options.user || atom.predicate === options.assistant)) {
                         const role = atom.predicate === options.system ? "system" : atom.predicate === options.user ? "user" : "assistant";
                         messages.push({
@@ -140,6 +151,16 @@
                on:input={edit}
                data-testid="@LLMs/ChatCompletion-config"
         />
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">Messages</InputGroupText>
+        <Input type="text"
+               bind:value={options.message}
+               placeholder="__message__"
+               on:input={edit}
+               data-testid="@LLMs/ChatCompletion-messages"
+        />
+        <Button outline="{!options.echo_message}" on:click={() => { options.echo_message = !options.echo_message; edit(); }}>Echo</Button>
     </InputGroup>
     <InputGroup>
         <InputGroupText style="width: 8em;">System role</InputGroupText>

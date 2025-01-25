@@ -9,6 +9,9 @@ Messages to be completed are obtained by predicates specified in the *role* opti
 A role predicate must have arity one.
 Arguments are Base64-encoded (e.g., they can be produced by the **Encode** operation), and can include *mustache directives* as in the **Markdown** operation.
 
+As an alternative, messages can be also given with the facts of the form `__message__(role("content""))`.
+In this case, the content is a simple double-quoted string (not Base64-encoded), and the `role` functor must be one of the accepted roles.
+
 The order of the messages is the order in which the atoms occur in the input.
 
 Role predicates can be echoed in the output.
