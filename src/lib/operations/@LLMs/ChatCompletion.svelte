@@ -91,7 +91,7 @@
                             messages[message_index].content = message;
                         }
                         const response = await call_server(server, api_key, endpoint, model, messages);
-                        const text = response.choices[0].message.content;
+                        const text = response.choices ? response.choices[0].message.content : response.message.content;
                         const content = Base64.encode(text);
                         const encoded_content = Utils.parse_atom(`${options.output}("${content}")`);
                         res_part.push(encoded_content);
@@ -112,10 +112,14 @@
             mode: "cors",
             cache: Utils.browser_cache_policy,
             credentials: "same-origin",
-            headers: new Headers([["Content-Type", "application/json"], ["Authorization", `Bearer ${api_key}`]]),
+            headers: new Headers([
+                ["Authorization", `Bearer ${api_key}`],
+                ["Content-Type", "application/json"],
+            ]),
             body: JSON.stringify({
                 model,
                 messages,
+                stream: false,
             }),
         });
         const json = await response.json();

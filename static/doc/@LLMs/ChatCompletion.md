@@ -17,3 +17,11 @@ The order of the messages is the order in which the atoms occur in the input.
 Role predicates can be echoed in the output.
 
 The answer obtained by the LLMs server is Base64-encoded in the `__base64__/1` output predicate (a different predicate name can be specified).
+
+Supported *Chat Completion* services:
+- [Groq](https://console.groq.com/docs/api-reference#chat-create)
+  - Point to https://api.groq.com/openai/v1/chat/completions
+  - Get a key from https://console.groq.com/keys
+- [Ollama](https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-chat-completion)
+  - Point to http://localhost:11434/api/chat (if you have a default local installation)
+  - Set anything for the key
