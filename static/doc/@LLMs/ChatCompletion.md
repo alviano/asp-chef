@@ -25,3 +25,4 @@ Supported *Chat Completion* services:
 - [Ollama](https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-chat-completion)
   - Point to http://localhost:11434/api/chat (if you have a default local installation)
   - Set anything for the key
+  - Set the environment variable `OLLAMA_ORIGINS='https://asp-chef.alviano.net'` before starting Ollama (unless you are running a local version of ASP Chef)
