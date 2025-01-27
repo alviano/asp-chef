@@ -28,9 +28,11 @@
             try {
                 const res_part = [];
 
+                let server_type = null;
                 let server = null;
                 let endpoint = '';
                 let model = null;
+                let temperature = null;
                 const messages = [];
 
                 part.forEach(atom => {
@@ -38,12 +40,16 @@
                         if (!atom.terms || atom.terms.length !== 2 || !atom.terms[0].functor || (atom.terms[0].terms && atom.terms[0].terms.length > 0) || (atom.terms[1].string !== "" && !atom.terms[1].string)) {
                             Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`)
                         } else {
-                            if (atom.terms[0].functor === 'server') {
-                                server = Base64.decode(atom.terms[1].string);
+                            if (atom.terms[0].functor === 'server_type') {
+                                server_type = LLMs.decode_string(atom.terms[1].string);
+                            } else if (atom.terms[0].functor === 'server') {
+                                server = LLMs.decode_string(atom.terms[1].string);
                             } else if (atom.terms[0].functor === 'endpoint') {
-                                endpoint = Base64.decode(atom.terms[1].string);
+                                endpoint = LLMs.decode_string(atom.terms[1].string);
                             } else if (atom.terms[0].functor === 'model') {
-                                model = Base64.decode(atom.terms[1].string);
+                                model = LLMs.decode_string(atom.terms[1].string);
+                            } else if (atom.terms[0].functor === 'temperature') {
+                                temperature = LLMs.decode_string(atom.terms[1].string);
                             } else {
                                 Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`)
                             }
@@ -72,7 +78,9 @@
                     res_part.push(atom);
                 });
 
-                if (server && model && messages) {
+                if (server_type && server && model && messages) {
+                    validate_server_type(server_type);
+
                     const api_key = await LLMs.access_api_key(server);
                     if (api_key) {
                         for (let message_index = 0; message_index < messages.length; message_index++) {
@@ -90,7 +98,7 @@
                             }
                             messages[message_index].content = message;
                         }
-                        const response = await call_server(server, api_key, endpoint, model, messages);
+                        const response = await call_server(server_type, server, api_key, endpoint, model, temperature, messages);
                         const text = response.choices ? response.choices[0].message.content : response.message.content;
                         const content = Base64.encode(text);
                         const encoded_content = Utils.parse_atom(`${options.output}("${content}")`);
@@ -106,7 +114,18 @@
         return res;
     });
 
-	async function call_server(server, api_key, endpoint, model, messages) {
+    function validate_server_type(server_type) {
+        if (!["Groq", "OpenAI", "Ollama"].includes(server_type)) {
+            throw new Error(`${operation}: Unknown server type ${server_type}`)
+        }
+    }
+
+	async function call_server(server_type, server, api_key, endpoint, model, temperature, messages) {
+        const props = {};
+        if (temperature !== null) {
+            LLMs.add_temperature(server_type, temperature, props);
+        }
+
         const response = await fetch(`${server}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`, {
             method: "POST",
             mode: "cors",
@@ -120,6 +139,7 @@
                 model,
                 messages,
                 stream: false,
+                ...props,
             }),
         });
         const json = await response.json();

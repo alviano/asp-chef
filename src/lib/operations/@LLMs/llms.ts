@@ -5,6 +5,10 @@ export class LLMs {
         return "@LLMs/API keys";
     }
 
+    public static SERVER_TYPES() {
+        return ["Groq", "Ollama", "OpenAI"];
+    }
+
     public static DEFAULT_SERVER() {
         return "https://api.groq.com/openai/v1";
     }
@@ -64,5 +68,30 @@ export class LLMs {
                 }
             }
         });
+    }
+
+    public static encode_string(str) {
+        return `${str}`.replaceAll('"', '\\"');
+    }
+
+    public static decode_string(str) {
+        return `${str}`.replaceAll('\\"', '"');
+    }
+
+    public static add_temperature(server_type, temperature, props) {
+        const max = {
+            "Groq": 2.0,
+            "Ollama": 1.0,
+            "OpenAI": 1.0,
+        }
+        const value = max[server_type] * Math.max(0, Math.min(100, Number(temperature))) / 100
+        if (server_type === "Groq" || server_type === "OpenAI") {
+            props.temperature = value;
+        } else /* if (server_type === "Ollama") */ {
+            if (!("options" in props)) {
+                props.options = {};
+            }
+            props.options.temperature = value;
+        }
     }
 }

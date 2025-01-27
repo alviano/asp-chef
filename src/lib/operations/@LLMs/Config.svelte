@@ -1,27 +1,32 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
-    import {Base64} from "js-base64";
     import {LLMs} from "$lib/operations/@LLMs/llms";
     import {Utils} from "$lib/utils";
 
     const operation = "@LLMs/Config";
     const default_extra_options = {
+        server_type: LLMs.SERVER_TYPES()[0],
         server: LLMs.DEFAULT_SERVER(),
         endpoint: '/chat/completions',
         model: 'llama3-70b-8192',
+        temperature: 80,
         predicate: '__llms_config__',
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         const facts = [];
         if (options.server) {
-            facts.push(Utils.parse_atom(`${options.predicate}(server, "${Base64.encode(options.server)}")`));
+            facts.push(Utils.parse_atom(`${options.predicate}(server, "${LLMs.encode_string(options.server)}")`));
+            facts.push(Utils.parse_atom(`${options.predicate}(server_type, "${LLMs.encode_string(options.server_type)}")`));
         }
         if (options.endpoint) {
-            facts.push(Utils.parse_atom(`${options.predicate}(endpoint, "${Base64.encode(options.endpoint)}")`));
+            facts.push(Utils.parse_atom(`${options.predicate}(endpoint, "${LLMs.encode_string(options.endpoint)}")`));
         }
         if (options.model) {
-            facts.push(Utils.parse_atom(`${options.predicate}(model, "${Base64.encode(options.model)}")`));
+            facts.push(Utils.parse_atom(`${options.predicate}(model, "${LLMs.encode_string(options.model)}")`));
+        }
+        if (options.temperature || options.temperature === 0) {
+            facts.push(Utils.parse_atom(`${options.predicate}(temperature, "${LLMs.encode_string(options.temperature)}")`));
         }
         return input.map(part => [...part, ...facts]);
     });
@@ -52,8 +57,18 @@
                on:input={edit}
                data-testid="@LLMs/Config-server"
         />
-    <InputGroup>
+        <InputGroupText style="width: 4em;">Type</InputGroupText>
+        <Input type="select"
+               bind:value="{options.server_type}"
+               on:input={edit}
+               data-testid="@LLMs/Config-server-type"
+        >
+            {#each LLMs.SERVER_TYPES() as type}
+                <option>{type}</option>
+            {/each}
+        </Input>
     </InputGroup>
+    <InputGroup>
         <InputGroupText style="width: 7em;">Endpoint</InputGroupText>
         <Input type="text"
                bind:value={options.endpoint}
@@ -61,8 +76,8 @@
                on:input={edit}
                data-testid="@LLMs/Config-endpoint"
         />
-    <InputGroup>
     </InputGroup>
+    <InputGroup>
         <InputGroupText style="width: 7em;">Model</InputGroupText>
         <Input type="text"
                bind:value={options.model}
@@ -70,8 +85,19 @@
                on:input={edit}
                data-testid="@LLMs/Config-model"
         />
-    <InputGroup>
     </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 7em;">Temperature</InputGroupText>
+        <Input type="number"
+               bind:value={options.temperature}
+               min={0} max={100} step={1}
+               placeholder="percentage"
+               on:input={edit}
+               data-testid="@LLMs/Config-temperature"
+        />
+        <InputGroupText>%</InputGroupText>
+    </InputGroup>
+    <InputGroup>
         <InputGroupText style="width: 7em;">Predicate</InputGroupText>
         <Input type="text"
                bind:value="{options.predicate}"
