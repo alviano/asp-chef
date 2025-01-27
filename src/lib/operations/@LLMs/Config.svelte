@@ -9,7 +9,7 @@
         server: LLMs.DEFAULT_SERVER(),
         endpoint: '/chat/completions',
         model: 'llama3-70b-8192',
-        temperature: 80,
+        temperature: 20,
         predicate: '__llms_config__',
     };
 
