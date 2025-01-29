@@ -9,6 +9,8 @@ Removed a few console prints.
 
 Modified the output parsing (for example, to use --output=reify)
 
+Added this.errors.push(e.toString()); in run()
+
 
  */
 
@@ -115,6 +117,7 @@ export class Runner {
         [program, `--outf=2 ${options.join(" ")} ${models}`]
       );
     } catch (e) {
+      this.errors.push(e.toString());
       return {
         Result: "ERROR",
         Error: this.errors.join("\n"),
