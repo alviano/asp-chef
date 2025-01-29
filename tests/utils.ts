@@ -435,6 +435,20 @@ export class TestRecipe {
 		});
 	}
 
+	async regex_substitution({
+		predicate = '__base64__',
+		pattern = '',
+		pattern_flags = '',
+		replacement = '',
+				 } = {}) {
+		return this.ingredient('Regex Substitution', async ingredient => {
+			await ingredient.getByTestId('RegexSubstitution-predicate').fill(predicate);
+			await ingredient.getByTestId('RegexSubstitution-pattern').fill(pattern);
+			await ingredient.getByTestId('RegexSubstitution-pattern-flags').fill(pattern_flags);
+			await ingredient.getByTestId('RegexSubstitution-replacement').fill(replacement);
+		});
+	}
+
 	async slider({
 		 output_predicate = '__slider__',
 		 minimum_value = '1',
