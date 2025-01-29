@@ -427,6 +427,14 @@ export class TestRecipe {
 		});
 	}
 
+	async lua_string_at_terms({
+		predicate = '__base64__',
+				 } = {}) {
+		return this.ingredient('Lua String @-terms', async ingredient => {
+			await ingredient.getByTestId('LuaString@-terms-encode-predicate').fill(predicate);
+		});
+	}
+
 	async slider({
 		 output_predicate = '__slider__',
 		 minimum_value = '1',
