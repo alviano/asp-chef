@@ -130,7 +130,7 @@ export class Recipe {
 
     static async markdown_doc(operation: string) {
         const response = await fetch(`doc/${this.operation_type_filename(operation)}.md`);
-        return Utils.render_markdown(await response.text());
+        return await response.text();
     }
 
     static register_operation_type(
@@ -141,10 +141,11 @@ export class Recipe {
         this._operation_doc.set(operation, this.markdown_doc(operation));
     }
 
-    static async operation_doc(operation: string, short = false) : Promise<string> {
+    static async operation_doc(operation: string, short = false, markdown = false) : Promise<string> {
         const doc = await this._operation_doc.get(operation);
         const split = Utils.split_with_limit(doc, '§§§§', 2);
-        return short ? split[0] : split[0] + (split[1] || '');
+        const res = short ? split[0] : split[0] + (split[1] || '');
+        return markdown ? res : Utils.render_markdown(res);
     }
 
     static operation_type_filename(operation: string) : string {
@@ -176,7 +177,7 @@ export class Recipe {
         });
         this._operation_components.set(this.operation_type_filename(operation), operation);
         this._operation_types.set(operation, this._operation_types.get("Javascript"));
-        this._operation_doc.set(operation, Utils.render_markdown(doc));
+        this._operation_doc.set(operation, doc);
 
         return operation;
     }
@@ -191,7 +192,7 @@ export class Recipe {
         });
         this._operation_components.set(this.operation_type_filename(operation), operation);
         this._operation_types.set(operation, this._operation_types.get("Recipe"));
-        this._operation_doc.set(operation, Utils.render_markdown(doc));
+        this._operation_doc.set(operation, doc);
 
         return operation;
     }
