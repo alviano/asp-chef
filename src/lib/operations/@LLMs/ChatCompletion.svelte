@@ -84,19 +84,8 @@
                     const api_key = await LLMs.access_api_key(server);
                     if (api_key) {
                         for (let message_index = 0; message_index < messages.length; message_index++) {
-                            let message = messages[message_index].content;
-                            const matches = message.matchAll(/\{\{(=?)(((?!}}).)*)}}/gs);
-                            if (matches !== null) {
-                                for (let the_match of matches) {
-                                    const inline = the_match[1].trim();
-                                    const match = the_match[2].trim();
-                                    const program = part.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n' +
-                                        (inline ? '#show ' : '') + match + (match.endsWith('.') ? '' : '.');
-                                    const query_answer = await Utils.search_models(program, 1, true);
-                                    message = message.replace(the_match[0], Utils.markdown_process_match(query_answer, index));
-                                }
-                            }
-                            messages[message_index].content = message;
+                            const message = messages[message_index].content;
+                            messages[message_index].content = await Utils.markdown_expand_mustache_queries(part, message, index);
                         }
                         const response = await call_server(server_type, server, api_key, endpoint, model, temperature, messages);
                         const text = response.choices ? response.choices[0].message.content : response.message.content;

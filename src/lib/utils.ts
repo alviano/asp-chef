@@ -399,6 +399,21 @@ export class Utils extends BaseUtils {
         }
     }
 
+    static async markdown_expand_mustache_queries(part, message, index) {
+        const matches = message.matchAll(/\{\{(=?)(((?!}}).)*)}}/gs);
+        if (matches !== null) {
+            for (const the_match of matches) {
+                const inline = the_match[1].trim();
+                const match = the_match[2].trim();
+                const program = part.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n' +
+                    (inline ? '#show ' : '') + match + (match.endsWith('.') ? '' : '.');
+                const query_answer = await Utils.search_models(program, 1, true);
+                message = message.replace(the_match[0], Utils.markdown_process_match(query_answer, index));
+            }
+        }
+        return message;
+    }
+
     static markdown_process_match(query_answer, index) {
         if (query_answer.length === 0) {
             throw Error("Expected one model, 0 found");
@@ -445,14 +460,14 @@ export class Utils extends BaseUtils {
                 }
             } else if (atom.predicate === 'sort') {
                 if (atom.terms.length === 0) {
-                    Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`);
+                    Utils.snackbar(`Wrong number of terms in \#${index}: ${atom.str}`);
                 } else if (atom.terms.filter(term => term.number === undefined || term.number === 0).length > 0) {
                     Utils.snackbar(`Wrong term in \#${index}. Markdown: ${atom.str}`);
                 } else {
                     sort.push(atom.terms.map(term => term.number));
                 }
             } else {
-                Utils.snackbar(`Unknown predicate in \#${index}. Markdown: ${atom.predicate}`);
+                Utils.snackbar(`Unknown predicate in \#${index}: ${atom.predicate} - Should you try (TERM,)?`);
             }
         });
         sort.forEach(terms => {

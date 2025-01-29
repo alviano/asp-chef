@@ -50,19 +50,8 @@
             for (let model of input) {
                 const output_part = [];
                 for (let atom of model.filter(atom => atom.predicate === options.predicate)) {
-                    let md = Base64.decode(atom.terms[0].string);
-                    const matches = md.matchAll(/\{\{(=?)(((?!}}).)*)}}/gs);
-                    if (matches !== null) {
-                        for (let the_match of matches) {
-                            const inline = the_match[1].trim();
-                            const match = the_match[2].trim();
-                            const program = model.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n' +
-                                (inline ? '#show ' : '') + match + (match.endsWith('.') ? '' : '.');
-                            const query_answer = await Utils.search_models(program, 1, true);
-                            md = md.replace(the_match[0], Utils.markdown_process_match(query_answer, index));
-                        }
-                    }
-                    output_part.push(md);
+                    const md = Base64.decode(atom.terms[0].string);
+                    output_part.push(await Utils.markdown_expand_mustache_queries(model, md, index));
                 }
                 the_output.push(output_part.join('\n'));
             }

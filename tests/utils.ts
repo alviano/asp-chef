@@ -449,6 +449,14 @@ export class TestRecipe {
 		});
 	}
 
+	async expand_mustache_queries(callback, {
+		predicate = '__base64__',
+	} = {}) {
+		return this.ingredient('Expand Mustache Queries', async ingredient => {
+			await ingredient.getByTestId('ExpandMustacheQueries-predicate').fill(predicate);
+		});
+	}
+
 	async slider({
 		 output_predicate = '__slider__',
 		 minimum_value = '1',
