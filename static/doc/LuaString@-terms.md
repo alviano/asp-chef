@@ -30,8 +30,8 @@ Details are provided in the extended documentation.
 ##### String Conversion
 * `@string_byte(s, i)` - returns the byte value of the character at index `i` in `s`
 * `@string_char(byte)` - returns a string containing the character represented by `byte`
-* `tonumber(s, base)` - converts `s` to a number using the given `base` (default is 10)
-* `tostring(value)` - converts `value` to a string
+* `@string_tonumber(s, base)` - converts `s` to a number using the given `base` (default is 10)
+* `@string_tostring(value)` - converts `value` to a string
 
 ##### String Formatting
 * `@string_format(format, ...)` - formats a string using the given format string and arguments

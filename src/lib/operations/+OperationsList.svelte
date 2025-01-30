@@ -93,7 +93,7 @@
     <Input type="search"
            id="OperationsDetail-search"
            bind:value={filter}
-           placeholder="Filter..."
+           placeholder=">>> Filter operations..."
            autocomplete="off"
            on:keydown={onkeydown}
            on:focus={() => filter_focused = true}

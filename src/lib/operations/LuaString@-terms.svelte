@@ -96,6 +96,14 @@ function ${options.prefix}upper(s)
   return string.upper(s.string)
 end
 
+function ${options.prefix}tostring(value)
+  return tostring(value)
+end
+
+function ${options.prefix}tonumber(s, base)
+  return tonumber(s.string, base.number)
+end
+
 #end.
         `.trim());
 
