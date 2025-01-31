@@ -71,7 +71,7 @@
                on:input={edit}
         />
     </InputGroup>
-    <div style="height: {options.height}px; overflow-y: auto" data-testid="Documentation-content">
+    <div slot="output" style="height: {options.height}px; overflow-y: auto" data-testid="Documentation-content">
         {#each Recipe.operations(options.filter) as operation}
             <div style="margin: 0.5em">
                 <h2>{operation}</h2>
