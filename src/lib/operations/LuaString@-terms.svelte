@@ -101,6 +101,7 @@ function ${options.prefix}tostring(value)
 end
 
 function ${options.prefix}tonumber(s, base)
+  base = base or clingo.Number(10)
   return tonumber(s.string, base.number)
 end
 
