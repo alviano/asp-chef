@@ -3,97 +3,44 @@
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
-    const operation = "Lua String @-terms";
+    const operation = "Lua Expression @-terms";
     const default_extra_options = {
         encode_predicate: '__base64__',
-        prefix: 'string_',
+        prefix: 'expr',
     };
 
-    const unpack = `__unpack_${Utils.uuid()}`;
+    const uuid = Utils.uuid();
+    const unpack = `__unpack_${uuid}`;
+    const __expr = `__expr_${uuid}`;
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
         const content = Base64.encode(`
 #script (lua)
 
-function ${options.prefix}join(sep, ...)
+function ${options.prefix}(...)
+  return ${__expr}(${options.prefix}_string(...))
+end
+
+function ${options.prefix}_string(...)
   local args = {${unpack}(...)}
-  local res = ""
+  local expression = ""
   for i = 1, select("#", ...) do
-    if i == 1 then
-      res = res .. args[i]
-    else
-      res = res .. sep.string .. args[i]
-    end
+    expression = expression .. args[i]
   end
-  return res
+  return expression
 end
 
-function ${options.prefix}concat(...)
-  return ${options.prefix}join(clingo.String(""), ...)
+function ${options.prefix}f(format, ...)
+  return ${__expr}(${options.prefix}f_string(format, ...))
 end
 
-function ${options.prefix}byte(s, i)
-  return string.byte(s.string, i.number)
+function ${options.prefix}f_string(format, ...)
+  return string.format(format.string, ${unpack}(...))
 end
 
-function ${options.prefix}char(...)
-  return string.char(${unpack}(...))
-end
 
-function ${options.prefix}find(s, p, i)
-  return string.find(s.string, p.string, i.number)
-end
+-- aux functions (not intended to be called by you)
 
-function ${options.prefix}format(fs, ...)
-  return string.format(fs.string, ${unpack}(...))
-end
-
-function ${options.prefix}gmatch(s, p)
-  return string.gmatch(s.string, p.string)
-end
-
-function ${options.prefix}gsub(s, p, r)
-  return string.gsub(s.string, p.string, r.string)
-end
-
-function ${options.prefix}len(s)
-  return string.len(s.string)
-end
-
-function ${options.prefix}lower(s)
-  return string.lower(s.string)
-end
-
-function ${options.prefix}match(s, p, i)
-  return string.match(s.string, p.string, i.number)
-end
-
-function ${options.prefix}rep(s, n)
-  return string.rep(s.string, n.number)
-end
-
-function ${options.prefix}reverse(s)
-  return string.reverse(s.string)
-end
-
-function ${options.prefix}sub(s, i, j)
-  return string.sub(s.string, i.number, j.number)
-end
-
-function ${options.prefix}upper(s)
-  return string.upper(s.string)
-end
-
-function ${options.prefix}tostring(value)
-  return tostring(value)
-end
-
-function ${options.prefix}tonumber(s, base)
-  base = base or clingo.Number(10)
-  return tonumber(s.string, base.number)
-end
-
--- aux function (not intended to be called by you)
 function ${unpack}(...)
   local args = {...}
   for i = 1, select("#", ...) do
@@ -101,11 +48,40 @@ function ${unpack}(...)
       args[i] = args[i].number
     elseif args[i].type == clingo.SymbolType.String then
       args[i] = args[i].string
+    elseif args[i].type == clingo.SymbolType.Function and args[i].name == "real" then
+      args[i] = tonumber(args[i].arguments[1].string)
     else
       args[i] = tostring(args[i])
     end
   end
   return table.unpack(args)
+end
+
+function ${__expr}(expression)
+  local sandbox_env = {
+    tonumber = tonumber,
+    tostring = tostring,
+    math = math,
+    string = string,
+  }
+
+  -- Load the code with the restricted environment
+  local code = "return " .. expression
+  local func, err = load(code, "sandbox_code", "t", sandbox_env)
+  if not func then
+    error(err)
+  end
+
+  local res = func()
+  if type(res) == "number" then
+    if res % 1 == 0 then
+      return res
+    end
+    return clingo.Function("real", {tostring(res)})
+  elseif type(res) == "boolean" then
+    return clingo.Function(tostring(res))
+  end
+  return tostring(res)
 end
 
 #end.
@@ -149,7 +125,7 @@ end
                bind:value={options.encode_predicate}
                placeholder="encode predicate"
                on:input={edit}
-               data-testid="LuaString@-terms-encode-predicate"
+               data-testid="LuaExpression@-terms-encode-predicate"
         />
     </InputGroup>
     <InputGroup>
@@ -158,7 +134,7 @@ end
                bind:value={options.prefix}
                placeholder="string_"
                on:input={edit}
-               data-testid="LuaString@-terms-prefix}"
+               data-testid="LuaExpression@-terms-prefix}"
         />
     </InputGroup>
 </Operation>

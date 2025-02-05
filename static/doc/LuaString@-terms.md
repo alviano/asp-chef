@@ -5,6 +5,7 @@ The definitions are base64 encoded and wrapped by predicate `__base64__`.
 The name of the unary predicate `__base64__` can be specified in the recipe. 
 Moreover, the prefix of the @-terms defined by this operation can be customized.
 
+The provided @-terms target string manipulation. 
 Details are provided in the extended documentation.
 
 §§§§
