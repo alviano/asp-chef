@@ -9,11 +9,13 @@
         prefix: 'string_',
     };
 
+    const unpack = `__unpack_${Utils.uuid()}`;
+
     Recipe.register_operation_type(operation, async (input, options, index) => {
         const content = Base64.encode(`
 #script (lua)
 
-function __unpack__(...)
+function ${unpack}(...)
   local args = {...}
   for i = 1, select("#", ...) do
     if args[i].type == clingo.SymbolType.Number then
@@ -28,7 +30,7 @@ function __unpack__(...)
 end
 
 function ${options.prefix}join(sep, ...)
-  local args = {__unpack__(...)}
+  local args = {${unpack}(...)}
   local res = ""
   for i = 1, select("#", ...) do
     if i == 1 then
@@ -49,7 +51,7 @@ function ${options.prefix}byte(s, i)
 end
 
 function ${options.prefix}char(...)
-  return string.char(__unpack__(...))
+  return string.char(${unpack}(...))
 end
 
 function ${options.prefix}find(s, p, i)
@@ -57,7 +59,7 @@ function ${options.prefix}find(s, p, i)
 end
 
 function ${options.prefix}format(fs, ...)
-  return string.format(fs.string, __unpack__(...))
+  return string.format(fs.string, ${unpack}(...))
 end
 
 function ${options.prefix}gmatch(s, p)

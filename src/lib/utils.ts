@@ -9,6 +9,7 @@ import JavascriptWorker from '$lib/javascript.worker?worker';
 import {clingo_remote_on, server_url, clingo_remote_uuid} from "$lib/stores";
 import {get} from "svelte/store";
 import {Base64} from "js-base64";
+import {v4 as uuidv4} from 'uuid';
 
 const dom_purify_config = new DOMPurifyConfig(consts);
 
@@ -566,6 +567,9 @@ export class Utils extends BaseUtils {
         return replacement.join(separator);
     }
 
+    static uuid() {
+        return uuidv4().replaceAll('-', '_');
+    }
 }
 
 const GRAMMAR = `
