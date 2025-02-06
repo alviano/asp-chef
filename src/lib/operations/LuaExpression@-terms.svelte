@@ -48,7 +48,7 @@ function ${unpack}(...)
       args[i] = args[i].number
     elseif args[i].type == clingo.SymbolType.String then
       args[i] = args[i].string
-    elseif args[i].type == clingo.SymbolType.Function and args[i].name == "real" then
+    elseif args[i].type == clingo.SymbolType.Function and args[i].name == "real" and #args[i].arguments == 1 and args[i].arguments[1].type == clingo.SymbolType.String then
       args[i] = tonumber(args[i].arguments[1].string)
     else
       args[i] = tostring(args[i])

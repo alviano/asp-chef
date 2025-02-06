@@ -42,3 +42,14 @@ Details are provided in the extended documentation.
 * `@string_lower(s)` - returns a copy of `s` with all characters converted to lowercase
 * `@string_upper(s)` - returns a copy of `s` with all characters converted to uppercase
 * `@string_reverse(s)` - returns a copy of `s` with the characters in reverse order
+
+
+Real numbers are represented in the format `real("NUMBER")`.
+So, for example, the program
+```asp
+fact(@string_format("%f is an approximation of pi", real("3.1415926535898"))).
+```
+has answer set
+```asp
+fact("3.141593 is an approximation of pi").
+```

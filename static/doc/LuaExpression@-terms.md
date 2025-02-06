@@ -41,9 +41,12 @@ For example, the following program
 ```asp
 pi(@expr("math.pi")).
 two_pi(@expr("2 * math.pi")).
-equal :- pi(PI), two_pi(@expr("2 * ", PI)).
-equal' :- pi(PI), two_pi(@exprf("2 * %s", PI)).
-equal''(@exprf("%.16f == 2 * %.16f", PI2, PI)) :- pi(PI), two_pi(PI2).
+equal :- pi(PI), two_pi(PI2), @expr("2 * ", PI, " - ", PI2, " <= 0.000001") == true.
+equal' :- pi(PI), two_pi(PI2), @exprf("2 * %.10f - %.10f <= 0.000001", PI, PI2) == true.
+
+% strict equality is usually not a good idea with real numbers
+equal''(@exprf("%.9f == 2 * %.9f", PI2, PI)) :- pi(PI), two_pi(PI2).  
+equal'''(@exprf("%.16f == 2 * %.16f", PI2, PI)) :- pi(PI), two_pi(PI2).  
 ```
 has answer set
 ```asp
@@ -51,7 +54,8 @@ pi(real("3.1415926535898")).
 two_pi(real("6.2831853071796")).
 equal.
 equal'.
-equal''(true).
+equal''(false).
+equal'''(true).
 ```
 
 Take into account that real numbers are converted back and forth from strings, and this may introduce errors due to approximations.

@@ -81,6 +81,7 @@
                     {@html doc}
                 {/await}
             </div>
+            <hr />
         {/each}
     </div>
 </Operation>
