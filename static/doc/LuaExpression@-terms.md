@@ -30,7 +30,7 @@ The following functions and modules are accessible:
   * `math.acos(x)` - returns the arc cosine of `x` in radians
   * `math.ceil(x)` - returns the smallest integer greater than or equal to `x`
 * `string` - built-in module for strings, including (among other functions)
-  * `string.byte(s, i, j) - returns the ASCII code of characters in string `s` from index `i` to `j`
+  * `string.byte(s, i, j)` - returns the ASCII code of characters in string `s` from index `i` to `j`
   * `string.char(...)` - converts ASCII codes into a string
   * `string.reverse(s)` - reverses the string `s`
   * `string.sub(s, i, j)` - extracts a substring from `s` starting at `i` and ending at `j`
