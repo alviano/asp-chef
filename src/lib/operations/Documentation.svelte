@@ -15,7 +15,7 @@
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         try {
-            await listeners.get(id)();
+            await listeners.get(id)(input, options);
         } catch (error) { /* component not mounted, possibly because of headless mode */ }
 
         if (!options.output_predicate) {
@@ -38,7 +38,7 @@
 <script>
     import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
-    import {onDestroy, onMount} from "svelte";
+    import {onDestroy, onMount, tick} from "svelte";
 
     export let id;
     export let options;
@@ -48,15 +48,21 @@
 
     let output_div;
 
+    let operations = [];
+    let docs = [];
+
     function edit() {
         Recipe.edit_operation(id, index, options);
     }
 
     onMount(() => {
-        listeners.set(id, () => {
+        listeners.set(id, async (input, options) => {
             if (!output_div) {
                 return;
             }
+            operations = Recipe.operations(options.filter);
+            docs = await Promise.all(operations.map(operation => Recipe.operation_doc(operation)));
+            await tick();
             Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
         });
     });
@@ -94,14 +100,10 @@
         />
     </InputGroup>
     <div slot="output" style="height: {options.height}px; overflow-y: auto" data-testid="Documentation-content" bind:this={output_div}>
-        {#each Recipe.operations(options.filter) as operation}
+        {#each operations as operation, index}
             <div style="margin: 0.5em">
                 <h2>{operation}</h2>
-                {#await Recipe.operation_doc(operation)}
-                    <em>Loading documentation...</em>
-                {:then doc}
-                    {@html doc}
-                {/await}
+                {@html docs[index]}
             </div>
             <hr />
         {/each}
