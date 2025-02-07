@@ -11,7 +11,13 @@
         html: false,
     };
 
-    Recipe.register_operation_type(operation, async (input, options) => {
+    const listeners = new Map();
+
+    Recipe.register_operation_type(operation, async (input, options, index, id) => {
+        try {
+            await listeners.get(id)();
+        } catch (error) { /* component not mounted, possibly because of headless mode */ }
+
         if (!options.output_predicate) {
             return input;
         }
@@ -32,6 +38,7 @@
 <script>
     import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
+    import {onDestroy, onMount} from "svelte";
 
     export let id;
     export let options;
@@ -39,9 +46,24 @@
     export let add_to_recipe;
     export let keybinding;
 
+    let output_div;
+
     function edit() {
         Recipe.edit_operation(id, index, options);
     }
+
+    onMount(() => {
+        listeners.set(id, () => {
+            if (!output_div) {
+                return;
+            }
+            Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
+        });
+    });
+
+    onDestroy(() => {
+        listeners.set(id, null);
+    });
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
@@ -71,7 +93,7 @@
                on:input={edit}
         />
     </InputGroup>
-    <div slot="output" style="height: {options.height}px; overflow-y: auto" data-testid="Documentation-content">
+    <div slot="output" style="height: {options.height}px; overflow-y: auto" data-testid="Documentation-content" bind:this={output_div}>
         {#each Recipe.operations(options.filter) as operation}
             <div style="margin: 0.5em">
                 <h2>{operation}</h2>
