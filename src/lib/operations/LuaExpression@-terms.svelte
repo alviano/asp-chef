@@ -9,83 +9,8 @@
         prefix: 'expr',
     };
 
-    const uuid = Utils.uuid();
-    const unpack = `__unpack_${uuid}`;
-    const __expr = `__expr_${uuid}`;
-
     Recipe.register_operation_type(operation, async (input, options, index) => {
-        const content = Base64.encode(`
-#script (lua)
-
-function ${options.prefix}(...)
-  return ${__expr}(${options.prefix}_string(...))
-end
-
-function ${options.prefix}_string(...)
-  local args = {${unpack}(...)}
-  local expression = ""
-  for i = 1, select("#", ...) do
-    expression = expression .. args[i]
-  end
-  return expression
-end
-
-function ${options.prefix}f(format, ...)
-  return ${__expr}(${options.prefix}f_string(format, ...))
-end
-
-function ${options.prefix}f_string(format, ...)
-  return string.format(format.string, ${unpack}(...))
-end
-
-
--- aux functions (not intended to be called by you)
-
-function ${unpack}(...)
-  local args = {...}
-  for i = 1, select("#", ...) do
-    if args[i].type == clingo.SymbolType.Number then
-      args[i] = args[i].number
-    elseif args[i].type == clingo.SymbolType.String then
-      args[i] = args[i].string
-    elseif args[i].type == clingo.SymbolType.Function and args[i].name == "real" and #args[i].arguments == 1 and args[i].arguments[1].type == clingo.SymbolType.String then
-      args[i] = tonumber(args[i].arguments[1].string)
-    else
-      args[i] = tostring(args[i])
-    end
-  end
-  return table.unpack(args)
-end
-
-function ${__expr}(expression)
-  local sandbox_env = {
-    tonumber = tonumber,
-    tostring = tostring,
-    math = math,
-    string = string,
-  }
-
-  -- Load the code with the restricted environment
-  local code = "return " .. expression
-  local func, err = load(code, "sandbox_code", "t", sandbox_env)
-  if not func then
-    error(err)
-  end
-
-  local res = func()
-  if type(res) == "number" then
-    if res % 1 == 0 then
-      return res
-    end
-    return clingo.Function("real", {tostring(res)})
-  elseif type(res) == "boolean" then
-    return clingo.Function(tostring(res))
-  end
-  return tostring(res)
-end
-
-#end.
-        `.trim());
+        const content = Base64.encode(Utils.lua_lib_expression(options.prefix));
 
         const encoded_content = `${options.encode_predicate}("${content}").`;
         const mapper = atom => atom.str + '.';

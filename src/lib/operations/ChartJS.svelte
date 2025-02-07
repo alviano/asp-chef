@@ -1,9 +1,9 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
 
-    const operation = "Tabulator";
+    const operation = "ChartJS";
     const default_extra_options = {
-        predicate: "__tab__",
+        predicate: "__chart__",
         echo: false,
         hide_model_index: false,
     };
@@ -22,7 +22,7 @@
     import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import Tabulator from "./+Tabulator.svelte";
+    import ChartJS from "./+ChartJS.svelte";
 
     export let id;
     export let options;
@@ -61,7 +61,7 @@
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
                 {#key model}
-                    <Tabulator model="{model.filter(atom => atom.predicate === options.predicate)}" />
+                    <ChartJS part="{model}" index="{index}" configuration_atoms="{model.filter(atom => atom.predicate === options.predicate)}"  />
                 {/key}
             {/each}
         </div>

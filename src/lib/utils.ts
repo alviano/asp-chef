@@ -10,6 +10,7 @@ import {clingo_remote_on, server_url, clingo_remote_uuid} from "$lib/stores";
 import {get} from "svelte/store";
 import {Base64} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
+import {toJson} from 'really-relaxed-json';
 
 const dom_purify_config = new DOMPurifyConfig(consts);
 
@@ -214,8 +215,8 @@ export class Utils extends BaseUtils {
         }
     }
 
-    static async search_models(program: string, number: number, raises: boolean) {
-        const result = await this.clingo_run(program, number);
+    static async search_models(program: string, number: number, raises: boolean, include_lua_chef_lib = false) {
+        const result = await this.clingo_run(include_lua_chef_lib ? `${Utils.lua_lib()}\n${program}`: program, number);
         if (result.Result === 'ERROR') {
             throw new Error(result.Error);
         } else if (raises && result.Models.Number !== number) {
@@ -408,7 +409,7 @@ export class Utils extends BaseUtils {
                 const match = the_match[2].trim();
                 const program = part.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n' +
                     (inline ? '#show ' : '') + match + (match.endsWith('.') ? '' : '.');
-                const query_answer = await Utils.search_models(program, 1, true);
+                const query_answer = await Utils.search_models(program, 1, true, true);
                 message = message.replace(the_match[0], Utils.markdown_process_match(query_answer, index));
             }
         }
@@ -420,6 +421,10 @@ export class Utils extends BaseUtils {
             throw Error("Expected one model, 0 found");
         }
 
+        const output_predicates = [
+            'base64', 'qrcode', 'png', 'gif', 'jpeg', 'th', 'tr', 'ol', 'ul', 'matrix',
+        ];
+
         let matrix = null;
         let separator = '\n';
         let term_separator = ', ';
@@ -430,18 +435,15 @@ export class Utils extends BaseUtils {
         const replacement = [];
         let output_atoms = [];
         Utils.parse_atoms(query_answer[0]).forEach(atom => {
+            // if (atom.predicate === 'show' && atom.terms.length >= 1) {
+            //     atom = atom.terms[0];
+            //     atom.predicate = atom.functor;
+            // }
             if (atom.functor === undefined && atom.predicate === undefined) {
                 atom.functor = '';
                 atom.terms = [atom];
             }
-            if (atom.functor === '' || atom.predicate === 'base64' || atom.predicate === 'qrcode' ||
-                atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
-                output_atoms.push(atom);
-            } else if (atom.predicate === 'th' || atom.predicate === 'tr') {
-                output_atoms.push(atom);
-            } else if (atom.predicate === 'ol' || atom.predicate === 'ul') {
-                output_atoms.push(atom);
-            } else if (atom.predicate === 'matrix') {
+            if (atom.functor === '' || atom.predicate === 'show' || output_predicates.includes(atom.predicate)) {
                 output_atoms.push(atom);
             } else if (atom.predicate === 'prefix') {
                 if (this.check_one_term_string(atom)) {
@@ -489,7 +491,25 @@ export class Utils extends BaseUtils {
             });
             output_atoms = _.orderBy(output_atoms, comparator, terms.map(sort_index => sort_index > 0 ? "asc" : "desc"));
         });
-        output_atoms = _.orderBy(output_atoms, [ atom => {
+        output_atoms = output_atoms.map(atom => {
+            if (atom.predicate !== 'show') {
+                return atom;
+            }
+            if (atom.terms.length >= 1) {
+                const term = atom.terms[0];
+                if (term.functor === undefined) {
+                    term.functor = '';
+                    term.terms = [term];
+                }
+                if (term.functor === '' || output_atoms.includes(term.functor)) {
+                    term.predicate = term.functor;
+                    return term;
+                }
+            }
+            Utils.snackbar(`Invalid atom in \#${index}: ${atom.str}`);
+            return atom;
+        });
+        output_atoms = _.orderBy(output_atoms, [atom => {
             if (atom.predicate === 'th') {
                 return 0;
             } else if (atom.predicate === 'tr') {
@@ -569,6 +589,199 @@ export class Utils extends BaseUtils {
 
     static uuid() {
         return uuidv4().replaceAll('-', '_');
+    }
+
+    static parse_related_json(str: string) {
+        return JSON.parse(toJson(str));
+    }
+
+    static lua_lib() {
+        return [
+            this.lua_lib_string(),
+            this.lua_lib_expression(),
+        ].join('\n\n');
+    }
+
+    static lua_lib_string(prefix = "string_") {
+        const unpack = `__unpack_${Utils.uuid()}`;
+        return `
+#script (lua)
+
+function ${prefix}join(sep, ...)
+  local args = {${unpack}(...)}
+  local res = ""
+  for i = 1, select("#", ...) do
+    if i == 1 then
+      res = res .. args[i]
+    else
+      res = res .. sep.string .. args[i]
+    end
+  end
+  return res
+end
+
+function ${prefix}concat(...)
+  return ${prefix}join(clingo.String(""), ...)
+end
+
+function ${prefix}byte(s, i)
+  return string.byte(s.string, i.number)
+end
+
+function ${prefix}char(...)
+  return string.char(${unpack}(...))
+end
+
+function ${prefix}find(s, p, i)
+  return string.find(s.string, p.string, i.number)
+end
+
+function ${prefix}format(fs, ...)
+  return string.format(fs.string, ${unpack}(...))
+end
+
+function ${prefix}gmatch(s, p)
+  return string.gmatch(s.string, p.string)
+end
+
+function ${prefix}gsub(s, p, r)
+  return string.gsub(s.string, p.string, r.string)
+end
+
+function ${prefix}len(s)
+  return string.len(s.string)
+end
+
+function ${prefix}lower(s)
+  return string.lower(s.string)
+end
+
+function ${prefix}match(s, p, i)
+  return string.match(s.string, p.string, i.number)
+end
+
+function ${prefix}rep(s, n)
+  return string.rep(s.string, n.number)
+end
+
+function ${prefix}reverse(s)
+  return string.reverse(s.string)
+end
+
+function ${prefix}sub(s, i, j)
+  return string.sub(s.string, i.number, j.number)
+end
+
+function ${prefix}upper(s)
+  return string.upper(s.string)
+end
+
+function ${prefix}tostring(value)
+  return tostring(value)
+end
+
+function ${prefix}tonumber(s, base)
+  base = base or clingo.Number(10)
+  return tonumber(s.string, base.number)
+end
+
+-- aux function (not intended to be called by you)
+function ${unpack}(...)
+  local args = {...}
+  for i = 1, select("#", ...) do
+    if args[i].type == clingo.SymbolType.Number then
+      args[i] = args[i].number
+    elseif args[i].type == clingo.SymbolType.String then
+      args[i] = args[i].string
+    elseif args[i].type == clingo.SymbolType.Function and args[i].name == "real" and #args[i].arguments == 1 and args[i].arguments[1].type == clingo.SymbolType.String then
+      args[i] = tonumber(args[i].arguments[1].string)
+    else
+      args[i] = tostring(args[i])
+    end
+  end
+  return table.unpack(args)
+end
+
+#end.
+        `.trim();
+    }
+
+    static lua_lib_expression(prefix = "expr") {
+        const uuid = Utils.uuid();
+        const unpack = `__unpack_${uuid}`;
+        const __expr = `__expr_${uuid}`;
+        return `
+#script (lua)
+
+function ${prefix}(...)
+  return ${__expr}(${prefix}_string(...))
+end
+
+function ${prefix}_string(...)
+  local args = {${unpack}(...)}
+  local expression = ""
+  for i = 1, select("#", ...) do
+    expression = expression .. args[i]
+  end
+  return expression
+end
+
+function ${prefix}f(format, ...)
+  return ${__expr}(${prefix}f_string(format, ...))
+end
+
+function ${prefix}f_string(format, ...)
+  return string.format(format.string, ${unpack}(...))
+end
+
+
+-- aux functions (not intended to be called by you)
+
+function ${unpack}(...)
+  local args = {...}
+  for i = 1, select("#", ...) do
+    if args[i].type == clingo.SymbolType.Number then
+      args[i] = args[i].number
+    elseif args[i].type == clingo.SymbolType.String then
+      args[i] = args[i].string
+    elseif args[i].type == clingo.SymbolType.Function and args[i].name == "real" and #args[i].arguments == 1 and args[i].arguments[1].type == clingo.SymbolType.String then
+      args[i] = tonumber(args[i].arguments[1].string)
+    else
+      args[i] = tostring(args[i])
+    end
+  end
+  return table.unpack(args)
+end
+
+function ${__expr}(expression)
+  local sandbox_env = {
+    tonumber = tonumber,
+    tostring = tostring,
+    math = math,
+    string = string,
+  }
+
+  -- Load the code with the restricted environment
+  local code = "return " .. expression
+  local func, err = load(code, "sandbox_code", "t", sandbox_env)
+  if not func then
+    error(err)
+  end
+
+  local res = func()
+  if type(res) == "number" then
+    if res % 1 == 0 then
+      return res
+    end
+    return clingo.Function("real", {tostring(res)})
+  elseif type(res) == "boolean" then
+    return clingo.Function(tostring(res))
+  end
+  return tostring(res)
+end
+
+#end.
+        `.trim();
     }
 }
 

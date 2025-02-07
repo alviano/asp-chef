@@ -1,6 +1,6 @@
 {
 	"name": "asp-chef",
-	"version": "1.14.4",
+	"version": "1.15.0",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --port 5188",
@@ -47,6 +47,7 @@
 	"dependencies": {
 		"@testing-library/svelte": "^3.2.2",
 		"async-lock": "^1.4.0",
+		"chart.js": "^4.4.7",
 		"clingo-wasm": "^0.1.1",
 		"d3-require": "^1.3.0",
 		"dumbo-svelte": "^0.1.0",
@@ -56,6 +57,7 @@
 		"katex": "^0.16.8",
 		"lodash": "^4.17.21",
 		"pegjs": "^0.10.0",
+		"really-relaxed-json": "^0.3.2",
 		"sass": "^1.58.3",
 		"svelte-awesome": "^3.0.1",
 		"svelte-codemirror-editor": "^1.1.0",

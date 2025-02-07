@@ -10,6 +10,9 @@ In each mustache query, the output can be ordered via the varadics predicate `so
 
 The separator of the obtained substitutions can be specified with `separator("\n")`. Similarly, `term_separator/1`, `prefix/1` and `suffix/1` can be used to customize the print of each obtained substitution.
 
+To account for duplicates, as ASP has a set-semantics, the predicate `show` can be used:
+`show(f(terms), ...)` will be expanded to `f(terms)` (properly interpreted), and the extra terms in `...` are discarded. 
+
 Other predicates are thought to be coupled with **Markdown** ingredients.
 They are described next.
 
@@ -26,3 +29,8 @@ Predicates `png/1`, `gif/1` and `jpeg/1` can be used to show a Base64-encoded im
 Predicate `base64/1` decodes Base64-encoded content.
 
 Predicate `qrcode/1` (and links `[...](qrcode)`) are shown as QR-codes.
+
+Mustache queries have access to the **Lua Chef Library**.
+Check details in the following operations:
+- **Lua Expression @-terms**
+- **Lua String @-terms**

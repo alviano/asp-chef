@@ -38,6 +38,10 @@ blockquote p:last-child {
   display: inline;
 }
 
+p:has(+ pre) {
+  margin-bottom: 0.5em;
+}
+
 pre {
   background: #f9f9f9;
   border: 2px solid #ccc;
@@ -45,7 +49,8 @@ pre {
 }
 
 pre.container {
-    max-width: 100% !important;
+  margin-bottom: 0.5em;
+  max-width: 100% !important;
 }
 
 /* width */
