@@ -1,6 +1,6 @@
 {
 	"name": "asp-chef",
-	"version": "1.15.1",
+	"version": "1.15.2",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --port 5188",
@@ -46,6 +46,7 @@
 	"type": "module",
 	"dependencies": {
 		"@testing-library/svelte": "^3.2.2",
+		"apexcharts": "^4.4.0",
 		"async-lock": "^1.4.0",
 		"chart.js": "^4.4.7",
 		"clingo-wasm": "^0.1.1",

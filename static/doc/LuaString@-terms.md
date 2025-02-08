@@ -42,6 +42,7 @@ Details are provided in the extended documentation.
 * `@string_lower(s)` - returns a copy of `s` with all characters converted to lowercase
 * `@string_upper(s)` - returns a copy of `s` with all characters converted to uppercase
 * `@string_reverse(s)` - returns a copy of `s` with the characters in reverse order
+* `@string_double_quote(s)` - returns a copy of `s` surrounded by double quotes
 
 
 Real numbers are represented in the format `real("NUMBER")`.

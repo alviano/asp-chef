@@ -13,6 +13,11 @@ The separator of the obtained substitutions can be specified with `separator("\n
 To account for duplicates, as ASP has a set-semantics, the predicate `show` can be used:
 `show(f(terms), ...)` will be expanded to `f(terms)` (properly interpreted), and the extra terms in `...` are discarded. 
 
+To ease the application of several queries with the same separators (or other atoms/terms), it is possible to add elements to a persistent array using 
+`{{+ (terms) : conjunctive_query }}`.
+The same array can be reset to the empty array using 
+`{{-}}` (any query within such curly brackets is simply ignored).
+
 Other predicates are thought to be coupled with **Markdown** ingredients.
 They are described next.
 

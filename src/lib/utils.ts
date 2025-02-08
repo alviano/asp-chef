@@ -402,25 +402,34 @@ export class Utils extends BaseUtils {
     }
 
     static async markdown_expand_mustache_queries(part, message, index) {
-        const matches = message.matchAll(/\{\{(=?)(((?!}}).)*)}}/gs);
+        const matches = message.matchAll(/\{\{([=+-]?)(((?!}}).)*)}}/gs);
+        const persistent_atoms = [];
         if (matches !== null) {
             for (const the_match of matches) {
                 const inline = the_match[1].trim();
                 const match = the_match[2].trim();
                 const program = part.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n' +
                     (inline ? '#show ' : '') + match + (match.endsWith('.') ? '' : '.');
-                const query_answer = await Utils.search_models(program, 1, true, true);
-                message = message.replace(the_match[0], Utils.markdown_process_match(query_answer, index));
+                let query_answer = await Utils.search_models(program, 1, true, true);
+                if (query_answer.length !== 1) {
+                    throw Error(`Expected one model, ${query_answer.length} found`);
+                }
+                query_answer = query_answer[0]
+                if (inline === '+') {
+                    persistent_atoms.push(...query_answer);
+                    message = message.replace(the_match[0], '');
+                } else if (inline === '-') {
+                    persistent_atoms.length = 0;
+                    message = message.replace(the_match[0], '');
+                } else {
+                    message = message.replace(the_match[0], Utils.markdown_process_match([...persistent_atoms, ...query_answer], index));
+                }
             }
         }
         return message;
     }
 
     static markdown_process_match(query_answer, index) {
-        if (query_answer.length === 0) {
-            throw Error("Expected one model, 0 found");
-        }
-
         const output_predicates = [
             'base64', 'qrcode', 'png', 'gif', 'jpeg', 'th', 'tr', 'ol', 'ul', 'matrix',
         ];
@@ -434,7 +443,7 @@ export class Utils extends BaseUtils {
 
         const replacement = [];
         let output_atoms = [];
-        Utils.parse_atoms(query_answer[0]).forEach(atom => {
+        Utils.parse_atoms(query_answer).forEach(atom => {
             // if (atom.predicate === 'show' && atom.terms.length >= 1) {
             //     atom = atom.terms[0];
             //     atom.predicate = atom.functor;
@@ -447,19 +456,19 @@ export class Utils extends BaseUtils {
                 output_atoms.push(atom);
             } else if (atom.predicate === 'prefix') {
                 if (this.check_one_term_string(atom)) {
-                    prefix = atom.terms[0].string.replaceAll('\\n', '\n');
+                    prefix = this.replace_escaped_chars(atom.terms[0].string);
                 }
             } else if (atom.predicate === 'suffix') {
                 if (this.check_one_term_string(atom)) {
-                    suffix = atom.terms[0].string.replaceAll('\\n', '\n');
+                    suffix = this.replace_escaped_chars(atom.terms[0].string);
                 }
             } else if (atom.predicate === 'separator') {
                 if (this.check_one_term_string(atom)) {
-                    separator = atom.terms[0].string.replaceAll('\\n', '\n');
+                    separator = this.replace_escaped_chars(atom.terms[0].string);
                 }
             } else if (atom.predicate === 'term_separator') {
                 if (this.check_one_term_string(atom)) {
-                    term_separator = atom.terms[0].string.replaceAll('\\n', '\n');
+                    term_separator = this.replace_escaped_chars(atom.terms[0].string);
                 }
             } else if (atom.predicate === 'sort') {
                 if (atom.terms.length === 0) {
@@ -517,7 +526,7 @@ export class Utils extends BaseUtils {
             }
         }]);
         output_atoms.forEach(atom => {
-            const terms = atom.terms.map(term => term.string !== undefined ? term.string : term.str);
+            const terms = atom.terms.map(term => term.string !== undefined ? this.replace_escaped_chars(term.string) : term.str);
             if (atom.functor === '') {
                 replacement.push(prefix + terms.join(term_separator) + suffix);
             } else if (atom.predicate === 'base64') {
@@ -585,6 +594,10 @@ export class Utils extends BaseUtils {
             }).join("\n"));
         }
         return replacement.join(separator);
+    }
+
+    static replace_escaped_chars(str: string) {
+        return str.replaceAll("\\n", "\n").replaceAll("\\r", "\t").replaceAll("\\t", "\t").replaceAll("\\\"", "\"").replaceAll("\\\\", "\\");
     }
 
     static uuid() {
@@ -674,6 +687,10 @@ end
 
 function ${prefix}upper(s)
   return string.upper(s.string)
+end
+
+function ${prefix}double_quote(s)
+  return string.format("\\"%s\\"", s.string)
 end
 
 function ${prefix}tostring(value)

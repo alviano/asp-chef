@@ -1,7 +1,7 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
 
-    const operation = "ChartJS";
+    const operation = "ApexCharts";
     const default_extra_options = {
         predicate: "__chart__",
         echo: false,
@@ -22,7 +22,7 @@
     import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import ChartJS from "./+ChartJS.svelte";
+    import ApexCharts from "./+ApexCharts.svelte";
 
     export let id;
     export let options;
@@ -50,7 +50,7 @@
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
-        <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="ChartJS-predicate" />
+        <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="ApexCharts-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
         <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
     </InputGroup>
@@ -61,7 +61,7 @@
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
                 {#key model}
-                    <ChartJS part="{model}" index="{index}" configuration_atoms="{model.filter(atom => atom.predicate === options.predicate)}"  />
+                    <ApexCharts part="{model}" index="{index}" configuration_atoms="{model.filter(atom => atom.predicate === options.predicate)}"  />
                 {/key}
             {/each}
         </div>

@@ -6,7 +6,7 @@ The term of each `__chart__/1` instance is a Base64-encoded string, possibly inc
 It will be interpreted as a (relaxed) JSON object, and used to configure the Chart.js object.
 
 The input is echoed in output.
-It's possible to show/hide the index of the model above each table.
+It's possible to show/hide the index of the model above each chart.
 
 Check https://www.chartjs.org/docs/latest/ for possible values and for taking inspiration!
 
