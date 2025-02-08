@@ -5,7 +5,7 @@
     const default_extra_options = {
         predicate: "__tab__",
         echo: false,
-        hide_model_index: false,
+        show_model_index: false,
     };
 
     const listeners = new Map();
@@ -52,12 +52,12 @@
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Tabulator-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
-        <Button outline="{options.hide_model_index}" on:click={() => { options.hide_model_index = !options.hide_model_index; edit(); }}>Model Index</Button>
+        <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
     </InputGroup>
     <div slot="output">
         <div class="m-1" style="overflow-y: auto;">
             {#each models as model, model_index}
-                {#if !options.hide_model_index}
+                {#if options.show_model_index}
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
                 {#key model}
