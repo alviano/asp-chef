@@ -14,12 +14,12 @@
 
     configuration_atoms.forEach(async (atom) => {
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. ApexCharts`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Network`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in ApexCharts`);
+            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Network`);
             return;
         }
 
@@ -31,7 +31,7 @@
                 ...Utils.parse_related_json(expanded_content),
             };
         } catch (err) {
-            Utils.snackbar(`#${index}. ApexCharts: ${err}`);
+            Utils.snackbar(`#${index}. @vis.js/Network: ${err}`);
         }
         new Network(chart, configuration.data, configuration.options);
     });

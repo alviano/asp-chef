@@ -1,11 +1,12 @@
 <script>
-    import ApexCharts from 'apexcharts';
+    import { Timeline } from 'vis-timeline/standalone';
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     export let part;
     export let index;
     export let configuration_atoms;
+    export let height;
 
     let chart;
 
@@ -13,12 +14,12 @@
 
     configuration_atoms.forEach(async (atom) => {
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. ApexCharts`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Timeline`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. ApexCharts`);
+            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Timeline`);
             return;
         }
 
@@ -30,16 +31,10 @@
                 ...Utils.parse_related_json(expanded_content),
             };
         } catch (err) {
-            Utils.snackbar(`#${index}. ApexCharts: ${err}`);
+            Utils.snackbar(`#${index}. @vis.js/Timeline: ${err}`);
         }
-        await (new ApexCharts(chart, configuration)).render();
+        new Timeline(chart, configuration.items, configuration.options);
     });
 </script>
 
-<div class="chart" bind:this={chart} />
-
-<style>
-    div.chart {
-        margin: 5px;
-    }
-</style>
+<div bind:this={chart} style="height: {height}px;" />

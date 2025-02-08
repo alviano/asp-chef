@@ -18,7 +18,7 @@
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in ChartJS`);
+            Utils.snackbar(`Unexpected non-string argument in #${index}. ChartJS`);
             return;
         }
 
