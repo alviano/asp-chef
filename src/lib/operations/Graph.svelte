@@ -161,11 +161,10 @@
 </script>
 
 <script>
-    import {Badge, Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount, tick} from "svelte";
     import GraphCanvas from "$lib/operations/+GraphCanvas.svelte";
-    import {Popover} from "dumbo-svelte";
 
     export let id;
     export let options;
