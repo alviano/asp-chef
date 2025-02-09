@@ -391,10 +391,10 @@ export class Utils extends BaseUtils {
 
     static check_one_term_string(atom) {
         if (!atom.terms || atom.terms.length !== 1) {
-            Utils.snackbar(`Wrong number of terms in \#${index}. Markdown: ${atom.str}`)
+            Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`)
             return false;
         } else if (atom.terms[0].string === undefined) {
-            Utils.snackbar(`Wrong argument in \#${index}. Markdown: ${atom.str}`)
+            Utils.snackbar(`Wrong argument in #${index}. Markdown: ${atom.str}`)
             return false
         } else {
             return true;
@@ -402,24 +402,32 @@ export class Utils extends BaseUtils {
     }
 
     static async markdown_expand_mustache_queries(part, message, index) {
-        const matches = message.matchAll(/\{\{([=+-]?)(((?!}}).)*)}}/gs);
+        const matches = message.matchAll(/\{\{([=*+-]?)(((?!}}).)*)}}/gs);
         const persistent_atoms = [];
         if (matches !== null) {
             for (const the_match of matches) {
-                const inline = the_match[1].trim();
+                const mode = the_match[1].trim();
                 const match = the_match[2].trim();
+
+                if (mode === '-') {
+                    if (match) {
+                        throw Error(`#${index}. Mode - cannot use queries`);
+                    }
+                    persistent_atoms.length = 0;
+                    message = message.replace(the_match[0], '');
+                    continue;
+                }
+
+                const inline = ['=', '+'].includes(mode);
                 const program = part.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n' +
-                    (inline ? '#show ' : '') + match + (match.endsWith('.') ? '' : '.');
+                    (inline ? `#show ${match}.` : match);
                 let query_answer = await Utils.search_models(program, 1, true, true);
                 if (query_answer.length !== 1) {
-                    throw Error(`Expected one model, ${query_answer.length} found`);
+                    throw Error(`#${index}. Expected at least one model, ${query_answer.length} found`);
                 }
                 query_answer = query_answer[0]
-                if (inline === '+') {
+                if (mode === '+' || mode === '*') {
                     persistent_atoms.push(...query_answer);
-                    message = message.replace(the_match[0], '');
-                } else if (inline === '-') {
-                    persistent_atoms.length = 0;
                     message = message.replace(the_match[0], '');
                 } else {
                     message = message.replace(the_match[0], Utils.markdown_process_match([...persistent_atoms, ...query_answer], index));

@@ -1,7 +1,7 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
 
-    const operation = "@vis.js/Timeline";
+    const operation = "@vis.js/Graph2d";
     const default_extra_options = {
         predicate: "__vis__",
         echo: false,
@@ -22,7 +22,7 @@
     import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import Timeline from "./+Timeline.svelte";
+    import Graph2d from "./+Graph2d.svelte";
 
     export let id;
     export let options;
@@ -61,7 +61,7 @@
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
                 {#key model}
-                    <Timeline part="{model}" index="{index}" configuration_atoms="{model.filter(atom => atom.predicate === options.predicate)}" />
+                    <Graph2d part="{model}" index="{index}" configuration_atoms="{model.filter(atom => atom.predicate === options.predicate)}" />
                 {/key}
             {/each}
         </div>

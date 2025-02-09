@@ -1,5 +1,5 @@
 <script>
-    import { Timeline } from 'vis-timeline/standalone';
+    import { Graph2d } from 'vis-timeline/standalone';
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
@@ -13,12 +13,12 @@
 
     configuration_atoms.forEach(async (atom) => {
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Timeline`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Graph2d`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Timeline`);
+            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Graph2d`);
             return;
         }
 
@@ -30,9 +30,9 @@
                 ...Utils.parse_related_json(expanded_content),
             };
         } catch (err) {
-            Utils.snackbar(`#${index}. @vis.js/Timeline: ${err}`);
+            Utils.snackbar(`#${index}. @vis.js/Graph2d: ${err}`);
         }
-        new Timeline(chart, configuration.items, configuration.options);
+        new Graph2d(chart, configuration.items, configuration.groups, configuration.options);
     });
 </script>
 

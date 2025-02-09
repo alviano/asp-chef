@@ -48,8 +48,6 @@ Modify the **Encode** ingredient as follows:
 ```javascript
 {{+ separator(", ") }}
 
-{{+ separator(", ") }}
-
 {
   items: [
     {{
