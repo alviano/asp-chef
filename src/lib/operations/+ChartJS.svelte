@@ -2,16 +2,18 @@
     import {Chart} from 'chart.js/auto';
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
+    import {onMount} from "svelte";
 
     export let part;
     export let index;
-    export let configuration_atoms;
+    export let configuration_atom;
 
     let chart;
 
     let configuration = {};
 
-    configuration_atoms.forEach(async (atom) => {
+    onMount(async () => {
+        let atom = configuration_atom;
         if (atom.terms.length !== 1) {
             Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. ChartJS`);
             return;
@@ -29,10 +31,10 @@
                 ...configuration,
                 ...Utils.parse_related_json(expanded_content),
             };
+            new Chart(chart, configuration);
         } catch (err) {
             Utils.snackbar(`#${index}. ChartJS: ${err}`);
         }
-        new Chart(chart, configuration);
     });
 </script>
 

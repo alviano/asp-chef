@@ -14,7 +14,8 @@
         readonly_ingredients,
         recipe,
         show_help,
-        show_ingredient_details, show_ingredient_headers
+        show_ingredient_details,
+        show_ingredient_headers
     } from "$lib/stores";
     import RecipePanel from "$lib/RecipePanel.svelte";
     import {onDestroy, onMount} from "svelte";
@@ -104,6 +105,7 @@
 
     const keydown_uuid = uuidv4();
 
+    Utils.capture_log();
 
     $: input_value, encode_input, Recipe.invalidate_cached_output(0);
     $: delayed_process(input_value, encode_input, decode_output, $pause_baking);
@@ -197,6 +199,7 @@
             await delayed_process(input_value, encode_input, decode_output, $pause_baking);
         });
     }
+
 </script>
 
 {#await load_operation_components()}

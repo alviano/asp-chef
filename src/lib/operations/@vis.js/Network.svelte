@@ -63,9 +63,9 @@
                 {#if options.show_model_index}
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
-                {#key model}
-                    <Network part="{model}" index="{index}" configuration_atoms="{model.filter(atom => atom.predicate === options.predicate)}" height="{options.height}" />
-                {/key}
+                {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
+                    <Network part="{model}" index="{index}" configuration_atom="{configuration}" height="{options.height}" />
+                {/each}
             {/each}
         </div>
     </div>

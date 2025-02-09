@@ -1,6 +1,6 @@
 <script>
     import {Badge, Button, ButtonGroup, CardHeader, CardTitle, Icon} from "@sveltestrap/sveltestrap";
-    import {recipe, errors_at_index, processing_index, show_ingredient_headers} from "$lib/stores";
+    import {recipe, errors_at_index, processing_index, drag_disabled} from "$lib/stores";
     import Popover from "$lib/Popover.svelte";
     import {Recipe} from "$lib/recipe";
 
@@ -8,16 +8,26 @@
     export let operation;
     export let index;
     export let options;
+
+    function mouse_in_draggable_area() {
+        drag_disabled.set(false);
+    }
+
+    function mouse_out_of_draggable_area() {
+        drag_disabled.set(true);
+    }
 </script>
 
 <CardHeader>
     <CardTitle class="h6">
         <Popover title="Ingredient #{index + 1}">
             <div slot="value">
-                <p>Drag and drop to move the ingredient in the recipe.</p>
+                <p><em>Drag&amp;drop</em> the ingredient index  to move the ingredient in the recipe.</p>
                 <p>UUID: {id}</p>
             </div>
-            #{index + 1}.
+            <span aria-hidden="true" on:mouseenter={mouse_in_draggable_area} on:mouseleave={mouse_out_of_draggable_area} class="drag">
+                #{index + 1}.
+            </span>
             {operation}{options.name ? ": " + options.name : ""}
         </Popover>
         <span class="float-end">
@@ -110,3 +120,9 @@
         </span>
     </CardTitle>
 </CardHeader>
+
+<style>
+    span.drag {
+        cursor: move;
+    }
+</style>

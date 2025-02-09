@@ -60,9 +60,9 @@
                 {#if options.show_model_index}
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
-                {#key model}
-                    <ChartJS part="{model}" index="{index}" configuration_atoms="{model.filter(atom => atom.predicate === options.predicate)}"  />
-                {/key}
+                {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
+                    <ChartJS part="{model}" index="{index}" configuration_atom="{configuration}"  />
+                {/each}
             {/each}
         </div>
     </div>

@@ -1,5 +1,5 @@
 <script>
-    import {Button, Card, CardBody} from "@sveltestrap/sveltestrap";
+    import {Button, Card, CardBody, Icon} from "@sveltestrap/sveltestrap";
     import IngredientHeader from "$lib/IngredientHeader.svelte";
     import {Recipe} from "$lib/recipe";
     import Popover from "$lib/Popover.svelte";
@@ -30,23 +30,13 @@
     if (add_to_recipe) {
         Recipe.add_operation(operation, options, index);
     }
-
-    function mouse_in_draggable_area() {
-        drag_disabled.set(false);
-    }
-
-    function mouse_out_of_draggable_area() {
-        drag_disabled.set(true);
-    }
 </script>
 
 {#if id !== undefined}
     <Card style="{$show_ingredient_headers && !options.hide_header ? 'border-top: 3px solid black;' : 'border: 0px;'} {options.stop ? 'border-bottom: 3px solid red;' : ''} {options.apply ? '' : 'border-left: 3px dashed #f47c3c; border-right: 3px dashed #f47c3c;'}"
           data-testid="Operation">
         {#if $show_ingredient_headers && !options.hide_header}
-            <div aria-hidden="true" on:mouseenter={mouse_in_draggable_area} on:mouseleave={mouse_out_of_draggable_area}>
-                <IngredientHeader {id} {operation} {index} {options} />
-            </div>
+            <IngredientHeader {id} {operation} {index} {options} />
         {/if}
         {#if $show_ingredient_details && options.show}
             <CardBody class="p-0" style="cursor: auto;">

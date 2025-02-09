@@ -6,7 +6,7 @@ import AsyncLock from "async-lock";
 // import {run} from 'clingo-wasm'
 import ClingoWorker from '$lib/clingo.worker?worker';
 import JavascriptWorker from '$lib/javascript.worker?worker';
-import {clingo_remote_on, server_url, clingo_remote_uuid} from "$lib/stores";
+import {clingo_remote_on, clingo_remote_uuid, processing_index, server_url} from "$lib/stores";
 import {get} from "svelte/store";
 import {Base64} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
@@ -807,6 +807,93 @@ end
 
 #end.
         `.trim();
+    }
+
+    private static __capture_log_calls = 0;
+    static capture_log() {
+        if (this.__capture_log_calls === 0) {
+            this.__capture_log_calls++;
+        } else {
+            return;
+        }
+
+        let log_where = -1;
+        processing_index.subscribe((value) => log_where = value + 1);
+
+        function formatArgs(args) {
+            if (args.length === 0) return [];
+
+            let output = [];
+            let styles = [''];
+            let i = 0;
+            let mainString = args[0]; // Base string
+            let argIndex = 1; // Track argument position
+
+            if (typeof mainString !== "string") {
+                return args.map(arg => ({ text: JSON.stringify(arg, null, 2), style: "" }));
+            }
+
+            let formattedString = mainString.replace(/%([sdfoOc])/sg, (match, specifier) => {
+                if (argIndex >= args.length) return match; // No corresponding argument
+
+                let replacement;
+                switch (specifier) {
+                    case "s": replacement = String(args[argIndex]); break;
+                    case "d": replacement = parseInt(args[argIndex]); break;
+                    case "f": replacement = parseFloat(args[argIndex]).toFixed(2); break;
+                    case "o": replacement = args[argIndex].outerHTML || "[DOM Element]"; break;
+                    case "O": replacement = JSON.stringify(args[argIndex], null, 2); break;
+                    case "c": styles.push(args[argIndex]); argIndex++; return "%c";
+                    default: replacement = args[argIndex];
+                }
+                argIndex++;
+                return replacement;
+            });
+
+            let parts = formattedString.split('%c');
+            let styleIndex = 0;
+
+            parts.forEach(part => {
+                output.push({ text: part, style: styles[styleIndex++] || "" });
+            });
+
+            return output;
+        }
+
+        function logToPage(type, ...args) {
+            const formattedMessages = formatArgs(args);
+            const logEntry = document.createElement("div");
+            formattedMessages.forEach(({ text, style }) => {
+                const span = document.createElement("span");
+                span.textContent = text;
+                if (style) span.style = style;
+                logEntry.appendChild(span);
+            });
+
+            Utils.snackbar(`${type.toUpperCase()} - #${log_where}`, { body: logEntry.outerHTML, html_body: true });
+        }
+
+        // Override console methods
+        const originalConsole = {
+            log: console.log,
+            warn: console.warn,
+            error: console.error
+        };
+
+        console.log = (...args) => {
+            originalConsole.log(...args);
+            logToPage("log", ...args);
+        };
+
+        console.warn = (...args) => {
+            originalConsole.warn(...args);
+            logToPage("warn", ...args);
+        };
+
+        console.error = (...args) => {
+            originalConsole.error(...args);
+            logToPage("error", ...args);
+        };
     }
 }
 
