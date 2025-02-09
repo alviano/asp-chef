@@ -17,15 +17,12 @@
 </script>
 
 <script>
-    import {Button, Icon, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
+    import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import {createEventDispatcher} from "svelte";
     import CodeMirror from "svelte-codemirror-editor";
     import {AutoHideBadge} from "dumbo-svelte";
     import {Utils} from "$lib/utils";
-
-    const dispatch = createEventDispatcher();
 
     export let id;
     export let options;
@@ -61,9 +58,6 @@
                on:input={edit}
         />
         <InputGroupText><code>models: {models.length}</code></InputGroupText>
-        <Button size="sm" title="Set as input" on:click={() => dispatch('change_input', Utils.flatten_output(models, ''))}>
-            <Icon name="arrow-up-square" />
-        </Button>
     </InputGroup>
     <div slot="output" style="height: {options.height}px; overflow-y: auto" data-testid="Output-textarea">
         <AutoHideBadge color="warning">readonly</AutoHideBadge>

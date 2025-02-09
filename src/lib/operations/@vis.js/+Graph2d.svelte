@@ -36,4 +36,5 @@
     });
 </script>
 
-<div bind:this={chart} />
+<div bind:this={chart}>
+</div>

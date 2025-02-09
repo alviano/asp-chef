@@ -27,7 +27,6 @@
     import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
     import QrCode from "svelte-qrcode";
 
-
     export let id;
     export let options;
     export let index;

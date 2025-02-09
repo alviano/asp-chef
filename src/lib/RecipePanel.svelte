@@ -18,7 +18,7 @@
     import Popover from "$lib/Popover.svelte";
     import {Utils} from "$lib/utils";
     import Nop from "$lib/operations/Nop.svelte";
-    import {createEventDispatcher, onDestroy, onMount} from "svelte";
+    import {onDestroy, onMount} from "svelte";
     import {v4 as uuidv4} from "uuid";
     import OptionsModal from "$lib/OptionsModal.svelte";
     import SafelyLoadRecipeModal from "$lib/SafelyLoadRecipeModal.svelte";
@@ -26,17 +26,18 @@
     import RecipeOperation from "$lib/operations/Recipe.svelte";
     import HiddenHeadersModal from "$lib/HiddenHeadersModal.svelte";
 
-    const dispatch = createEventDispatcher();
-
     export let show_operations;
     export let show_io_panel;
+
+    export let reload_recipe = () => {};
+    export let rerun_recipe = () => {};
 
     let set_options = false;
     let safely_open_recipe = false;
     let hidden_headers = false;
 
-    function reload_recipe() {
-        dispatch("reload_recipe");
+    function _reload_recipe() {
+        reload_recipe();
         Utils.snackbar("Recipe reloaded!");
     }
 
@@ -67,7 +68,7 @@
 
     function toggle_readonly_ingredients() {
         $readonly_ingredients = !$readonly_ingredients;
-        dispatch("rerun_recipe");
+        rerun_recipe();
     }
 
     function toggle_show_ingredient_headers() {
@@ -76,7 +77,7 @@
 
     function toggle_show_details() {
         $show_ingredient_details = !$show_ingredient_details;
-        dispatch("rerun_recipe");
+        rerun_recipe();
     }
 
     function toggle_pause_baking() {
@@ -151,7 +152,7 @@
                 safely_open_recipe = true;
                 return true;
             } else if (event.uKey === 'R') {
-                reload_recipe();
+                _reload_recipe();
                 return true;
             }
         }]);
@@ -322,7 +323,7 @@
                             </p>
                             <p>Keybinding: <code>R</code></p>
                         </div>
-                        <Button size="sm" on:click={reload_recipe}><Icon name="arrow-repeat" /></Button>
+                        <Button size="sm" on:click={_reload_recipe}><Icon name="arrow-repeat" /></Button>
                     </Popover>
                 </ButtonGroup>
             </span>
@@ -337,8 +338,7 @@
                     {:else if Recipe.is_remote_recipe_operation(item.operation)}
                         <RecipeOperation remote_name={item.operation} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                     {:else if Recipe.has_operation_type(item.operation)}
-                        <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined}
-                                          on:change_input />
+                        <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                     {:else}
                         <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                         <div class="alert-warning" style="color: white" data-fix-ingredient-index="{index}">

@@ -3,16 +3,15 @@
     import {Badge, Button, Card, CardBody, CardHeader, CardTitle, Icon} from "@sveltestrap/sveltestrap";
     import {AutoHideBadge} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";
-    import {createEventDispatcher} from "svelte";
     import {Utils} from "$lib/utils";
     import {consts} from "$lib/consts";
     import {Base64} from "js-base64";
     import {errors_at_index} from "$lib/stores";
 
-    const dispatch = createEventDispatcher();
-
     export let value = [];
     export let decode = false;
+
+    export let change_input = (input) => {};
 
     $: text_value = !decode ? Utils.flatten_output(value) : value.map(model =>
         model.length === 0 ? 'EMPTY MODEL' :
@@ -38,7 +37,7 @@
                 {/if}
                 <code class="me-3" style="font-size: 70%;">models: {value.length}</code>
                 <Popover title="Set as input" value="Replace input with the current content in output.">
-                    <Button size="sm" on:click={() => dispatch('change_input', Utils.flatten_output(value, ''))}>
+                    <Button size="sm" on:click={() => change_input(Utils.flatten_output(value, ''))}>
                         <Icon name="arrow-up-square" />
                     </Button>
                 </Popover>

@@ -1,17 +1,34 @@
-<script>
+<script context="module">
     import { Graph3d } from 'vis-graph3d/standalone';
+
+    function mouse_up(event) {
+        this.frame.style.cursor = "auto";
+        this.leftButtonDown = false;
+        document.removeEventListener("mousemove", this.onmousemove);
+        document.removeEventListener("mouseup", this.onmousemove);
+        if (event) {
+            event.preventDefault();
+        }
+    }
+
+    Graph3d.prototype._onMouseUp = mouse_up;
+</script>
+
+<script>
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
+    import {onMount} from "svelte";
 
     export let part;
     export let index;
-    export let configuration_atoms;
+    export let configuration_atom;
 
     let chart;
 
     let configuration = {};
 
-    configuration_atoms.forEach(async (atom) => {
+    onMount(async () => {
+        let atom = configuration_atom;
         if (atom.terms.length !== 1) {
             Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Graph3d`);
             return;
@@ -36,4 +53,5 @@
     });
 </script>
 
-<div bind:this={chart} />
+<div bind:this={chart}>
+</div>

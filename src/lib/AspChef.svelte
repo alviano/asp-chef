@@ -217,9 +217,8 @@
         {/if}
         <Col id="recipe_panel_column" class="p-0 vh-100" style="background-color: lightgray; overflow-x: hidden; overflow-y: scroll;">
             <RecipePanel
-                    on:change_input={(event) => input_value = event.detail}
-                    on:reload_recipe={reload_recipe}
-                    on:rerun_recipe={rerun_recipe}
+                    reload_recipe={reload_recipe}
+                    rerun_recipe={rerun_recipe}
                     bind:show_operations
                     bind:show_io_panel
             />
@@ -241,7 +240,7 @@
                     </Progress>
                 </div>
                 <div bind:this={output_panel_div} style="height: {100 - $input_height}vh; padding-bottom: 1em; overflow-x: hidden; overflow-y: scroll;">
-                    <OutputPanel value={output_value} bind:decode={decode_output} on:change_input={(event) => input_value = event.detail} />
+                    <OutputPanel value={output_value} bind:decode={decode_output} change_input={(event) => input_value = event.detail} />
                 </div>
             </Col>
         {/if}
