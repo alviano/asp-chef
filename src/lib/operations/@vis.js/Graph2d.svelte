@@ -60,9 +60,11 @@
                 {#if options.show_model_index}
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
-                {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                    <Graph2d part="{model}" index="{index}" configuration_atom="{configuration}" />
-                {/each}
+                {#key model}
+                    {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
+                        <Graph2d part="{model}" index="{index}" configuration_atom="{configuration}" />
+                    {/each}
+                {/key}
             {/each}
         </div>
     </div>
