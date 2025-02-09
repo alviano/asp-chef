@@ -60,8 +60,9 @@
             if (!output_div) {
                 return;
             }
-            operations = Recipe.operations(options.filter);
-            docs = await Promise.all(operations.map(operation => Recipe.operation_doc(operation)));
+            const the_operations = Recipe.operations(options.filter);
+            docs = await Promise.all(the_operations.map(operation => Recipe.operation_doc(operation)));
+            operations = the_operations;
             await tick();
             Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
         });
