@@ -19,7 +19,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import {Input, InputGroup, Label} from "sveltestrap";
+    import {Input, InputGroup, Label} from "@sveltestrap/sveltestrap";
     import {onDestroy, onMount} from "svelte";
     import {Utils} from "$lib/utils";
 

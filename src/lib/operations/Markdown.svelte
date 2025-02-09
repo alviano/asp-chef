@@ -18,7 +18,7 @@
 </script>
 
 <script>
-    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount, tick} from "svelte";
     import {consts} from "$lib/consts";

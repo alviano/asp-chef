@@ -1,5 +1,5 @@
 <script>
-    import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "sveltestrap";
+    import {Button, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from "@sveltestrap/sveltestrap";
     import {Utils} from "$lib/utils";
     import {Recipe} from "$lib/recipe";
 

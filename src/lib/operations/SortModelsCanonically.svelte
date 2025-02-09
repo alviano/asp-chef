@@ -25,7 +25,7 @@
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Utils} from "$lib/utils";
-    import {Input, InputGroup, Label} from "sveltestrap";
+    import {Input, InputGroup, Label} from "@sveltestrap/sveltestrap";
 
     export let id;
     export let options;

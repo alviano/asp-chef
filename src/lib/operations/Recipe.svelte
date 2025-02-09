@@ -62,7 +62,7 @@
 </script>
 
 <script>
-    import {Badge, Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Badge, Button, Icon, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import Popover from "$lib/Popover.svelte";

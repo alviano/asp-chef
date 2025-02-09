@@ -1,6 +1,6 @@
 <script>
     import Operations from "$lib/OperationsPanel.svelte";
-    import {Alert, Col, Progress, Row} from "sveltestrap";
+    import {Alert, Col, Progress, Row} from "@sveltestrap/sveltestrap";
     import {Recipe} from "$lib/recipe";
     import InputPanel from "$lib/InputPanel.svelte";
     import OutputPanel from "$lib/OutputPanel.svelte";

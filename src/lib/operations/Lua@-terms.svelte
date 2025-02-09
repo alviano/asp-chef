@@ -35,7 +35,7 @@ ${options.content}
 </script>
 
 <script>
-    import {Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import CodeMirror from "svelte-codemirror-editor";
 

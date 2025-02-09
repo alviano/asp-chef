@@ -1,6 +1,6 @@
 <script>
     import {Recipe} from "$lib/recipe";
-    import {Input} from "sveltestrap";
+    import {Input} from "@sveltestrap/sveltestrap";
     import {onMount, tick} from "svelte";
     import {Utils} from "$lib/utils";
 

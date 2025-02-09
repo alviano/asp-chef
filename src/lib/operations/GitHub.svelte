@@ -100,7 +100,7 @@
 </script>
 
 <script>
-    import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Icon, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {readonly_ingredients} from "$lib/stores";
 

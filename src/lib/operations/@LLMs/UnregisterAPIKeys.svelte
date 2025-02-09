@@ -20,7 +20,7 @@
 </script>
 
 <script>
-    import {Button, Input, InputGroup} from "sveltestrap";
+    import {Button, Input, InputGroup} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
 
     export let id;

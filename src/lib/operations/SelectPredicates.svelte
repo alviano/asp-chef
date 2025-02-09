@@ -20,7 +20,7 @@
 </script>
 
 <script>
-    import {Button, Icon, Input, InputGroup} from "sveltestrap";
+    import {Button, Icon, Input, InputGroup} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
 

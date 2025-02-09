@@ -1,5 +1,5 @@
 <script>
-  import {Col, Row} from "sveltestrap";
+  import {Col, Row} from "@sveltestrap/sveltestrap";
 </script>
 
 <Row class="vw-100 vh-100" style="overflow: hidden;">

@@ -22,7 +22,7 @@
 </script>
 
 <script>
-    import {Input} from "sveltestrap";
+    import {Input} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
 
     export let id;

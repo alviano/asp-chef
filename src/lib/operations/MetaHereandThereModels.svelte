@@ -57,7 +57,7 @@ hold(A,M); not hold(A,t) :- atom_tuple(H,A),     rule(     choice(H),B), body(B,
 </script>
 
 <script>
-    import {Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
 
     export let id;

@@ -1,5 +1,5 @@
 <script>
-	import { Row, Button } from "sveltestrap";
+	import { Row, Button } from "@sveltestrap/sveltestrap";
 	import { Utils } from "$lib/utils";
 </script>
 

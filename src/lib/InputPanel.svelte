@@ -1,5 +1,5 @@
 <script>
-    import {Button, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
+    import {Button, Card, CardBody, CardHeader, CardTitle, Icon} from "@sveltestrap/sveltestrap";
     import {consts} from "$lib/consts";
     import {keydown} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";

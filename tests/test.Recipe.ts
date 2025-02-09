@@ -87,7 +87,11 @@ a.
 		await recipe.sort_by_increasing_size();
 		await implode(recipe, recipe_ingredient, 0);
 		await recipe.click_pause_baking();
+		await recipe.delay(200);
+		await recipe.click_pause_baking();
 		await explode(recipe, recipe_ingredient);
+		await recipe.delay(200);
+		await recipe.click_pause_baking();
 		await recipe_ingredient.getByTestId('IngredientHeader-remove').click();
 		await recipe.output(`
 EMPTY MODEL

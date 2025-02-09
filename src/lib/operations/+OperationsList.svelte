@@ -1,6 +1,6 @@
 <script>
     import {Recipe} from "$lib/recipe";
-    import {Input} from "sveltestrap";
+    import {Input} from "@sveltestrap/sveltestrap";
     import {onDestroy, onMount, tick} from "svelte";
     import {keydown} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";

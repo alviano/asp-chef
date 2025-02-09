@@ -13,7 +13,7 @@
         show_ingredient_details,
         show_ingredient_headers,
     } from "$lib/stores";
-    import {Badge, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon, Input, InputGroup} from "sveltestrap";
+    import {Badge, Button, ButtonGroup, Card, CardBody, CardHeader, CardTitle, Icon, Input, InputGroup} from "@sveltestrap/sveltestrap";
     import {keydown} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";
     import {Utils} from "$lib/utils";

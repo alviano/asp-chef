@@ -1,6 +1,6 @@
 <script>
     import CodeMirror from "svelte-codemirror-editor";
-    import {Badge, Button, Card, CardBody, CardHeader, CardTitle, Icon} from "sveltestrap";
+    import {Badge, Button, Card, CardBody, CardHeader, CardTitle, Icon} from "@sveltestrap/sveltestrap";
     import {AutoHideBadge} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";
     import {createEventDispatcher} from "svelte";

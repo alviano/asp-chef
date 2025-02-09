@@ -58,7 +58,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
 
     export let id;
     export let options;

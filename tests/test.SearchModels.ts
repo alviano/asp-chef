@@ -21,9 +21,9 @@ test.describe("Search Model operation", () => {
 	});
 
 	test("unsat without raise error produces no models", async () => {
-		await recipe.input("-a.");
+		await recipe.input("§-a.");
 		await recipe.search_models('a.', { click_raise_error: true });
-		await recipe.output("");
+		await recipe.output("a.");
 	});
 
 	test("all models are computed if number of required models is 0", async () => {

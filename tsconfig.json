@@ -19,14 +19,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "allowJs": true,
     "checkJs": true,
-    "paths": {
-      "$lib": ["src/lib"],
-      "$lib/*": ["src/lib/*"]
-    }
   },
   "extends": "./.svelte-kit/tsconfig.json",
-  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte", "src/**/*.js"]
+  "include": ["./src/**/*.d.ts", "./src/**/*.ts", "./src/**/*.svelte", "./src/**/*.js"]
 }

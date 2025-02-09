@@ -37,7 +37,7 @@
 </script>
 
 <script>
-    import {Badge, Button, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Badge, Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
 
     export let id;

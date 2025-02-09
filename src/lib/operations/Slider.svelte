@@ -22,7 +22,7 @@
 </script>
 
 <script>
-    import {Button, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Icon, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Tooltip} from "dumbo-svelte";

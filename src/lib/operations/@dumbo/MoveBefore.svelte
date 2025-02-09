@@ -39,7 +39,7 @@
 <script>
     import Operation from "$lib/Operation.svelte";
     import CodeMirror from "svelte-codemirror-editor";
-    import {Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
 
     export let id;
     export let options;

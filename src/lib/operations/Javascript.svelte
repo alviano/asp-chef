@@ -49,7 +49,7 @@ week
 </script>
 
 <script>
-    import {Button, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import CodeMirror from "svelte-codemirror-editor";
     import {onDestroy, onMount} from "svelte";

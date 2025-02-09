@@ -38,7 +38,7 @@ ${options.closure_predicate}(Y,X) :- ${options.input_predicate}(X,Y).
 </script>
 
 <script>
-    import {Button, FormGroup, Icon, Input, InputGroup, InputGroupText} from "sveltestrap";
+    import {Button, FormGroup, Icon, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
 

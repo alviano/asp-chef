@@ -17,7 +17,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import {Input} from "sveltestrap";
+    import {Input} from "@sveltestrap/sveltestrap";
 
     export let id;
     export let options;

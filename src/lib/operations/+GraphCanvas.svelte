@@ -6,7 +6,7 @@
     import {pointer, select, selectAll} from "d3-selection";
     import {drag} from "d3-drag";
     import {forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY} from "d3-force";
-    import {Card} from "sveltestrap";
+    import {Card} from "@sveltestrap/sveltestrap";
     import {Utils} from "$lib/utils";
     import {consts} from "$lib/consts";
 

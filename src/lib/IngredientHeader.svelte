@@ -1,5 +1,5 @@
 <script>
-    import {Badge, Button, ButtonGroup, CardHeader, CardTitle, Icon} from "sveltestrap";
+    import {Badge, Button, ButtonGroup, CardHeader, CardTitle, Icon} from "@sveltestrap/sveltestrap";
     import {recipe, errors_at_index, processing_index, show_ingredient_headers} from "$lib/stores";
     import Popover from "$lib/Popover.svelte";
     import {Recipe} from "$lib/recipe";

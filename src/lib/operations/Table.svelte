@@ -20,7 +20,7 @@
 </script>
 
 <script>
-    import {Button, ButtonGroup, Icon, Input, InputGroup, InputGroupText, Table} from "sveltestrap";
+    import {Button, ButtonGroup, Icon, Input, InputGroup, InputGroupText, Table} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import Popover from "$lib/Popover.svelte";
@@ -138,7 +138,7 @@
                                                 <td><code>{term.str}</code></td>
                                             {/each}
                                         {:else if atom.string !== undefined || atom.number !== undefined}
-                                            <td><code>{atom.str}</code>
+                                            <td><code>{atom.str}</code></td>
                                         {/if}
                                     </tr>
                                 {/if}

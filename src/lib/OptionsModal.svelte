@@ -10,7 +10,7 @@
         ModalBody,
         ModalFooter,
         ModalHeader
-    } from "sveltestrap";
+    } from "@sveltestrap/sveltestrap";
     import {
         baking_delay,
         server_url,

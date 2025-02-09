@@ -1,5 +1,5 @@
 <script>
-    import {Card, CardBody, CardHeader, CardTitle} from "sveltestrap";
+    import {Card, CardBody, CardHeader, CardTitle} from "@sveltestrap/sveltestrap";
     import Nav from '$lib/Nav.svelte';
     import OperationsList from "$lib/operations/+OperationsList.svelte";
     import {Recipe} from "$lib/recipe";

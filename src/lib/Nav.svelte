@@ -1,5 +1,5 @@
 <script>
-  import {Collapse, Icon, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'sveltestrap/src';
+  import {Collapse, Icon, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from '@sveltestrap/sveltestrap';
   import Popover from "$lib/Popover.svelte";
 
   let isOpen = false;
@@ -9,7 +9,7 @@
   }
 </script>
 
-<Navbar color="dark" expand="md" class="navbar-dark d-print-none" style="max-height: 1em;" dark>
+<Navbar color="dark" expand="md" class="navbar-dark d-print-none" dark>
   <NavbarBrand href='/' on:click={() => location.assign('/')}>
     <span class="logo">
       ASP Chef
