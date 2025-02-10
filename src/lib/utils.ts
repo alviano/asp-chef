@@ -446,7 +446,7 @@ export class Utils extends BaseUtils {
 
     static markdown_process_match(query_answer, index) {
         const output_predicates = [
-            'base64', 'qrcode', 'png', 'gif', 'jpeg', 'th', 'tr', 'ol', 'ul', 'matrix',
+            'base64', 'qrcode', 'png', 'gif', 'jpeg', 'th', 'tr', 'ol', 'ul', 'matrix', 'tree',
         ];
 
         let matrix = null;
@@ -459,10 +459,6 @@ export class Utils extends BaseUtils {
         const replacement = [];
         let output_atoms = [];
         Utils.parse_atoms(query_answer).forEach(atom => {
-            // if (atom.predicate === 'show' && atom.terms.length >= 1) {
-            //     atom = atom.terms[0];
-            //     atom.predicate = atom.functor;
-            // }
             if (atom.functor === undefined && atom.predicate === undefined) {
                 atom.functor = '';
                 atom.terms = [atom];
@@ -515,6 +511,8 @@ export class Utils extends BaseUtils {
             });
             output_atoms = _.orderBy(output_atoms, comparator, terms.map(sort_index => sort_index > 0 ? "asc" : "desc"));
         });
+
+        // handle show atoms
         output_atoms = output_atoms.map(atom => {
             if (atom.predicate !== 'show') {
                 return atom;
@@ -533,6 +531,62 @@ export class Utils extends BaseUtils {
             Utils.snackbar(`Invalid atom in \#${index}: ${atom.str}`);
             return atom;
         });
+
+        // handle tree atoms
+        const trees = new Map();
+        output_atoms = output_atoms.filter(atom => {
+            if (atom.predicate !== 'tree') {
+                return true;
+            }
+            if (atom.terms.length === 0) {
+                Utils.snackbar(`Invalid atom in \#${index}: ${atom.str}`);
+                return false;
+            }
+
+            const tree_id = atom.terms[0].str;
+            if (!trees.has(tree_id)) {
+                trees.set(tree_id, {
+                    nodes: {},
+                    links: {},
+                    root: null,
+                    children_on: "{CHILDREN}",
+                    separator: ", ",
+                });
+            }
+            if (atom.terms.length === 1) {
+                return true;
+            }
+
+            const tree = trees.get(tree_id);
+
+            let term = atom.terms[1];
+            if (term.functor === 'node' && term.terms.length === 2) {
+                tree.nodes[term.terms[0].str] = term.terms[1].string;
+                return false;
+            } else if (term.functor === 'link' && term.terms.length === 2) {
+                if (!(term.terms[0].str in tree.links)) {
+                    tree.links[term.terms[0].str] = [];
+                }
+                tree.links[term.terms[0].str].push(term.terms[1].str);
+                return false;
+            }
+            for (let term_index = 1; term_index < atom.terms.length; term_index++) {
+                term = atom.terms[term_index];
+                if (term.functor === 'root' && term.terms.length === 1) {
+                    tree.root = term.terms[0].str;
+                } else if (term.functor === 'children_on' && term.terms.length === 1) {
+                    tree.children_on = term.terms[0].string;
+                } else if (term.functor === 'separator' && term.terms.length === 1) {
+                    tree.separator = term.terms[0].string;
+                } else {
+                    Utils.snackbar(`Invalid atom in \#${index}: ${atom.str}`);
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        // sort atoms
         output_atoms = _.orderBy(output_atoms, [atom => {
             if (atom.predicate === 'th') {
                 return 0;
@@ -540,12 +594,22 @@ export class Utils extends BaseUtils {
                 return 1;
             }
         }]);
+
         output_atoms.forEach(atom => {
             const terms = atom.terms.map(term => term.string !== undefined ? this.replace_escaped_chars(term.string) : term.str);
             if (atom.functor === '') {
                 replacement.push(prefix + terms.join(term_separator) + suffix);
             } else if (atom.predicate === 'base64') {
                 replacement.push(`${prefix}${terms.map(term => Base64.decode(term)).join(term_separator)}${suffix}`);
+            } else if (atom.predicate === 'tree') {
+                const tree = trees.get(atom.terms[0].str);
+                function tree_string(node: string) {
+                    const res = tree.nodes[node];
+                    const replacement = !tree.links[node] || tree.links[node].length === 0 ? '' :
+                        tree.links[node].map(tree_string).join(tree.separator);
+                    return res.replace(tree.children_on, replacement);
+                }
+                replacement.push(`${prefix}${tree_string(tree.root)}${suffix}`);
             } else if (atom.predicate === 'qrcode') {
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);

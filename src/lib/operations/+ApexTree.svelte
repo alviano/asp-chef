@@ -1,0 +1,48 @@
+<script>
+    import {Utils} from "$lib/utils";
+    import {Base64} from "js-base64";
+    import {onMount} from "svelte";
+    import ApexTree from "apextree";
+
+    export let part;
+    export let index;
+    export let configuration_atom;
+
+    let chart;
+
+    let configuration = {};
+
+    onMount(async () => {
+        let atom = configuration_atom;
+        if (atom.terms.length !== 1) {
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. ApexTree`);
+            return;
+        }
+        atom = atom.terms[0];
+        if (atom.string === undefined) {
+            Utils.snackbar(`Unexpected non-string argument in #${index}. ApexTree`);
+            return;
+        }
+
+        try {
+            const content = Base64.decode(atom.string);
+            const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
+            configuration = {
+                ...configuration,
+                ...Utils.parse_related_json(expanded_content),
+            };
+            new ApexTree(chart, configuration.options).render(configuration.data);
+        } catch (err) {
+            Utils.snackbar(`#${index}. ApexTree: ${err}`);
+        }
+    });
+</script>
+
+<div class="chart" bind:this={chart}>
+</div>
+
+<style>
+    div.chart {
+        margin: 5px;
+    }
+</style>

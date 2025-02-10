@@ -13,6 +13,11 @@ The separator of the obtained substitutions can be specified with `separator("\n
 To account for duplicates, as ASP has a set-semantics, the predicate `show` can be used:
 `show(f(terms), ...)` will be expanded to `f(terms)` (properly interpreted), and the extra terms in `...` are discarded. 
 
+Tree-like data structures can be processed using the `tree` predicate:
+- `tree(ID, root(NODE), children_on("{CHILDREN}"), separator(", "))` to produce in output the tree identified by `ID`, rooted at `NODE`, with children placed on the first occurrence of `{CHILDREN}` and separated by `, `; `children_of` and `separator` are optional. 
+- `tree(ID, node(NODE, "STRING REPRESENTATION")` to format the `NODE`.
+- `tree(ID, link(PARENT, CHILD))` to specify links.
+
 To ease the application of several queries with the same separators (or other atoms/terms), it is possible to add elements to a persistent array using 
 `{{+ (terms) : conjunctive_query }}` or
 `{{* program with #show directives }}`.
