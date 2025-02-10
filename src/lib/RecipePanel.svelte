@@ -38,13 +38,13 @@
 
     function _reload_recipe() {
         reload_recipe();
-        Utils.snackbar("Recipe reloaded!");
+        Utils.snackbar("Recipe reloaded!", { position: "is-top-left" });
     }
 
     async function copy_to_clipboard() {
         const url = Recipe.as_url();
         await navigator.clipboard.writeText(url);
-        Utils.snackbar("URL ready to be pasted!");
+        Utils.snackbar("URL ready to be pasted!", { position: "is-top-left" });
     }
 
     async function copy_short_url() {
@@ -54,9 +54,9 @@
                 try {
                     const url = await Recipe.shorten_link(Recipe.as_url().replace("http://localhost:5188", "https://asp-chef.alviano.net"));
                     await navigator.clipboard.writeText(url);
-                    Utils.snackbar("Short URL ready to be pasted!");
+                    Utils.snackbar("Short URL ready to be pasted!", { position: "is-top-left" });
                 } catch (error) {
-                    Utils.snackbar(error);
+                    Utils.snackbar(error, { position: "is-top-left" });
                 }
             },
         });
@@ -84,7 +84,7 @@
         $pause_baking = !$pause_baking;
         $errors_at_index.length = 0;
         Recipe.invalidate_cached_output(0);
-        Utils.snackbar("Baking " + ($pause_baking ? "disabled" : "enabled"));
+        Utils.snackbar("Baking " + ($pause_baking ? "disabled" : "enabled"), { position: "is-top-left" });
     }
 
     function remove_all() {

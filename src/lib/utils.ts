@@ -14,6 +14,13 @@ import {toJson} from 'really-relaxed-json';
 
 const dom_purify_config = new DOMPurifyConfig(consts);
 
+const originalConsole = {
+    uuid: 'a9162e31-3e85-4736-a548-98f38b7bb25e',
+    log: console.log,
+    warn: console.warn,
+    error: console.error,
+};
+
 export class Utils extends BaseUtils {
     private static _clingo_timeout = 5;
     private static _clingo_reject = null;
@@ -809,13 +816,12 @@ end
         `.trim();
     }
 
-    private static __capture_log_calls = 0;
     static capture_log() {
-        if (this.__capture_log_calls === 0) {
-            this.__capture_log_calls++;
-        } else {
+        // if already called, return immediately
+        if (console.uuid === originalConsole.uuid) {
             return;
         }
+        console.uuid = originalConsole.uuid;
 
         let log_where = -1;
         processing_index.subscribe((value) => log_where = value + 1);
@@ -870,16 +876,14 @@ end
                 logEntry.appendChild(span);
             });
 
-            Utils.snackbar(`${type.toUpperCase()} - #${log_where}`, { body: logEntry.outerHTML, html_body: true });
+            Utils.snackbar(`${type.toUpperCase()} - #${log_where}`, {
+                body: logEntry.outerHTML,
+                html_body: true,
+                position: "is-bottom-left",
+            });
         }
 
         // Override console methods
-        const originalConsole = {
-            log: console.log,
-            warn: console.warn,
-            error: console.error
-        };
-
         console.log = (...args) => {
             originalConsole.log(...args);
             logToPage("log", ...args);
