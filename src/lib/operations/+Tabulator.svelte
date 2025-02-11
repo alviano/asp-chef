@@ -34,7 +34,8 @@
                 ...configuration,
                 ...Utils.parse_relaxed_json(expanded_content),
             };
-            const tab = new Tabulator(table, configuration);
+            window.DateTime = DateTime;
+            new Tabulator(table, configuration);
         } catch (err) {
             Utils.snackbar(`#${index}. Tabulator: ${err}`);
         }
