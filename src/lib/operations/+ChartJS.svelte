@@ -29,7 +29,7 @@
             const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
             configuration = {
                 ...configuration,
-                ...Utils.parse_related_json(expanded_content),
+                ...Utils.parse_relaxed_json(expanded_content),
             };
             new Chart(chart, configuration);
         } catch (err) {

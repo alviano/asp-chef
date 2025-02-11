@@ -1,30 +1,29 @@
 <script>
-    import { Graph2d } from 'vis-timeline/standalone';
-    import {Utils} from "$lib/utils";
+    import {TabulatorFull as Tabulator} from 'tabulator-tables';
+    import {onMount} from 'svelte';
+    import {Utils} from "$lib/utils.js";
     import {Base64} from "js-base64";
-    import {onMount} from "svelte";
+    import {DateTime} from "luxon";
 
     export let part;
     export let index;
     export let configuration_atom;
 
-    let chart;
+
+    let table;
 
     let configuration = {
-        items: [],
-        groups: [],
-        options: {},
     };
 
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Graph2d`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. Tabulator`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Graph2d`);
+            Utils.snackbar(`Unexpected non-string argument in #${index}. Tabulator`);
             return;
         }
 
@@ -35,12 +34,15 @@
                 ...configuration,
                 ...Utils.parse_relaxed_json(expanded_content),
             };
-            new Graph2d(chart, configuration.items, configuration.groups, configuration.options);
+            const tab = new Tabulator(table, configuration);
         } catch (err) {
-            Utils.snackbar(`#${index}. @vis.js/Graph2d: ${err}`);
+            Utils.snackbar(`#${index}. Tabulator: ${err}`);
         }
     });
 </script>
 
-<div bind:this={chart}>
-</div>
+<div bind:this={table}></div>
+
+<style global>
+  @import "https://unpkg.com/tabulator-tables@6.3.0/dist/css/tabulator.min.css";
+</style>

@@ -1,6 +1,6 @@
 {
 	"name": "asp-chef",
-	"version": "1.16.5",
+	"version": "1.16.6",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --port 5188",
@@ -60,6 +60,7 @@
 		"jsonpath": "^1.1.1",
 		"katex": "^0.16.21",
 		"lodash": "^4.17.21",
+		"luxon": "^3.5.0",
 		"pegjs": "^0.10.0",
 		"really-relaxed-json": "^0.3.2",
 		"sass": "^1.84.0",

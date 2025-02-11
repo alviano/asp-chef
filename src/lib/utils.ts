@@ -683,7 +683,7 @@ export class Utils extends BaseUtils {
         return uuidv4().replaceAll('-', '_');
     }
 
-    static parse_related_json(str: string) {
+    static parse_relaxed_json(str: string) {
         return JSON.parse(toJson(str));
     }
 
