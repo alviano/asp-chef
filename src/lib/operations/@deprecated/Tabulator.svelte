@@ -1,5 +1,5 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Recipe} from "$lib/recipe.js";
 
     const operation = "Tabulator";
     const default_extra_options = {
