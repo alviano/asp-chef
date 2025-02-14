@@ -10,8 +10,6 @@
 
     let chart;
 
-    let configuration = {};
-
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
@@ -27,10 +25,7 @@
         try {
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
-            configuration = {
-                ...configuration,
-                ...Utils.parse_relaxed_json(expanded_content),
-            };
+            const configuration = Utils.parse_relaxed_json(expanded_content);
             await (new ApexCharts(chart, configuration)).render();
         } catch (err) {
             Utils.snackbar(`#${index}. ApexCharts: ${err}`);

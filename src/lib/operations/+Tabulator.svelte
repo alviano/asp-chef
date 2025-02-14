@@ -4,16 +4,16 @@
     import {Utils} from "$lib/utils.js";
     import {Base64} from "js-base64";
     import {DateTime} from "luxon";
+    import {Button, ButtonGroup} from "@sveltestrap/sveltestrap";
+    import XLSX from "xlsx";
 
     export let part;
     export let index;
     export let configuration_atom;
 
-
     let table;
-
-    let configuration = {
-    };
+    let tabulator;
+    let download;
 
     onMount(async () => {
         let atom = configuration_atom;
@@ -30,17 +30,33 @@
         try {
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
-            configuration = {
-                ...configuration,
-                ...Utils.parse_relaxed_json(expanded_content),
-            };
-            window.DateTime = DateTime;
-            new Tabulator(table, configuration);
+            const configuration = Utils.parse_relaxed_json(expanded_content);
+            configuration.dependencies = {
+                ...(configuration.dependencies || {}),
+                XLSX: XLSX,
+                DateTime: DateTime,
+            }
+            if (configuration.download) {
+                download = configuration.download;
+                configuration.download = undefined;
+            }
+            tabulator = new Tabulator(table, configuration);
         } catch (err) {
             Utils.snackbar(`#${index}. Tabulator: ${err}`);
         }
     });
 </script>
+
+{#if download}
+    <div class="mb-1">
+        {#each download as download_config}
+            <Button class="me-1" color="{download_config.color || 'secondary'}"
+                on:click={() => tabulator.download(download_config.format || "csv", download_config.filename || `data.${download_config.format || "csv"}`, download_config.options || {})}>
+                {download_config.label || `Download ${download_config.format}`}
+            </Button>
+        {/each}
+    </div>
+{/if}
 
 <div bind:this={table}></div>
 

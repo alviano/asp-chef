@@ -10,12 +10,6 @@
 
     let chart;
 
-    let configuration = {
-        items: [],
-        groups: [],
-        options: {},
-    };
-
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
@@ -31,10 +25,13 @@
         try {
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
-            configuration = {
-                ...configuration,
-                ...Utils.parse_relaxed_json(expanded_content),
+            const configuration = {
+                items: [],
+                groups: [],
+                options: {},
+                ...Utils.parse_relaxed_json(expanded_content)
             };
+
             new Graph2d(chart, configuration.items, configuration.groups, configuration.options);
         } catch (err) {
             Utils.snackbar(`#${index}. @vis.js/Graph2d: ${err}`);

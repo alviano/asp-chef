@@ -25,8 +25,6 @@
 
     let chart;
 
-    let configuration = {};
-
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
@@ -42,14 +40,11 @@
         try {
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
-            configuration = {
-                ...configuration,
-                ...Utils.parse_relaxed_json(expanded_content),
-            };
+            const configuration = Utils.parse_relaxed_json(expanded_content);
+            new Graph3d(chart, configuration.data, configuration.options);
         } catch (err) {
             Utils.snackbar(`#${index}. @vis.js/Graph3d: ${err}`);
         }
-        new Graph3d(chart, configuration.data, configuration.options);
     });
 </script>
 

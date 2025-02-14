@@ -70,3 +70,16 @@ Modify the **Encode** ingredient as follows:
 ```
 
 Note that we are using **mustache queries** to take data from the input model.
+
+Within the configuration object, it is possible to specify a `download` list of objects of the form
+```javascript
+{
+    color: "success|secondary|...    default: secondary",
+    label: "something to show in the button;  default to data.format",
+    format: "csv|json|xlsx|pdf|html",
+    filename: "default to data.format",
+    options: "an objsect providing options (e.g., the delimiter in CSV) for the selected format"
+}
+```
+ASP Chef will show buttons above the table, according to the provided configuration.
+When the user will click the button, the browser will trigger the download action of the Tabulator.
