@@ -126,13 +126,13 @@
     async function explode() {
         const stores = new Map();
         for (const [ingredient_index, ingredient] of ingredients.entries()) {
-            await Recipe.add_operation(ingredient.operation, ingredient.options, index + ingredient_index + 1);
+            const id = await Recipe.add_operation(ingredient.operation, ingredient.options, index + ingredient_index + 1);
             if (ingredient.operation === 'Store') {
                 stores.set(ingredient.id, Recipe.id_of_ingredient(index + ingredient_index + 1));
             } else if (ingredient.operation === 'Restore') {
                 const the_options = JSON.parse(JSON.stringify(ingredient.options));
                 the_options.store = stores.get(ingredient.options.store);
-                Recipe.edit_operation(index + ingredient_index + 1, the_options);
+                Recipe.edit_operation(id, index + ingredient_index + 1, the_options);
             }
         }
     }

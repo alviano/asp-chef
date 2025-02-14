@@ -557,6 +557,7 @@ export class Recipe {
         } else {
             recipe.set(the_recipe);
         }
+        return ingredient.id;
     }
 
     static edit_operation(id: string, index: number, options: object) {
