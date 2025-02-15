@@ -36,7 +36,7 @@ blockquote p:last-child {
   display: inline;
 }
 
-p:has(+ pre) {
+p:has(+ pre), p:has(+ ul), p:has(+ ol) {
   margin-bottom: 0.5em;
 }
 
