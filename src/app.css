@@ -51,6 +51,10 @@ pre.container {
   max-width: 100% !important;
 }
 
+pre.scroll div:has(button:first-child) {
+  display: none;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;

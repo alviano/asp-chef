@@ -85,7 +85,7 @@ Let's improve the above line with a *multiline* string:
 Even better, we can use a *formatted multiline*:
 ```javascript
     {{= {{f"{
-      id: ${Id:%2d}, 
+      id: ${Id:%5d}, 
       name: '${Name}', 
       age: ${Age}, 
       col: '${Color}', 

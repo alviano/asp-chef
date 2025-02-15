@@ -66,6 +66,17 @@ export class Utils extends BaseUtils {
         return BaseUtils.dom_purify(content, dom_purify_config);
     }
 
+    static add_copy_button(pre) {
+        BaseUtils.add_copy_button(pre);
+        pre.addEventListener("scroll", event => {
+            if (pre.scrollLeft === 0) {
+                pre.classList.remove("scroll");
+            } else {
+                pre.classList.add("scroll");
+            }
+        });
+    }
+
     static worker_terminate() {
         if (this._worker !== null) {
             this._worker.terminate();
