@@ -46,11 +46,13 @@ Check details in the following operations:
 - **Lua Expression @-terms**
 - **Lua String @-terms**
 
-Finally, it is possible to use `{{"MULTILINE STRING!"}}` and `{f{"MULTILINE ${FORMAT} STRING!"}}`, described in the extended docs.
+Finally, it is possible to use `{{"MULTILINE STRING!"}}` and `{f{"MULTILINE ${FORMAT} STRING!"}}`, described in the detailed docs.
 
 §§§§
 
-Let's start from the example in the **Tabulator** docs:
+Within a mustache query, the sequence `\}}` does not terminate the query content and is replaced by `}}`.
+
+Regarding *multiline* strings, let's start from the example in the **Tabulator** docs:
 ```javascript
 {{+ separator(", ") }}
 
@@ -82,7 +84,7 @@ Let's improve the above line with a *multiline* string:
       dob: '%s'
     }"}}, Id, Name, Age, Color, DoB) : data(Id, Name, Age, Color, DoB) }}
 ```
-Even better, we can use a *formatted multiline*:
+Even better, we can use a *formatted multiline* string:
 ```javascript
     {{= {{f"{
       id: ${Id:%5d}, 

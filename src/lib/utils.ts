@@ -446,12 +446,12 @@ export class Utils extends BaseUtils {
 
     static async markdown_expand_mustache_queries(part, message, index) {
         message = this.__preprocess_mustache(message);
-        const matches = message.matchAll(/\{\{([=*+-]?)(((?!}}).)*)}}/gs);
+        const matches = message.matchAll(/\{\{([=*+-]?)((\\}}|(?!}}).)*)}}/gs);
         const persistent_atoms = [];
         if (matches !== null) {
             for (const the_match of matches) {
                 const mode = the_match[1].trim();
-                const match = the_match[2].trim();
+                const match = the_match[2].trim().replaceAll('\\}', '}');
 
                 if (mode === '-') {
                     if (match) {

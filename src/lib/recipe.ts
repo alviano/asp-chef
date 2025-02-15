@@ -144,7 +144,7 @@ export class Recipe {
     static async operation_doc(operation: string, short = false, markdown = false) : Promise<string> {
         const doc = await this._operation_doc.get(operation);
         const split = Utils.split_with_limit(doc, '§§§§', 2);
-        const res = short ? split[0] : split[0] + (split[1] || '');
+        const res = short ? split[0] : split[0] + (split[1] ? '##### Details' + split[1] : '');
         return markdown ? res : Utils.render_markdown(res);
     }
 
