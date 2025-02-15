@@ -4,8 +4,10 @@
     import {Utils} from "$lib/utils.js";
     import {Base64} from "js-base64";
     import {DateTime} from "luxon";
-    import {Button, ButtonGroup} from "@sveltestrap/sveltestrap";
+    import {Button} from "@sveltestrap/sveltestrap";
     import XLSX from "xlsx";
+    import jsPDF from "jspdf";
+    import {applyPlugin} from "jspdf-autotable";
 
     export let part;
     export let index;
@@ -31,13 +33,15 @@
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
             const configuration = Utils.parse_relaxed_json(expanded_content);
+            applyPlugin(jsPDF);
             configuration.dependencies = {
                 ...(configuration.dependencies || {}),
                 XLSX: XLSX,
+                jspdf: jsPDF,
                 DateTime: DateTime,
             }
             if (configuration.download) {
-                download = configuration.download;
+                download = Array.isArray(configuration.download) ? configuration.download : [configuration.download];
                 configuration.download = undefined;
             }
             tabulator = new Tabulator(table, configuration);

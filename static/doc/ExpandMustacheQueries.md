@@ -45,3 +45,52 @@ Mustache queries have access to the **Lua Chef Library**.
 Check details in the following operations:
 - **Lua Expression @-terms**
 - **Lua String @-terms**
+
+Finally, it is possible to use `{{"MULTILINE STRING!"}}` and `{f{"MULTILINE ${FORMAT} STRING!"}}`, described in the extended docs.
+
+§§§§
+
+Let's start from the example in the **Tabulator** docs:
+```javascript
+{{+ separator(", ") }}
+
+{
+  height:205,
+  data:[
+    {{= @string_format("{id: %d, name: '%s', age: %d, col: '%s', dob: '%s'}", Id, Name, Age, Color, DoB) : data(Id, Name, Age, Color, DoB) }}
+  ],
+  layout:"fitColumns",
+  columns:[ 
+    {title: "Name", field: "name", width: 150},
+    {title: "Age", field: "age", hozAlign: "left", formatter: "progress"},
+    {title: "Favourite Color", field: "col"},
+    {title: "Date Of Birth", field: "dob", sorter: "date", hozAlign: "center"},
+  ],
+}
+```
+It uses a format string to provide JSON objects:
+```javascript
+    {{= @string_format("{id: %d, name: '%s', age: %d, col: '%s', dob: '%s'}", Id, Name, Age, Color, DoB) : data(Id, Name, Age, Color, DoB) }}
+```
+Let's improve the above line with a *multiline* string:
+```javascript
+    {{= @string_format({{"{
+      id: %d, 
+      name: '%s', 
+      age: %d, 
+      col: '%s', 
+      dob: '%s'
+    }"}}, Id, Name, Age, Color, DoB) : data(Id, Name, Age, Color, DoB) }}
+```
+Even better, we can use a *formatted multiline*:
+```javascript
+    {{= {{f"{
+      id: ${Id:%2d}, 
+      name: '${Name}', 
+      age: ${Age}, 
+      col: '${Color}', 
+      dob: '${DoB}'
+    }"}} : data(Id, Name, Age, Color, DoB) }}
+```
+Note that above we used `${Id:%5d}` to showcase the possibility of using string formatters (supported by Lua).
+If not specified, the f-multiline mustache uses `%s` as default.

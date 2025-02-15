@@ -408,7 +408,33 @@ export class Utils extends BaseUtils {
         }
     }
 
+    private static __preprocess_mustache(message) {
+        const matches = message.matchAll(/\{\{([f]?)"(((?!"}}).)*)"}}/gs);
+        if (matches !== null) {
+            for (const the_match of matches) {
+                const mode = the_match[1].trim();
+                let match = the_match[2].trim().replaceAll('\n', '\\n').replaceAll('"', '\\"');
+                if (mode === 'f') {
+                    const vars = match.matchAll(/\$\{\s*(\w+)([:]%[\w%.]+)?\s*}/gs);
+                    const args = [];
+                    if (vars !== null) {
+                        for (const a_var of vars) {
+                            const formatter = a_var[2] ? a_var[2].substring(1) : "%s";
+                            args.push(`, ${a_var[1]}`);
+                            match = match.replace(a_var[0], formatter);
+                        }
+                    }
+                    message = message.replace(the_match[0], `@string_format("${match}"${args.join('')})`);
+                } else {
+                    message = message.replace(the_match[0], `"${match}"`);
+                }
+            }
+        }
+        return message;
+    }
+
     static async markdown_expand_mustache_queries(part, message, index) {
+        message = this.__preprocess_mustache(message);
         const matches = message.matchAll(/\{\{([=*+-]?)(((?!}}).)*)}}/gs);
         const persistent_atoms = [];
         if (matches !== null) {
@@ -887,6 +913,14 @@ end
         }
         console.uuid = originalConsole.uuid;
 
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error(`Global Error Caught: ${message}`, {message, source, lineno, colno, error});
+            return true;
+        };
+        window.onunhandledrejection = function(event) {
+            console.error("Unhandled Promise Rejection:", event.reason);
+        };
+
         let log_where = -1;
         processing_index.subscribe((value) => log_where = value + 1);
 
@@ -944,6 +978,8 @@ end
                 body: logEntry.outerHTML,
                 html_body: true,
                 position: "is-bottom-left",
+                color: type === "warn" ? "warning" :
+                    type === "error" ? "danger" : "info",
             });
         }
 

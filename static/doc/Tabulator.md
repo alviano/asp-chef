@@ -83,3 +83,34 @@ Within the configuration object, it is possible to specify a `download` list of 
 ```
 ASP Chef will show buttons above the table, according to the provided configuration.
 When the user will click the button, the browser will trigger the download action of the Tabulator.
+For example, to add download buttons for CSV and Excel format, modify the encoded content as follows:
+```javascript
+{{+ separator(", ") }}
+
+{
+  height:205,
+  data:[
+    {{= @string_format("{id: %d, name: '%s', age: %d, col: '%s', dob: '%s'}", Id, Name, Age, Color, DoB) : data(Id, Name, Age, Color, DoB) }}
+  ],
+  layout:"fitColumns",
+  columns:[ 
+    {title: "Name", field: "name", width: 150},
+    {title: "Age", field: "age", hozAlign: "left", formatter: "progress"},
+    {title: "Favourite Color", field: "col"},
+    {title: "Date Of Birth", field: "dob", sorter: "date", hozAlign: "center"},
+  ],
+  download: [
+    {
+      color: "success",
+      format: "csv",
+      options: {
+        delimiter: "\t",
+      }
+    },
+    {
+      color: "success",
+      format: "xlsx",
+    },
+  ]
+}
+```
