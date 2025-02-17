@@ -140,39 +140,6 @@ node(28,9).
 node(29,9).
 
 % link: FROM, TO
-% node: ID, GROUP
-node(0,0).
-node(1,0).
-node(2,0).
-node(3,1).
-node(4,1).
-node(5,1).
-node(6,2).
-node(7,2).
-node(8,2).
-node(9,3).
-node(10,3).
-node(11,3).
-node(12,4).
-node(13,4).
-node(14,4).
-node(15,5).
-node(16,5).
-node(17,5).
-node(18,6).
-node(19,6).
-node(20,6).
-node(21,7).
-node(22,7).
-node(23,7).
-node(24,8).
-node(25,8).
-node(26,8).
-node(27,9).
-node(28,9).
-node(29,9).
-
-% link: FROM, TO
 link(1,0).
 link(2,0).
 link(4,3).
