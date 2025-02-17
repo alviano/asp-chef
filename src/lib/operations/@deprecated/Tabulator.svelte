@@ -1,7 +1,7 @@
 <script context="module">
     import {Recipe} from "$lib/recipe.js";
 
-    const operation = "Tabulator";
+    const operation = "@deprecated/Tabulator";
     const default_extra_options = {
         predicate: "__tab__",
         echo: false,
