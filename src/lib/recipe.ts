@@ -512,10 +512,13 @@ export class Recipe {
     }
 
     static async apply_operation_type(index: number, ingredient: object, input: string[][]) {
-        if (!this._operation_types.has(ingredient.operation)) {
-            throw Error('Unknown operation: ' + ingredient.operation);
+        if (this._operation_types.has(ingredient.operation)) {
+            return await this._operation_types.get(ingredient.operation)(input, ingredient.options, index, ingredient.id);
         }
-        return await this._operation_types.get(ingredient.operation)(input, ingredient.options, index, ingredient.id);
+        if (this._operation_types.has(`@deprecated/${ingredient.operation}`)) {
+            return await this._operation_types.get(`@deprecated/${ingredient.operation}`)(input, ingredient.options, index, ingredient.id);
+        }
+        throw Error('Unknown operation: ' + ingredient.operation);
     }
 
     static async add_operation(operation: string, options: object, index: number = undefined) {
