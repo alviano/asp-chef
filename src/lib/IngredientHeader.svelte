@@ -29,6 +29,11 @@
                 #{index + 1}.
             </span>
             {operation}{options.name ? ": " + options.name : ""}
+            {#if operation.startsWith("@deprecated")}
+                <span title="Deprecated operation! Check the documentation for details.">
+                    <Icon name="exclamation-diamond" />
+                </span>
+            {/if}
         </Popover>
         <span class="float-end">
             {#if $processing_index === index}

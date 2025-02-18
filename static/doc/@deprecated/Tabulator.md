@@ -1,4 +1,10 @@
-The **Tabulator** operation shows input models in tables powered by the Tabulator framework.
+**Warning!**
+Deprecated operation.
+Use the new **Tabulator** operation. 
+
+----
+
+The **@deprecated/Tabulator** operation shows input models in tables powered by the Tabulator framework.
 
 Tables are obtained from instances of `__tab__/1` (which can be echoed in the output).
 

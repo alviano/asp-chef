@@ -1,4 +1,10 @@
-The **Confetti** operation shows a particles animation.
+**Warning!**
+Deprecated operation.
+Use the **Confetti.js** operation. 
+
+----
+
+The **@deprecated/Confetti** operation shows a particles animation.
 
 One call to the `confetti()` function if a configuration object (in JSON) is provided, and for each instance of the specified predicate (if any).
 

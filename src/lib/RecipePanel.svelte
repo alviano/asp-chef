@@ -339,6 +339,8 @@
                         <RecipeOperation remote_name={item.operation} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                     {:else if Recipe.has_operation_type(item.operation)}
                         <svelte:component this={Recipe.operation_component(item.operation)} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
+                    {:else if Recipe.has_operation_type(`@deprecated/${item.operation}`)}
+                        <svelte:component this={Recipe.operation_component(`@deprecated/${item.operation}`)} id="{item.id}" options="{item.options}" {index} add_to_recipe="{undefined}" keybinding={undefined} />
                     {:else}
                         <Nop id={item.id} options={item.options} index={index} add_to_recipe={undefined} keybinding={undefined} />
                         <div class="alert-warning" style="color: white" data-fix-ingredient-index="{index}">

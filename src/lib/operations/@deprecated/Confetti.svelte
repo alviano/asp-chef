@@ -1,8 +1,8 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Recipe} from "$lib/recipe.js";
     import {Base64} from "js-base64";
 
-    const operation = "Confetti";
+    const operation = "@deprecated/Confetti";
     const default_extra_options = {
         height: 200,
         config_predicate: '__confetti__',
@@ -17,8 +17,13 @@
     let confetti = null;
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (confetti === null) {
-            const {confetti: the_confetti} = (await import("https://esm.run/tsparticles-confetti@2.12.0/tsparticles.confetti.bundle.min.js"));
-            confetti = the_confetti;
+            try {
+                const {confetti: the_confetti} = (await import("https://esm.run/tsparticles-confetti@2.12.0/tsparticles.confetti.bundle.min.js"));
+                confetti = the_confetti;
+            } catch (error) {
+                console.error(error);
+                return input;
+            }
         }
 
         const res = [];
