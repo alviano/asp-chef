@@ -21,7 +21,9 @@
             if (options.active) {
                 const interval = setInterval(() => {
                     Recipe.invalidate_cached_output(index);
-                    Recipe.edit_operation(id, index, options);
+                    if (!Recipe.edit_operation(id, index, options)) {
+                        clearTimeout(interval);
+                    }
                 }, options.seconds * 1000);
                 intervals.set(id, {
                     interval,
@@ -37,7 +39,7 @@
 </script>
 
 <script>
-    import {Badge, Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
 
     export let id;

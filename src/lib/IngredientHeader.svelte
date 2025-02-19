@@ -20,10 +20,14 @@
 
 <CardHeader>
     <CardTitle class="h6">
-        <Popover title="Ingredient #{index + 1}">
+        <Popover title="Ingredient #{index + 1}" class="mw-70">
             <div slot="value">
-                <p><em>Drag&amp;drop</em> the ingredient index  to move the ingredient in the recipe.</p>
-                <p>UUID: {id}</p>
+                <p><em>(Drag&amp;drop the ingredient index  to move the ingredient in the recipe.)</em></p>
+                {#await Recipe.operation_doc(operation, true)}
+                    <em>Loading documentation...</em>
+                {:then doc}
+                    {@html doc}
+                {/await}
             </div>
             <span aria-hidden="true" on:mouseenter={mouse_in_draggable_area} on:mouseleave={mouse_out_of_draggable_area} class="drag">
                 #{index + 1}.

@@ -4,7 +4,6 @@
     import {Recipe} from "$lib/recipe";
     import Popover from "$lib/Popover.svelte";
     import {
-        drag_disabled,
         errors_at_index,
         readonly_ingredients,
         show_ingredient_details,

@@ -566,15 +566,17 @@ export class Recipe {
     static edit_operation(id: string, index: number, options: object) {
         this.invalidate_cached_output(index);
         const the_recipe = this.recipe;
-        if (the_recipe[index].id === id) {
+        if (the_recipe[index] && the_recipe[index].id === id) {
             the_recipe[index].options = options;
         } else {
             const the_index = the_recipe.findIndex(ingredient => ingredient.id === id)
-            if (the_index !== -1) {
-                the_recipe[the_index].options = options;
+            if (the_index === -1) {
+                return false;
             }
+            the_recipe[the_index].options = options;
         }
         recipe.set(the_recipe);
+        return true;
     }
 
     static fix_operation(id: string, index: number, operation: string) {
