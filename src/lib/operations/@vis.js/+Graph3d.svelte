@@ -28,12 +28,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Graph3d`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. @vis.js/Graph3d`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Graph3d`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. @vis.js/Graph3d`);
             return;
         }
 
@@ -43,7 +43,7 @@
             const configuration = Utils.parse_relaxed_json(expanded_content);
             new Graph3d(chart, configuration.data, configuration.options);
         } catch (err) {
-            Utils.snackbar(`#${index}. @vis.js/Graph3d: ${err}`);
+            Utils.snackbar(`#${index + 1}. @vis.js/Graph3d: ${err}`);
         }
     });
 </script>

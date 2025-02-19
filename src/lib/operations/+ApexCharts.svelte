@@ -13,12 +13,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. ApexCharts`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. ApexCharts`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. ApexCharts`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. ApexCharts`);
             return;
         }
 
@@ -28,7 +28,7 @@
             const configuration = Utils.parse_relaxed_json(expanded_content);
             await (new ApexCharts(chart, configuration)).render();
         } catch (err) {
-            Utils.snackbar(`#${index}. ApexCharts: ${err}`);
+            Utils.snackbar(`#${index + 1}. ApexCharts: ${err}`);
         }
     });
 </script>

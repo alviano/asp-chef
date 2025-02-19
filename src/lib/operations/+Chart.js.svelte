@@ -13,12 +13,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. ChartJS`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. ChartJS`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. ChartJS`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. ChartJS`);
             return;
         }
 
@@ -28,7 +28,7 @@
             const configuration = Utils.parse_relaxed_json(expanded_content);
             new Chart(chart, configuration);
         } catch (err) {
-            Utils.snackbar(`#${index}. ChartJS: ${err}`);
+            Utils.snackbar(`#${index + 1}. ChartJS: ${err}`);
         }
     });
 </script>

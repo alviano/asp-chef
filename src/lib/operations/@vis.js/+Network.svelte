@@ -14,12 +14,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Network`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. @vis.js/Network`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Network`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. @vis.js/Network`);
             return;
         }
 
@@ -29,7 +29,7 @@
             const configuration = Utils.parse_relaxed_json(expanded_content);
             new Network(chart, configuration.data, configuration.options);
         } catch (err) {
-            Utils.snackbar(`#${index}. @vis.js/Network: ${err}`);
+            Utils.snackbar(`#${index + 1}. @vis.js/Network: ${err}`);
         }
     });
 </script>

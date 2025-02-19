@@ -13,12 +13,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. ApexTree`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. ApexTree`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. ApexTree`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. ApexTree`);
             return;
         }
 
@@ -28,7 +28,7 @@
             const configuration = Utils.parse_relaxed_json(expanded_content);
             new ApexTree(chart, configuration.options).render(configuration.data);
         } catch (err) {
-            Utils.snackbar(`#${index}. ApexTree: ${err}`);
+            Utils.snackbar(`#${index + 1}. ApexTree: ${err}`);
         }
     });
 </script>

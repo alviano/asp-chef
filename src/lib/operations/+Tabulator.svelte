@@ -20,12 +20,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. Tabulator`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. Tabulator`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. Tabulator`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. Tabulator`);
             return;
         }
 
@@ -46,7 +46,7 @@
             }
             tabulator = new Tabulator(table, configuration);
         } catch (err) {
-            Utils.snackbar(`#${index}. Tabulator: ${err}`);
+            Utils.snackbar(`#${index + 1}. Tabulator: ${err}`);
         }
     });
 </script>

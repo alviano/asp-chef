@@ -13,12 +13,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Graph2d`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. @vis.js/Graph2d`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Graph2d`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. @vis.js/Graph2d`);
             return;
         }
 
@@ -34,7 +34,7 @@
 
             new Graph2d(chart, configuration.items, configuration.groups, configuration.options);
         } catch (err) {
-            Utils.snackbar(`#${index}. @vis.js/Graph2d: ${err}`);
+            Utils.snackbar(`#${index + 1}. @vis.js/Graph2d: ${err}`);
         }
     });
 </script>

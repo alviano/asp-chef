@@ -13,12 +13,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index}. @vis.js/Timeline`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. @vis.js/Timeline`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index}. @vis.js/Timeline`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. @vis.js/Timeline`);
             return;
         }
 
@@ -28,7 +28,7 @@
             const configuration = Utils.parse_relaxed_json(expanded_content);
             new Timeline(chart, configuration.items, configuration.options);
         } catch (err) {
-            Utils.snackbar(`#${index}. @vis.js/Timeline: ${err}`);
+            Utils.snackbar(`#${index + 1}. @vis.js/Timeline: ${err}`);
         }
     });
 </script>
