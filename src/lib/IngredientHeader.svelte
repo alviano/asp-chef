@@ -31,7 +31,7 @@
             {operation}{options.name ? ": " + options.name : ""}
             {#if operation.startsWith("@deprecated")}
                 <span title="Deprecated operation! Check the documentation for details.">
-                    <Icon name="exclamation-diamond" />
+                    <Icon name="exclamation-triangle" />
                 </span>
             {/if}
         </Popover>
