@@ -732,12 +732,28 @@ export class Utils extends BaseUtils {
     }
 
     static lua_lib_string(prefix = "string_") {
-        const unpack = `__unpack_${Utils.uuid()}`;
         return `
 #script (lua)
 
+local function __unpack(...)
+  local args = {...}
+  for i = 1, select("#", ...) do
+    if args[i].type == clingo.SymbolType.Number then
+      args[i] = args[i].number
+    elseif args[i].type == clingo.SymbolType.String then
+      args[i] = args[i].string
+    elseif args[i].type == clingo.SymbolType.Function and args[i].name == "real" and #args[i].arguments == 1 and args[i].arguments[1].type == clingo.SymbolType.String then
+      args[i] = tonumber(args[i].arguments[1].string)
+    else
+      args[i] = tostring(args[i])
+    end
+  end
+  return table.unpack(args)
+end
+
+
 function ${prefix}join(sep, ...)
-  local args = {${unpack}(...)}
+  local args = {__unpack(...)}
   local res = ""
   for i = 1, select("#", ...) do
     if i == 1 then
@@ -758,7 +774,7 @@ function ${prefix}byte(s, i)
 end
 
 function ${prefix}char(...)
-  return string.char(${unpack}(...))
+  return string.char(__unpack(...))
 end
 
 function ${prefix}find(s, p, i)
@@ -766,7 +782,7 @@ function ${prefix}find(s, p, i)
 end
 
 function ${prefix}format(fs, ...)
-  return string.format(fs.string, ${unpack}(...))
+  return string.format(fs.string, __unpack(...))
 end
 
 function ${prefix}gmatch(s, p)
@@ -818,59 +834,15 @@ function ${prefix}tonumber(s, base)
   return tonumber(s.string, base.number)
 end
 
--- aux function (not intended to be called by you)
-function ${unpack}(...)
-  local args = {...}
-  for i = 1, select("#", ...) do
-    if args[i].type == clingo.SymbolType.Number then
-      args[i] = args[i].number
-    elseif args[i].type == clingo.SymbolType.String then
-      args[i] = args[i].string
-    elseif args[i].type == clingo.SymbolType.Function and args[i].name == "real" and #args[i].arguments == 1 and args[i].arguments[1].type == clingo.SymbolType.String then
-      args[i] = tonumber(args[i].arguments[1].string)
-    else
-      args[i] = tostring(args[i])
-    end
-  end
-  return table.unpack(args)
-end
-
 #end.
         `.trim();
     }
 
     static lua_lib_expression(prefix = "expr") {
-        const uuid = Utils.uuid();
-        const unpack = `__unpack_${uuid}`;
-        const __expr = `__expr_${uuid}`;
         return `
 #script (lua)
 
-function ${prefix}(...)
-  return ${__expr}(${prefix}_string(...))
-end
-
-function ${prefix}_string(...)
-  local args = {${unpack}(...)}
-  local expression = ""
-  for i = 1, select("#", ...) do
-    expression = expression .. args[i]
-  end
-  return expression
-end
-
-function ${prefix}f(format, ...)
-  return ${__expr}(${prefix}f_string(format, ...))
-end
-
-function ${prefix}f_string(format, ...)
-  return string.format(format.string, ${unpack}(...))
-end
-
-
--- aux functions (not intended to be called by you)
-
-function ${unpack}(...)
+local function __unpack(...)
   local args = {...}
   for i = 1, select("#", ...) do
     if args[i].type == clingo.SymbolType.Number then
@@ -886,7 +858,7 @@ function ${unpack}(...)
   return table.unpack(args)
 end
 
-function ${__expr}(expression)
+local function __expr(expression)
   local sandbox_env = {
     tonumber = tonumber,
     tostring = tostring,
@@ -911,6 +883,28 @@ function ${__expr}(expression)
     return clingo.Function(tostring(res))
   end
   return tostring(res)
+end
+
+
+function ${prefix}(...)
+  return __expr(${prefix}_string(...))
+end
+
+function ${prefix}_string(...)
+  local args = {__unpack(...)}
+  local expression = ""
+  for i = 1, select("#", ...) do
+    expression = expression .. args[i]
+  end
+  return expression
+end
+
+function ${prefix}f(format, ...)
+  return __expr(${prefix}f_string(format, ...))
+end
+
+function ${prefix}f_string(format, ...)
+  return string.format(format.string, __unpack(...))
 end
 
 #end.
