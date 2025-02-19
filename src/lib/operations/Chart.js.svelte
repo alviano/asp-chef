@@ -1,7 +1,7 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
 
-    const operation = "ChartJS";
+    const operation = "Chart.js";
     const default_extra_options = {
         predicate: "__chart__",
         echo: false,
@@ -22,7 +22,7 @@
     import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import ChartJS from "./+ChartJS.svelte";
+    import ChartJS from "./+Chart.js.svelte";
 
     export let id;
     export let options;

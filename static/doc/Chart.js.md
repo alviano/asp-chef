@@ -1,4 +1,4 @@
-The **ChartJS** operation shows input models in charts powered by the Chart.js framework.
+The **Chart.js** operation shows input models in charts powered by the Chart.js framework.
 
 Charts are obtained from instances of `__chart__/1` (which can be echoed in the output).
 
@@ -39,7 +39,7 @@ Let me simplify it as follows:
 }
 ```
 
-If we provide the above content in an **Encode** ingredient with predicate `__chart__`, and after that we add a **ChartJS** ingredient, we obtain a *bar chart*.
+If we provide the above content in an **Encode** ingredient with predicate `__chart__`, and after that we add a **Chart.js** ingredient, we obtain a *bar chart*.
 However, it can be more interesting to take data from the input model.
 Let's say we have the following input:
 ```asp
