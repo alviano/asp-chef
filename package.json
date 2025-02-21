@@ -1,6 +1,6 @@
 {
 	"name": "asp-chef",
-	"version": "1.16.13",
+	"version": "1.16.14",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --port 5188",
@@ -71,6 +71,7 @@
 		"svelte-qrcode": "^1.0.1",
 		"tabulator-tables": "^6.3.1",
 		"uuid": "^9.0.0",
+		"vega": "^5.31.0",
 		"vis-graph3d": "^6.0.6",
 		"vis-network": "^9.1.9",
 		"vis-timeline": "^7.7.3",
