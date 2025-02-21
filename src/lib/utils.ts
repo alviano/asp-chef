@@ -407,12 +407,12 @@ export class Utils extends BaseUtils {
         return array;
     }
 
-    static check_one_term_string(atom) {
+    static check_one_term_string(atom, index) {
         if (!atom.terms || atom.terms.length !== 1) {
-            Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`)
+            Utils.snackbar(`Wrong number of terms in #${index}: ${atom.str}`)
             return false;
         } else if (atom.terms[0].string === undefined) {
-            Utils.snackbar(`Wrong argument in #${index}. Markdown: ${atom.str}`)
+            Utils.snackbar(`Wrong argument in #${index}: ${atom.str}`)
             return false
         } else {
             return true;
@@ -503,19 +503,19 @@ export class Utils extends BaseUtils {
             if (atom.functor === '' || atom.predicate === 'show' || output_predicates.includes(atom.predicate)) {
                 output_atoms.push(atom);
             } else if (atom.predicate === 'prefix') {
-                if (this.check_one_term_string(atom)) {
+                if (this.check_one_term_string(atom, index)) {
                     prefix = this.replace_escaped_chars(atom.terms[0].string);
                 }
             } else if (atom.predicate === 'suffix') {
-                if (this.check_one_term_string(atom)) {
+                if (this.check_one_term_string(atom, index)) {
                     suffix = this.replace_escaped_chars(atom.terms[0].string);
                 }
             } else if (atom.predicate === 'separator') {
-                if (this.check_one_term_string(atom)) {
+                if (this.check_one_term_string(atom, index)) {
                     separator = this.replace_escaped_chars(atom.terms[0].string);
                 }
             } else if (atom.predicate === 'term_separator') {
-                if (this.check_one_term_string(atom)) {
+                if (this.check_one_term_string(atom, index)) {
                     term_separator = this.replace_escaped_chars(atom.terms[0].string);
                 }
             } else if (atom.predicate === 'sort') {
@@ -533,12 +533,12 @@ export class Utils extends BaseUtils {
         sort.forEach(terms => {
             const comparator = terms.map(sort_index => {
                 return atom => {
-                    if (atom.functor !== '' && atom.predicate !== 'tr' && atom.predicate !== 'ul' && atom.predicate !== 'ol') {
+                    if (!atom.terms) {
                         return undefined;
                     }
                     const term = atom.terms[Math.abs(sort_index) - 1];
                     if (term === undefined) {
-                        return undefined
+                        return undefined;
                     } else if (term.number !== undefined) {
                         return term.number;
                     } else {
