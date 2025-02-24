@@ -59,7 +59,7 @@
                         );
                         const name = data[0];
                         const url = data[1];
-                        const remappable_predicates = data.length > 2 ? data[2].split(' ') : [];
+                        const remappable_predicates = data.length > 2 ? data[2].split(' ').filter(pred => pred.length > 0) : [];
                         const doc = data.length > 3 ? data[3] : '';
                         await register_url(name, url, remappable_predicates, doc);
                     }
