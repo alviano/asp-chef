@@ -26,7 +26,7 @@
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
             const configuration = Utils.parse_relaxed_json(expanded_content);
-            new ApexTree(chart, configuration.options).render(configuration.data);
+            new ApexTree(chart, configuration.options || {}).render(configuration.data || {});
         } catch (err) {
             Utils.snackbar(`#${index + 1}. ApexTree: ${err}`);
         }
