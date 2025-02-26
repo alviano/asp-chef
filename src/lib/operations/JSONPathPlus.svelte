@@ -17,7 +17,6 @@
             if (typeof object === 'string') {
                 return `"${object.replaceAll('"', '\\"')}"`;
             } else if (typeof object === 'number') {
-                console.log("object", object)
                 return Number.isInteger(object) ? object : `"${object}"`;
             } else if (Array.isArray(object)) {
                 return object.map(object_mapper).join(',')
