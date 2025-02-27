@@ -32,7 +32,9 @@
         }
         recipe_url = await Recipe.expand_if_short_link(recipe_url);
         if (recipe_url !== options.url) {
-            Utils.snackbar(`Fetched recipe ${recipe_url.substring(0, 25)}...`);
+            Utils.snackbar(`Fetched recipe ${recipe_url.substring(0, 25)}...`, {
+                position: "is-top-left",
+            });
         }
         if (recipe_url.indexOf('#') === -1) {
             Recipe.set_errors_at_index(index, 'Error: invalid URL, must contain #. Forward input.');

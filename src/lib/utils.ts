@@ -444,6 +444,15 @@ export class Utils extends BaseUtils {
         return message;
     }
 
+    static async markdown_expand_mustache_queries_recursively(part, message, index) {
+        let old_message;
+        do {
+            old_message = message;
+            message = await this.markdown_expand_mustache_queries(part, old_message, index);
+        } while(message !== old_message);
+        return message;
+    }
+
     static async markdown_expand_mustache_queries(part, message, index) {
         message = this.__preprocess_mustache(message);
         const matches = message.matchAll(/\{\{([=*+-]?)((\\}}|(?!}}).)*)}}/gs);

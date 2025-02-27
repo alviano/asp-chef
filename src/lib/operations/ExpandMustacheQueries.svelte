@@ -6,6 +6,7 @@
     const operation = "Expand Mustache Queries";
     const default_extra_options = {
         predicate: '__base64__',
+        recursively: false,
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
@@ -18,7 +19,9 @@
                         res_part.push(atom);
                     } else {
                         const content = Base64.decode(atom.terms[0].string);
-                        const expanded = await Utils.markdown_expand_mustache_queries(part, content, index);
+                        const expanded = options.recursively ?
+                            await Utils.markdown_expand_mustache_queries_recursively(part, content, index) :
+                            await Utils.markdown_expand_mustache_queries(part, content, index);
                         res_part.push(Utils.parse_atom(`${options.predicate}("${Base64.encode(expanded)}")`));
                     }
                 }
@@ -32,7 +35,7 @@
 </script>
 
 <script>
-    import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
 
     export let id;
@@ -50,5 +53,6 @@
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="ExpandMustacheQueries-predicate" />
+        <Button outline="{!options.recursively}" on:click={() => { options.recursively = !options.recursively; edit(); }}>Recursively</Button>
     </InputGroup>
 </Operation>

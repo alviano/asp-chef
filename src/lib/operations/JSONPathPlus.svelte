@@ -1,10 +1,10 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
-    import jsonpath from "jsonpath";
     import {Base64} from "js-base64";
+    import {JSONPath} from "jsonpath-plus";
 
-    const operation = "JSON Path";
+    const operation = "JSON Path Plus";
     const default_extra_options = {
         decode_predicate: '__base64__',
         echo_encoded_content: false,
@@ -32,7 +32,7 @@
                 const program = part.map(atom => {
                     if (atom.predicate === options.decode_predicate) {
                         const data = JSON.parse(Base64.decode(atom.terms[0].string));
-                        const answer = jsonpath.query(data, options.query);
+                        const answer = JSONPath({path: options.query, json: data});
                         return answer.map(object_mapper).map(term => `${options.output_predicate}(${term}).`).join('\n') +
                             (options.echo_encoded_content ? '\n' + mapper(atom) : '');
                     }
