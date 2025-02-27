@@ -21,6 +21,40 @@ const config = {
 		    "$lib": "./src/lib",
 		    "$lib/*": "./src/lib/*",
 		},
+		csp: {
+            mode: "auto",
+            directives: {
+                "default-src": ["self"],
+                "connect-src": [
+                    "*",
+                ],
+                "script-src": [
+					"*",
+                    "unsafe-eval",
+                ],
+                "script-src-attr": [
+					"*",
+                    "unsafe-inline",
+                ],
+                "style-src": [
+					"self",
+                ],
+                "style-src-elem": [
+					"*",
+                ],
+                "img-src": [
+					"*",
+                    "data:",
+                ],
+                "font-src": [
+					"*",
+                ],
+                "object-src": ["none"],
+                "frame-src": ["none"],
+                "frame-ancestors": ["none"],
+                "base-uri": ["none"],
+            },
+        }
 	},
 
     extensions: ['.svelte', '.md'],
