@@ -27,6 +27,7 @@ const config = {
                 "default-src": ["self"],
                 "connect-src": [
                     "*",
+                    "data:"
                 ],
                 "script-src": [
 					"*",
