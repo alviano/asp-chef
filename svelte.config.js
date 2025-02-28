@@ -38,9 +38,11 @@ const config = {
                 ],
                 "style-src": [
 					"self",
+                    "unsafe-inline",
                 ],
                 "style-src-elem": [
 					"*",
+                    "unsafe-inline",
                 ],
                 "img-src": [
 					"*",
