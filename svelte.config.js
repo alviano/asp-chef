@@ -38,7 +38,7 @@ const config = {
                     "unsafe-inline",
                 ],
                 "style-src": [
-					"self",
+					"*",
                     "unsafe-inline",
                 ],
                 "style-src-elem": [
