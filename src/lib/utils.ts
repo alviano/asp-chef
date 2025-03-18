@@ -472,7 +472,7 @@ export class Utils extends BaseUtils {
                 }
 
                 const inline = ['=', '+'].includes(mode);
-                const program = part.map(atom => `${atom.str}.`).join('\n') + '\n#show.\n' +
+                const program = part.map(atom => atom.predicate || atom.functor ? `${atom.str}.` : `__const__(${atom.str}).`).join('\n') + '\n#show.\n' +
                     (inline ? `#show ${match}.` : match);
                 let query_answer = await Utils.search_models(program, 1, true, true);
                 if (query_answer.length !== 1) {
