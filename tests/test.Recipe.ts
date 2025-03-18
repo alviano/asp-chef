@@ -2,13 +2,13 @@ import {test} from '@playwright/test';
 import {TestRecipe} from "./utils.js";
 
 async function implode(recipe, ingredient, number) {
-	await recipe.delay(500);
+	await recipe.delay(2000);
 	await ingredient.getByTestId('Recipe-number-of-ingredients-to-implode').fill(`${number}`);
 	await ingredient.getByRole('button', {name: 'Implode'}).click();
 }
 
 async function explode(recipe, ingredient) {
-	await recipe.delay(500);
+	await recipe.delay(2000);
 	await ingredient.getByRole('button', {name: 'Explode'}).click();
 }
 
@@ -85,14 +85,12 @@ a.
 			number: 2,
 		});
 		await recipe.sort_by_increasing_size();
+		await recipe.click_pause_baking();
 		await implode(recipe, recipe_ingredient, 0);
-		await recipe.click_pause_baking();
-		await recipe.delay(200);
-		await recipe.click_pause_baking();
 		await explode(recipe, recipe_ingredient);
-		await recipe.delay(200);
-		await recipe.click_pause_baking();
+		await recipe.delay(1000);
 		await recipe_ingredient.getByTestId('IngredientHeader-remove').click();
+		await recipe.delay(1000);
 		await recipe.output(`
 EMPTY MODEL
 §

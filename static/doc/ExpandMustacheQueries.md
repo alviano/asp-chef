@@ -24,7 +24,7 @@ To ease the application of several queries with the same separators (or other at
 The same array can be reset to the empty array using 
 `{{-}}` (no query within such curly brackets is permitted).
 
-The expansion can be reiterated by enabling the **RECURSIVELY** options.
+The expansion can be reiterated by enabling the **MULTI-STAGE** options.
 
 Other predicates are thought to be coupled with **Markdown** ingredients.
 They are described next.
@@ -99,7 +99,7 @@ Even better, we can use a *formatted multiline* string:
 Note that above we used `${Id:%5d}` to showcase the possibility of using string formatters (supported by Lua).
 If not specified, the f-multiline mustache uses `%s` as default.
 
-Regarding the **RECURSIVELY** options, let us consider the following input
+Regarding the **MULTI-STAGE** options, let us consider the following input
 ```asp
 entity("Relation").
 attribute("Relation", "A").
@@ -110,7 +110,7 @@ We can obtain the string `Relation(A, B)` by expanding (recursively) the followi
 {{= {{f"${R}({{ 
     #show A : attribute("${R}",A).
     #show separator(", ").
-  \}})"}} : entity(R) }}
+  }})"}} : entity(R) }}
 ```
 In fact, the content is first expanded to
 ```asp

@@ -37,6 +37,10 @@ const config = {
 					"*",
                     "unsafe-inline",
                 ],
+                "worker-src": [
+                    "self",
+                    "blob:",
+                ],
                 "style-src": [
 					"*",
                     "unsafe-inline",

@@ -424,7 +424,7 @@ export class Utils extends BaseUtils {
         if (matches !== null) {
             for (const the_match of matches) {
                 const mode = the_match[1].trim();
-                let match = the_match[2].trim().replaceAll('\n', '\\n').replaceAll('"', '\\"');
+                let match = the_match[2].trim().replaceAll('\n', '\\n').replaceAll('"', '\\"').replaceAll('}}', '\\}}');
                 if (mode === 'f') {
                     const vars = match.matchAll(/\$\{\s*([^:}]+)([:]%[\w%.]+)?\s*}/gs);
                     const args = [];

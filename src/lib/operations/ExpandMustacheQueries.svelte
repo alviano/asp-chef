@@ -53,6 +53,6 @@
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="ExpandMustacheQueries-predicate" />
-        <Button outline="{!options.recursively}" on:click={() => { options.recursively = !options.recursively; edit(); }}>Recursively</Button>
+        <Button outline="{!options.recursively}" on:click={() => { options.recursively = !options.recursively; edit(); }}>Multi-Stage</Button>
     </InputGroup>
 </Operation>

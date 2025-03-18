@@ -1,7 +1,7 @@
 <script>
     import { Model } from "survey-core";
     import "survey-js-ui";
-    import "survey-core/defaultV2.min.css";
+    import "survey-core/survey-core.min.css";
     import {Utils} from "$lib/utils.js";
     import {Base64} from "js-base64";
     import {onMount} from "svelte";
