@@ -6,6 +6,7 @@
     const operation = "@preview/SurveyJS";
     const default_extra_options = {
         predicate: "__survey__",
+        multistage: false,
         echo: false,
         show_model_index: false,
         data: null,
@@ -54,6 +55,7 @@
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
+        <Button outline="{!options.multistage}" on:click={() => { options.multistage = !options.multistage; edit(); }}>Multi-Stage</Button>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="SurveyJS-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
         <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
@@ -66,7 +68,7 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <SurveyJS part="{model}" index="{index}" configuration_atom="{configuration}" data="{options.data}"
+                        <SurveyJS part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" data="{options.data}"
                                   on_data_change="{(d) => { options.data = d; edit(); } }"  />
                     {/each}
                 {/key}

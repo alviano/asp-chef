@@ -4,6 +4,7 @@
     const operation = "Tabulator";
     const default_extra_options = {
         predicate: "__tab__",
+        multistage: false,
         echo: false,
         show_model_index: false,
     };
@@ -52,6 +53,7 @@
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Tabulator-predicate" />
+        <Button outline="{!options.multistage}" on:click={() => { options.multistage = !options.multistage; edit(); }}>Multi-Stage</Button>
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
         <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
     </InputGroup>
@@ -63,7 +65,7 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <Tabulator part="{model}" index="{index}" configuration_atom="{configuration}" />
+                        <Tabulator part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
                     {/each}
                 {/key}
             {/each}

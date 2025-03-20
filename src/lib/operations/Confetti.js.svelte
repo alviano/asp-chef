@@ -6,6 +6,7 @@
     const operation = "Confetti.js";
     const default_extra_options = {
         predicate: "__confetti__",
+        multistage: false,
         echo: false,
     };
 
@@ -28,7 +29,7 @@
                     continue;
                 }
                 const content = Base64.decode(atom.terms[0].string);
-                const expanded_content = await Utils.markdown_expand_mustache_queries(model, content, index);
+                const expanded_content = await Utils.expand_mustache_queries(model, content, index, options.multistage);
                 const configuration = Utils.parse_relaxed_json(expanded_content);
                 await confetti(configuration);
             }
@@ -56,6 +57,7 @@
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="ApexCharts-predicate" />
+        <Button outline="{!options.multistage}" on:click={() => { options.multistage = !options.multistage; edit(); }}>Multi-Stage</Button>
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
     </InputGroup>
 </Operation>

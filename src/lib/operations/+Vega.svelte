@@ -7,6 +7,7 @@
     export let part;
     export let index;
     export let configuration_atom;
+    export let multistage;
 
     let chart;
 
@@ -24,7 +25,7 @@
 
         try {
             const content = Base64.decode(atom.string);
-            const expanded_content = await Utils.markdown_expand_mustache_queries(part, content, index);
+            const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
             new View(parse(configuration), {
               loader: loader({baseURL: configuration.baseURL || 'https://vega.github.io/vega/'}),

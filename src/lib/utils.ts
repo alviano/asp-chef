@@ -444,6 +444,11 @@ export class Utils extends BaseUtils {
         return message;
     }
 
+    static async expand_mustache_queries(part, message, index, multistage = false) {
+        return multistage ? await this.markdown_expand_mustache_queries_recursively(part, message, index)
+            : await this.markdown_expand_mustache_queries(part, message, index);
+    }
+
     static async markdown_expand_mustache_queries_recursively(part, message, index) {
         let old_message;
         do {

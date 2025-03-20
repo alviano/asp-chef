@@ -19,9 +19,7 @@
                         res_part.push(atom);
                     } else {
                         const content = Base64.decode(atom.terms[0].string);
-                        const expanded = options.recursively ?
-                            await Utils.markdown_expand_mustache_queries_recursively(part, content, index) :
-                            await Utils.markdown_expand_mustache_queries(part, content, index);
+                        const expanded = await Utils.expand_mustache_queries(part, content, index, options.recursively);
                         res_part.push(Utils.parse_atom(`${options.predicate}("${Base64.encode(expanded)}")`));
                     }
                 }

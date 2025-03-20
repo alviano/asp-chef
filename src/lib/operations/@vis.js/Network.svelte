@@ -5,6 +5,7 @@
     const default_extra_options = {
         height: 500,
         predicate: "__vis__",
+        multistage: false,
         echo: false,
         show_model_index: false,
     };
@@ -54,6 +55,7 @@
         <Input type="number" min="50" step="50" bind:value={options.height} on:input={edit} style="max-width: 5em;" />
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Vis.js-predicate" />
+        <Button outline="{!options.multistage}" on:click={() => { options.multistage = !options.multistage; edit(); }}>Multi-Stage</Button>
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
         <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
     </InputGroup>
@@ -65,7 +67,7 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <Network part="{model}" index="{index}" configuration_atom="{configuration}" height="{options.height}" />
+                        <Network part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" height="{options.height}" />
                     {/each}
                 {/key}
             {/each}

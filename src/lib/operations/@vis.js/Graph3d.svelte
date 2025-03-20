@@ -4,6 +4,7 @@
     const operation = "@vis.js/Graph3d";
     const default_extra_options = {
         predicate: "__vis__",
+        multistage: false,
         echo: false,
         show_model_index: false,
     };
@@ -51,6 +52,7 @@
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Vis.js-predicate" />
+        <Button outline="{!options.multistage}" on:click={() => { options.multistage = !options.multistage; edit(); }}>Multi-Stage</Button>
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
         <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
     </InputGroup>
@@ -62,7 +64,7 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <Graph3d part="{model}" index="{index}" configuration_atom="{configuration}" />
+                        <Graph3d part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
                     {/each}
                 {/key}
             {/each}
