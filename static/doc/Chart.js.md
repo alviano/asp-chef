@@ -148,3 +148,40 @@ We can now use a **mustache query** to expand points:
   }
 }
 ```
+
+
+Tooltips can be also customized, but callbacks are replaced by references to properties of the data point.
+For example:
+```asp
+point(-10,0,"foo").
+point(0,10,"bar").
+point(10,5,"buzz").
+```
+combined with
+```asp
+{
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'Scatter Dataset',
+      data: [{{= @string_format("{x: %s, y: %s, my_label: '%s'},", X, Y, L) : point(X,Y,L) }}],
+      backgroundColor: 'rgb(255, 99, 132)'
+    }],
+  },
+  options: {
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: my_label,
+        }
+      }
+    },
+    scales: {
+      x: {
+        type: 'linear',
+        position: 'bottom'
+      }
+    }
+  }
+}
+```

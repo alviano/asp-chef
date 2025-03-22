@@ -27,6 +27,14 @@
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
+            if (configuration.options && configuration.options.plugins && configuration.options.plugins.tooltip && configuration.options.plugins.tooltip.callbacks) {
+                for (const key of Object.keys(configuration.options.plugins.tooltip.callbacks)) {
+                    const field = configuration.options.plugins.tooltip.callbacks[key];
+                    configuration.options.plugins.tooltip.callbacks[key] = (item) => {
+                        return item.raw[field];
+                    }
+                }
+            }
             new Chart(chart, configuration);
         } catch (err) {
             Utils.snackbar(`#${index + 1}. Chart.js: ${err}`);
