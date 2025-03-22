@@ -27,7 +27,10 @@
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
-            new Timeline(chart, configuration.items, configuration.options || {});
+            const timeline = new Timeline(chart, configuration.items, configuration.options || {});
+            if (configuration.groups) {
+                timeline.setGroups(configuration.groups);
+            }
         } catch (err) {
             Utils.snackbar(`#${index + 1}. @vis.js/Timeline: ${err}`);
         }
