@@ -26,6 +26,7 @@
     import {Utils} from "$lib/utils";
     import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
     import QrCode from "svelte-qrcode";
+    import { mount } from 'svelte';
 
     export let id;
     export let options;
@@ -70,14 +71,12 @@
                     element.innerHTML = "";
                     element.removeAttribute("href");
                     element.removeAttribute("target");
-                    new QrCode(
-                        {
-                            target: element,
-                            props: {
-                                value: content,
-                            },
+                    mount(QrCode, {
+                        target: element,
+                        props: {
+                            value: content,
                         },
-                    );
+                    });
                 });
         });
     });
