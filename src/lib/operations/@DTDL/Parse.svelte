@@ -11,43 +11,8 @@
 		content: ''
 	};
 
-	//let k = 0;
-
+	
 	Recipe.register_operation_type(operation, async (input, options, index) => {
-		//console.log('K', k);
-		// console.log('input', input);
-		// console.log('options', options);
-		// console.log('index', index);
-
-		let objectExample = [
-			{
-				predicate: 'ciao',
-				terms: [
-					{
-						number: 3,
-						str: '3'
-					}
-				],
-				str: 'ciao(3)'
-			}
-		];
-
-		const expanded = [
-			[
-				{
-					predicate: 'ciao1111',
-					terms: [
-						{
-							number: 3,
-							str: '3'
-						}
-					],
-					str: 'ciao1111(3)'
-				}
-			]
-		];
-		//k += 1;
-
 		try {
 			let jsonOriginale = JSON.parse(options.content);
 			let jsonStringa = JSON.stringify(jsonOriginale);
@@ -81,12 +46,7 @@
 	export let keybinding;
 
 	let example = DTDL.load_example();
-
-	//let k1 = 0;
-
 	function edit() {
-		//console.log("K1", k1)
-		//k1+=1
 		Recipe.edit_operation(id, index, options);
 	}
 
@@ -135,7 +95,7 @@
 
 	<div>
 		<Parse
-			dataInput={options.content}
+			bind:dataInput={options.content}
 			index={0}
 			configuration_atom={{
 				predicate: 'ciao',
