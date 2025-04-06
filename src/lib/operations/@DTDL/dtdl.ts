@@ -1,7 +1,6 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
-
 export class DTDL {
 	public static load_example() {
 		return {
@@ -24,8 +23,6 @@ export class DTDL {
 			]
 		};
 	}
-
-
 
 	public static escapeString = (str: string) => {
 		return str.replace(/"/g, '\\"');
@@ -356,7 +353,6 @@ export class DTDL {
 			valid = validate(dtdlDocument);
 		}
 
-
 		if (!valid && tryCorrect) {
 			//			let maxCorrectAttempt = 10;
 			//			let k = 0;
@@ -505,6 +501,11 @@ export class DTDL {
 	};
 
 	public static parser = async (dtdlInput: any) => {
+
+		if (!dtdlInput) {
+			return '% Error mapping DTDL to ASP: No input provided';
+		}
+
 		try {
 			const dtdl = typeof dtdlInput === 'string' ? JSON.parse(dtdlInput) : dtdlInput;
 			const validationResult = await DTDL.validateDtdl(dtdl, false);

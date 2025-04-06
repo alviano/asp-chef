@@ -13,12 +13,10 @@
 
 	Recipe.register_operation_type(operation, async (input, options, index) => {
 		try {
-			if (options.content.lenght > 0) {
-				let jsonOriginale = JSON.parse(options.content);
-				let jsonStringa = JSON.stringify(jsonOriginale);
-				let outputParsed = await DTDL.parser(jsonStringa);
-				return await Recipe.process_input(outputParsed, false);
-			}
+			let jsonOriginale = JSON.parse(options.content);
+			let jsonStringa = JSON.stringify(jsonOriginale);
+			let outputParsed = await DTDL.parser(jsonStringa);
+			return await Recipe.process_input(outputParsed, false);
 		} catch (error) {
 			Recipe.set_errors_at_index(index, error);
 			return [];

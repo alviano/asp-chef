@@ -13,6 +13,10 @@
 
 	onMount(async () => {
 		try {
+			if (!dataInput) {
+					outputParsed = '';
+					return;
+				}
 			outputParsed = await DTDL.parser(dataInput);
 		} catch (err) {
 			Utils.snackbar(`#${index + 1}. DTDLParse: ${err}`);
@@ -22,6 +26,10 @@
 	$: if (dataInput) {
 		(async () => {
 			try {
+				if (!dataInput) {
+					outputParsed = '';
+					return;
+				}
 				outputParsed = await DTDL.parser(dataInput);
 			} catch (err) {
 				Utils.snackbar(`#${index + 1}. DTDLParse: ${err}`);
@@ -33,9 +41,3 @@
 <div class="res" bind:this={outputElement}>
 	{outputParsed}
 </div>
-
-<style>
-	div.chart {
-		margin: 5px;
-	}
-</style>
