@@ -18,7 +18,7 @@
 			let outputParsed = await DTDL.parser(jsonStringa);
 			return await Recipe.process_input(outputParsed, false);
 		} catch (error) {
-			Recipe.set_errors_at_index(index, error);
+			//Recipe.set_errors_at_index(index, error);
 			return [];
 		}
 	});
