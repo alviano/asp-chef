@@ -11,31 +11,27 @@
 		content: ''
 	};
 
-	
 	Recipe.register_operation_type(operation, async (input, options, index) => {
 		try {
-			let jsonOriginale = JSON.parse(options.content);
-			let jsonStringa = JSON.stringify(jsonOriginale);
-
-			// console.log('json originale', jsonOriginale);
-			// console.log('json stringa', jsonStringa);
-
-			//return await Recipe.process_input(expanded, false);
-
-			let outputParsed = await DTDL.parser(jsonStringa);
-			return await Recipe.process_input(outputParsed, false);
+			if (options.content.lenght > 0) {
+				let jsonOriginale = JSON.parse(options.content);
+				let jsonStringa = JSON.stringify(jsonOriginale);
+				let outputParsed = await DTDL.parser(jsonStringa);
+				return await Recipe.process_input(outputParsed, false);
+			}
 		} catch (error) {
-			//Recipe.set_errors_at_index(index, error);
+			Recipe.set_errors_at_index(index, error);
 			return [];
 		}
 	});
 </script>
 
-<script>
+<script lang="ts">
 	import Operation from '$lib/Operation.svelte';
 	import { Button, Input, InputGroup, InputGroupText } from '@sveltestrap/sveltestrap';
 	import CodeMirror from 'svelte-codemirror-editor';
-
+	import { json } from '@codemirror/lang-json';
+	import { oneDark } from '@codemirror/theme-one-dark';
 	import Parse from './+Parse.svelte';
 	import { DTDL } from './dtdl';
 
@@ -83,30 +79,37 @@
 		>
 	</InputGroup>
 
-	<div style="height: {options.height}px; overflow-y: auto" data-testid="Encode-content">
+	<div
+		style="height: {options.height}px; overflow-y: auto; "
+		data-testid="dtdl-content"
+		class="my-codemirror-wrapper"
+	>
 		<CodeMirror
 			bind:value={options.content}
 			placeholder={`One or more lines...`}
 			lineWrapping={true}
 			on:change={edit}
+			theme={oneDark}
+			lang={json()}
+			extensions={[json()]}
 		/>
-		<pre class="d-test">{options.content}</pre>
 	</div>
 
 	<div>
 		<Parse
 			bind:dataInput={options.content}
 			index={0}
-			configuration_atom={{
-				predicate: 'ciao',
-				terms: [
-					{
-						number: 3,
-						str: '3'
-					}
-				],
-				str: 'ciao(3)'
+			options={{
+				predicate: options.predicate,
+				echo_input: options.echo_input,
+				height: options.height
 			}}
 		></Parse>
 	</div>
 </Operation>
+
+<style>
+	.my-codemirror-wrapper div {
+		height: 100% !important;
+	}
+</style>

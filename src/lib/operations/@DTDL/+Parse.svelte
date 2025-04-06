@@ -6,7 +6,7 @@
 
 	export let dataInput;
 	export let index;
-	export let configuration_atom;
+	export let options;
 
 	let outputParsed;
 	let outputElement;
