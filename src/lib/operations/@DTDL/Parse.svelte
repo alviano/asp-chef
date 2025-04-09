@@ -15,8 +15,14 @@
 		try {
 			let jsonOriginale = JSON.parse(options.content);
 			let jsonStringa = JSON.stringify(jsonOriginale);
-			let outputParsed = await DTDL.parser(jsonStringa);
-			return await Recipe.process_input(outputParsed, false);
+			// let outputParsed = await DTDL.parser(jsonStringa);
+
+			const visualizationFacts = DTDL.transformAspFactsForVisualization(outputParsed);
+			console.log('visualizationFacts', visualizationFacts);
+			return options.echo_input
+				? input
+				: input.map((part) => part.filter((atom) => atom.predicate !== options.predicate));
+			// return await Recipe.process_input(outputParsed, false);
 		} catch (error) {
 			//Recipe.set_errors_at_index(index, error);
 			return [];
@@ -87,7 +93,7 @@
 			placeholder={`One or more lines...`}
 			lineWrapping={true}
 			on:change={edit}
-			theme={oneDark}
+				
 			lang={json()}
 			extensions={[json()]}
 		/>
