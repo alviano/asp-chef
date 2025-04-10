@@ -1,55 +1,61 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
+import {Utils} from "$lib/utils";
 
 export class DTDL {
-	public static load_example() {
-		return {
-			'@context': 'dtmi:dtdl:context;4',
-			'@id': 'dtmi:com:example:Thermostat;1',
-			'@type': 'Interface',
-			displayName: 'Thermostat',
-			contents: [
-				{
-					'@type': 'Telemetry',
-					name: 'temp',
-					schema: 'double'
-				},
-				{
-					'@type': 'Property',
-					name: 'setPointTemp',
-					writable: true,
-					schema: 'double'
-				}
-			]
-		};
-	}
-
-	public static escapeString = (str: string) => {
+	public static escapeString(str: string) {
 		return str.replace(/"/g, '\\"');
 	};
 
-	public static processSchema = (schema: any) => {
-		if (!schema['@type']) return '';
+	private static mapStringProperty(predicate: string, id: string, name: string, value: string, res: string[]) {
+		res.push(`${predicate}(${id}, ${name}, "${DTDL.escapeString(value)}").`);
+	}
 
-		const schemaId = schema['@id'] || `schema_${Math.random().toString(36).substring(2, 9)}`;
-		let asp = '';
+	private static mapLocalizableStringProperty(predicate: string, id: string, name: string, value: string, res: string[]) {
+		const the_value = typeof value === 'string' ? value : JSON.stringify(value);
+		res.push(`${predicate}(${id}, ${name}, "${DTDL.escapeString(the_value)}").`);
+	}
+
+	private static schemaId(schema: any, ownerId?: string, name?: string) {
+		if (typeof schema === 'string') {
+			return `"${schema}"`;
+		}
+		if (schema['@id']) {
+			return schema['@id'];
+		}
+		return `(${ownerId}, ${name})`;
+	}
+
+	private static mapCommentDescriptionDisplayName(predicate: string, obj: any, id: string, res: string[]) {
+		if (obj.comment) {
+			this.mapStringProperty(predicate, id, 'comment', obj['comment'], res);
+		}
+		if (obj.description) {
+			this.mapLocalizableStringProperty(predicate, id, 'description', obj['description'], res);
+		}
+		if (obj.displayName) {
+			this.mapLocalizableStringProperty(predicate, id, 'displayName', obj['displayName'], res);
+		}
+	}
+
+	private static processSchema(id: string, schema: any, res: string[]) {
+		if (typeof schema === 'string') {
+			return;
+		}
 
 		switch (schema['@type']) {
 			case 'Array':
-				const elemSchema =
-					typeof schema.elementSchema === 'string'
-						? schema.elementSchema
-						: schema.elementSchema['@id'] || 'complex_element';
-
-				asp += `schema_array("${schemaId}", "${elemSchema}").\n`;
-
-				if (schema.elementSchema && typeof schema.elementSchema !== 'string') {
-					asp += DTDL.processSchema(schema.elementSchema);
-				}
+				const elemSchemaId = this.schemaId(schema.elementSchema, id, 'element');
+				res.push(`array(${id}, ${elemSchemaId}).`);
+				this.mapCommentDescriptionDisplayName('array', schema, id, res);
+				DTDL.processSchema(elemSchemaId, schema.elementSchema, res);
 				break;
 
 			case 'Enum':
-				asp += `schema_enum("${schemaId}", "${schema.valueSchema}").\n`;
+				const valueSchemaId = this.schemaId(schema.valueSchema, id, 'value');
+				res.push(`enum(${id}, ${valueSchemaId}).`);
+				this.mapCommentDescriptionDisplayName('enum', schema, id, res);
+				DTDL.processSchema(valueSchemaId, schema.valueSchema, res);
 
 				if (schema.enumValues?.length) {
 					schema.enumValues.forEach((value) => {
@@ -58,476 +64,215 @@ export class DTDL {
 								? `"${DTDL.escapeString(value.enumValue)}"`
 								: value.enumValue;
 
-						asp += `enum_value("${schemaId}", "${value.name}", ${enumVal}).\n`;
+						res.push(`enum(${id}, value, "${value.name}", ${enumVal}).`);
 					});
 				}
 				break;
 
 			case 'Map':
-				if (schema.mapKey && schema.mapValue) {
-					const mapValueSchema =
-						typeof schema.mapValue.schema === 'string'
-							? schema.mapValue.schema
-							: schema.mapValue.schema['@id'] || 'complex_value';
-
-					asp +=
-						`schema_map("${schemaId}", "${schema.mapKey.name}", "${schema.mapKey.schema}", ` +
-						`"${schema.mapValue.name}", "${mapValueSchema}").\n`;
-
-					if (schema.mapValue.schema && typeof schema.mapValue.schema !== 'string') {
-						asp += DTDL.processSchema(schema.mapValue.schema);
-					}
-				}
+				const mapKeySchemaId = this.schemaId(schema.mapKey.schema, id, 'key')
+				const mapValueSchemaId = this.schemaId(schema.mapValue.schema, id, 'value')
+				res.push(`map(${id}, ${mapKeySchemaId}, ${mapValueSchemaId}).`);
+				this.mapCommentDescriptionDisplayName('map', schema, id, res);
+				// DTDL.processSchema(mapKeySchemaId, schema.mapKey.schema, res);   // must be string
+				DTDL.processSchema(mapValueSchemaId, schema.mapValue.schema, res);
 				break;
 
 			case 'Object':
-				asp += `schema_object("${schemaId}").\n`;
+				res.push(`object(${id}).`);
+				this.mapCommentDescriptionDisplayName('object', schema, id, res);
 
 				if (schema.fields?.length) {
 					schema.fields.forEach((field) => {
-						const fieldSchema =
-							typeof field.schema === 'string'
-								? field.schema
-								: field.schema['@id'] || `complex_${field.name}`;
-
-						asp += `object_field("${schemaId}", "${field.name}", "${fieldSchema}").\n`;
-
-						if (field.schema && typeof field.schema !== 'string') {
-							asp += DTDL.processSchema(field.schema);
-						}
+						const fieldSchemaId = this.schemaId(field.schema, id, field.name);
+						res.push(`field(${id}, "${field.name}", ${fieldSchemaId}).`);
+						this.mapCommentDescriptionDisplayName('array', schema, id, res);
+						DTDL.processSchema(fieldSchemaId, field.schema, res);
 					});
 				}
 				break;
 		}
-
-		return asp;
 	};
 
-	public static processProperty = (interfaceId: string, property: any) => {
-		const schema =
-			typeof property.schema === 'string'
-				? property.schema
-				: property.schema['@id'] || `complex_${property.name}`;
-		let asp = `property("${interfaceId}", "${property.name}", "${schema}").\n`;
+	private static processProperty(ownerId: string, property: any, res: string[]) {
+		const schemaId = this.schemaId(property.schema, ownerId, property.name);
+		const id = `(${ownerId}, "${property.name}")`;
+		res.push(`has_property(${ownerId}, "${property.name}", ${id}).`);
+		res.push(`property(${id}).`);
+		res.push(`schema(${id}, ${schemaId}).`);
+
 		if (property['@id']) {
-			asp += `property_id("${interfaceId}", "${property.name}", "${property['@id']}").\n`;
-		}
-		if (property.displayName) {
-			const displayName =
-				typeof property.displayName === 'string'
-					? property.displayName
-					: JSON.stringify(property.displayName);
-			asp += `property_display_name("${interfaceId}", "${property.name}", ${displayName}).\n`;
+			res.push(`property(${id}, id, "${property['@id']}").`);
 		}
 
-		if (property.description) {
-			const description =
-				typeof property.description === 'string'
-					? property.description
-					: JSON.stringify(property.description);
-			asp += `property_description("${interfaceId}", "${property.name}", ${description}).\n`;
-		}
-
-		if (property.comment) {
-			asp += `property_comment("${interfaceId}", "${property.name}", "${property.comment}").\n`;
-		}
+		this.mapCommentDescriptionDisplayName('property', property, id, res);
 
 		if (property.writable) {
-			asp += `property_writable("${interfaceId}", "${property.name}").\n`;
+			res.push(`property(${id}, writable).`);
 		}
 
-		if (property.schema && typeof property.schema !== 'string') {
-			asp += DTDL.processSchema(property.schema);
-		}
-
-		return asp;
+		DTDL.processSchema(schemaId, property.schema, res);
 	};
 
-	public static processTelemetry = (interfaceId: string, telemetry: any) => {
-		const schema =
-			typeof telemetry.schema === 'string'
-				? telemetry.schema
-				: telemetry.schema['@id'] || `complex_${telemetry.name}`;
+	private static processTelemetry(ownerId: string, telemetry: any, res: string[]) {
+		const schemaId = this.schemaId(telemetry.schema, ownerId, telemetry.name);
+		const id = `(${ownerId}, "${telemetry.name}")`;
+		res.push(`has_telemetry(${ownerId}, "${telemetry.name}", ${id}).`);
+		res.push(`telemetry(${id}).`);
+		res.push(`schema(${id}, ${schemaId}).`);
+		this.mapCommentDescriptionDisplayName('telemetry', telemetry, id, res);
 
-		let asp = `telemetry("${interfaceId}", "${telemetry.name}", "${schema}").\n`;
-
-		if (telemetry.schema && typeof telemetry.schema !== 'string') {
-			asp += DTDL.processSchema(telemetry.schema);
-		}
-
-		return asp;
+		DTDL.processSchema(schemaId, telemetry.schema, res);
 	};
 
-	public static processRelationship = (interfaceId: string, relationship: any) => {
-		let asp = `relationship("${interfaceId}", "${relationship.name}", "${relationship.target}"`;
-		asp += ').\n';
+	private static processRelationship(ownerId: string, relationship: any, res: string[]) {
+		const id = `(${ownerId}, "${relationship.name}")`;
+		res.push(`has_relationship(${ownerId}, "${relationship.name}", ${id}).`);
+		res.push(`relationship(${id}).`);
+		this.mapCommentDescriptionDisplayName('relationship', relationship, id, res);
 
 		if (relationship.minMultiplicity !== undefined) {
-			asp += `minMultiplicity("${interfaceId}", "${relationship.name}", ${relationship.minMultiplicity}).\n`;
+			res.push(`relationship(${id}, minMultiplicity, ${relationship.minMultiplicity}).`);
 		}
 
 		if (relationship.maxMultiplicity !== undefined) {
-			asp += `maxMultiplicity("${interfaceId}", "${relationship.name}", ${relationship.maxMultiplicity}).\n`;
+			res.push(`relationship(${id}, maxMultiplicity, ${relationship.maxMultiplicity}).`);
+		}
+
+		if (relationship.target) {
+			res.push(`relationship(${id}, target, "${relationship.target}").`);
 		}
 
 		if (relationship.writable) {
-			asp += `writable_relationship("${interfaceId}", "${relationship.name}").\n`;
+			res.push(`relationship(${id}, writable).`);
 		}
 
 		if (relationship.properties?.length) {
 			relationship.properties.forEach((prop) => {
-				const propSchema =
-					typeof prop.schema === 'string'
-						? prop.schema
-						: prop.schema['@id'] || `complex_${prop.name}`;
-
-				asp += `relationship_property("${interfaceId}", "${relationship.name}", "${prop.name}", "${propSchema}").\n`;
-
-				if (prop.writable) {
-					asp += `writable_relationship_property("${interfaceId}", "${relationship.name}", "${prop.name}").\n`;
-				}
-
-				if (prop.schema && typeof prop.schema !== 'string') {
-					asp += DTDL.processSchema(prop.schema);
-				}
+				res.push(`relationship(${id}, property, "${prop.name}").`);
+				this.processProperty(id, prop, res);
 			});
 		}
-
-		return asp;
 	};
 
-	public static processCommand = (interfaceId: string, command: any) => {
-		let asp = `command("${interfaceId}", "${command.name}").\n`;
+	private static processCommand(ownerId: string, command: any, res: string[]) {
+		const id = `(${ownerId}, "${command.name}")`;
+		res.push(`has_command(${ownerId}, "${command.name}", ${id}).`);
+		res.push(`command(${id}).`);
+		this.mapCommentDescriptionDisplayName('command', command, id, res);
 
 		if (command.request) {
-			const reqSchema =
-				typeof command.request.schema === 'string'
-					? command.request.schema
-					: command.request.schema['@id'] || `complex_${command.request.name}`;
-
-			asp += `command_request("${interfaceId}", "${command.name}", "${command.request.name}", "${reqSchema}").\n`;
+			const reqSchemaId = this.schemaId(command.request.schema, ownerId, command.request.name);
+			res.push(`command(${id}, request, ${reqSchemaId}).`);
 
 			if (command.request.nullable) {
-				asp += `command_request_nullable("${interfaceId}", "${command.name}").\n`;
+				res.push(`command(${id}, request, nullable).`);
 			}
 
-			if (command.request.schema && typeof command.request.schema !== 'string') {
-				asp += DTDL.processSchema(command.request.schema);
-			}
+			DTDL.processSchema(reqSchemaId, command.request.schema, res);
 		}
 
 		if (command.response) {
-			const respSchema =
-				typeof command.response.schema === 'string'
-					? command.response.schema
-					: command.response.schema['@id'] || `complex_${command.response.name}`;
-
-			asp += `command_response("${interfaceId}", "${command.name}", "${command.response.name}", "${respSchema}").\n`;
+			const respSchemaId = this.schemaId(command.response.schema, ownerId, command.response.name);
+			res.push(`command(${id}, response, ${respSchemaId}).`);
 
 			if (command.response.nullable) {
-				asp += `command_response_nullable("${interfaceId}", "${command.name}").\n`;
+				res.push(`command(${id}, response, nullable).`);
 			}
-
-			if (command.response.schema && typeof command.response.schema !== 'string') {
-				asp += DTDL.processSchema(command.response.schema);
-			}
+			DTDL.processSchema(respSchemaId, command.response.schema, res);
 		}
-
-		return asp;
 	};
 
-	public static processComponent = (interfaceId: string, component: any) => {
-		return `component("${interfaceId}", "${component.name}", "${component.schema}").\n`;
+	private static processComponent(ownerId: string, component: any, res: string[]) {
+		const id = `(${ownerId}, "${component.name}")`;
+		const schemaId = this.schemaId(component.schema, id, component.name);
+		res.push(`has_component(${ownerId}, "${component.name}", ${id}).`);
+		res.push(`component(${id}).`);
+		res.push(`schema(${id}, ${schemaId}).`);
+		this.mapCommentDescriptionDisplayName('component', component, id, res);
+
+		this.processSchema(schemaId, component.schema, res);
 	};
 
-	public static processInterface = (iface: any) => {
-		if (iface['@type'] !== 'Interface') return '';
-
-		let asp = '';
-		asp += `dtdl_interface("${iface['@id']}").\n`;
-
-		if (iface.displayName) {
-			const displayName =
-				typeof iface.displayName === 'string'
-					? iface.displayName
-					: Object.values(iface.displayName)[0];
-			asp += `displayName("${iface['@id']}", "${DTDL.escapeString(String(displayName))}").\n`;
+	private static processInterface(iface: any, res: string[]) {
+		if (iface['@type'] !== 'Interface') {
+			throw new Error(`Expecting @type Interface, got ${iface['@type']} instead.`);
 		}
+
+		const id = `"${iface['@id']}"`;
+		res.push(`interface(${id}).`);
+		this.mapCommentDescriptionDisplayName('interface', iface, id, res);
 
 		if (iface.contents?.length) {
-			asp += '';
 			iface.contents.forEach((content) => {
 				switch (content['@type']) {
 					case 'Property':
-						asp += DTDL.processProperty(iface['@id'], content);
+						DTDL.processProperty(id, content, res);
 						break;
 					case 'Telemetry':
-						asp += DTDL.processTelemetry(iface['@id'], content);
+						DTDL.processTelemetry(id, content, res);
 						break;
 					case 'Relationship':
-						asp += DTDL.processRelationship(iface['@id'], content);
+						DTDL.processRelationship(id, content, res);
 						break;
 					case 'Command':
-						asp += DTDL.processCommand(iface['@id'], content);
+						DTDL.processCommand(id, content, res);
 						break;
 					case 'Component':
-						asp += DTDL.processComponent(iface['@id'], content);
+						DTDL.processComponent(id, content, res);
 						break;
+					default:
+						throw new Error(`Unknown content of @type ${content['@type']}.`);
 				}
 			});
 		}
 
 		if (iface.extends) {
-			asp += '';
 			const extendsList = Array.isArray(iface.extends) ? iface.extends : [iface.extends];
 			extendsList.forEach((ext) => {
-				asp += `extends("${iface['@id']}", "${ext}").\n`;
+				res.push(`interface(${id}, extends, "${ext}").`);
 			});
 		}
 
 		if (iface.schemas?.length) {
-			asp += '';
-			iface.schemas.forEach((schema) => {
-				asp += DTDL.processSchema(schema);
-			});
+			iface.schemas.forEach((schema) => this.processSchema(null, schema, res));
 		}
-
-		return asp + '\n';
 	};
 
-	public static generateInferenceRules = () => {
-		return `valid_twin(TwinId, InterfaceId) :- dtdl_interface(InterfaceId), twin_type(TwinId, InterfaceId), check_required_properties(TwinId, InterfaceId).
-	  check_required_properties(TwinId, InterfaceId) :- property(InterfaceId, PropName, _), has_property(TwinId, PropName, _).
-	  valid_relationship(SourceId, TargetId, RelName) :- relationship(InterfaceId, RelName, TargetInterfaceId), twin_type(SourceId, InterfaceId), twin_type(TargetId, TargetInterfaceId), has_relationship(SourceId, RelName, TargetId).
-	  implements(TwinId, SuperInterfaceId) :- twin_type(TwinId, InterfaceId), extends(InterfaceId, SuperInterfaceId).
-	  implements(TwinId, SuperInterfaceId) :- implements(TwinId, InterfaceId), extends(InterfaceId, SuperInterfaceId).`;
-	};
-
-	public static tryToCorrect = async (dtdlinvalid: any) => {
-		const response = await fetch('/schema/dtdl.v4.schema.min.json');
-		const dtdlSchema = await response.json();
-
-		// TODOintegrate llm correction
-		const llmClient = null; // createLLMClient('groq', 0);
-		let a = await llmClient.invoke(
-			'try to correct this dtdl definition ' +
-				JSON.stringify(dtdlinvalid) +
-				' based on the dtdl schema ' +
-				dtdlSchema +
-				' RETURN ONLY THE CORRECT AND VALID JSON. ONLY VALID JSON AND NO OTHER CHARS, need raw JSON (no backticks, no json tag)'
-		);
-
-		let b = JSON.parse(JSON.stringify(a[0].kwargs.content));
-
-		console.log(b);
-		return b;
-	};
-
-	public static validateDtdl = async (dtdlDocument: any, tryCorrect: any) => {
+	private static async validateDtdl(dtdlDocument: object) {
 		const ajv: any = new Ajv({ allErrors: true });
-
 		addFormats(ajv);
 
-		const response = await fetch('/schema/dtdl.v4.schema.min.json');
-
-		const dtdlSchema = await response.json();
-
-		const validate: any = ajv.compile(dtdlSchema);
-
-		if (typeof dtdlDocument === 'string') {
-			dtdlDocument = JSON.parse(dtdlDocument);
-		}
-
-		let valid = false;
+		const dtdlSchema = await fetch('/schema/dtdl.v4.schema.min.json').then(response => response.json());
+		const validator: any = ajv.compile(dtdlSchema);
 
 		if (Array.isArray(dtdlDocument)) {
 			for (const iface of dtdlDocument) {
-				if (!validate(iface)) {
-					valid = false;
+				if (!validator(iface)) {
 					break;
-				} else {
-					valid = true;
 				}
 			}
 		} else {
-			valid = validate(dtdlDocument);
+			validator(dtdlDocument);
 		}
 
-		if (!valid && tryCorrect) {
-			//			let maxCorrectAttempt = 10;
-			//			let k = 0;
-			//			while (k < maxCorrectAttempt && !valid) {
-			//				console.log('Tentativo ', k);
-			//				valid = validate(dtdlDocument);
-			//				if (!valid) {
-			//					dtdlDocument = await DTDL.tryToCorrect(dtdlDocument);
-			//				}
-			//				k++;
-			//			}
+		if (validator.errors) {
+			throw new Error(JSON.stringify(validator.errors))
 		}
-
-		let errors = validate.errors;
-		if (!validate.errors) {
-			errors = [];
-		}
-
-		return { valid, errors };
 	};
 
-	public static areValidDTDLbyAzure = async (model: any) => {
-		if (!model) {
-			console.error('Invalid input: Model is undefined or null');
-			return false;
+	public static async parser(dtdlInput: string) {
+		const dtdl = Utils.parse_relaxed_json(dtdlInput);
+		await DTDL.validateDtdl(dtdl);
+
+		const res = [];
+
+		if (Array.isArray(dtdl)) {
+			dtdl.forEach((iface) => DTDL.processInterface(iface, res));
+		} else {
+			DTDL.processInterface(dtdl, res);
 		}
 
-		const interfaces = Array.isArray(model) ? model : [model];
-
-		if (interfaces.length === 0) {
-			console.error('Invalid input: Empty model array');
-			return false;
-		}
-
-		const interfaceMap = new Map<string, any>();
-
-		for (const iface of interfaces) {
-			if (!iface || typeof iface !== 'object' || !iface['@type']) {
-				console.error('Invalid DTDL element: Missing @type property');
-				return false;
-			}
-
-			const types = Array.isArray(iface['@type']) ? iface['@type'] : [iface['@type']];
-			if (!types.includes('Interface')) {
-				console.error(
-					'Constraint violation: Top-level element is not an Interface',
-					iface['@id'] || '[unnamed]'
-				);
-				return false;
-			}
-
-			if (iface['@id']) {
-				interfaceMap.set(iface['@id'], iface);
-			} else {
-				console.error('Invalid Interface: Missing @id property');
-				return false;
-			}
-		}
-
-		for (const iface of interfaces) {
-			if (!Array.isArray(iface.contents)) continue;
-
-			if (
-				iface.contents.some((element) => {
-					if (!element || typeof element !== 'object' || !element['@type']) return false;
-					const elementTypes = Array.isArray(element['@type'])
-						? element['@type']
-						: [element['@type']];
-					return elementTypes.includes('Command');
-				})
-			) {
-				console.error(
-					'Constraint violation: Commands are not allowed in DTDL for Azure Digital Twins',
-					iface['@id']
-				);
-				return false;
-			}
-
-			const components = iface.contents.filter((element) => {
-				if (!element || typeof element !== 'object' || !element['@type']) return false;
-				const elementTypes = Array.isArray(element['@type'])
-					? element['@type']
-					: [element['@type']];
-				return elementTypes.includes('Component');
-			});
-
-			for (const component of components) {
-				const schemaId = component.schema;
-				if (typeof schemaId !== 'string') {
-					console.error(
-						'Constraint violation: Component schema must be a string reference to an interface ID',
-						iface['@id']
-					);
-					return false;
-				}
-
-				const referencedInterface = interfaceMap.get(schemaId);
-				if (!referencedInterface) {
-					continue;
-				}
-
-				if (
-					Array.isArray(referencedInterface.contents) &&
-					referencedInterface.contents.some((element) => {
-						if (!element || typeof element !== 'object' || !element['@type']) return false;
-						const elementTypes = Array.isArray(element['@type'])
-							? element['@type']
-							: [element['@type']];
-						return elementTypes.includes('Component');
-					})
-				) {
-					console.error(
-						'Constraint violation: Only one level of component nesting is allowed',
-						iface['@id'],
-						schemaId
-					);
-					return false;
-				}
-			}
-
-			if (iface.extends) {
-				const extendsList = Array.isArray(iface.extends) ? iface.extends : [iface.extends];
-				for (const extendId of extendsList) {
-					if (typeof extendId !== 'string') {
-						console.error(
-							'Constraint violation: Interfaces cannot be defined inline, must use ID references',
-							iface['@id']
-						);
-						return false;
-					}
-				}
-			}
-
-			for (const component of components) {
-				if (typeof component.schema !== 'string') {
-					console.error(
-						'Constraint violation: Interfaces cannot be defined inline, must use ID references',
-						iface['@id']
-					);
-					return false;
-				}
-			}
-		}
-
-		return true;
-	};
-
-	public static parser = async (dtdlInput: any) => {
-
-		if (!dtdlInput) {
-			return '% Error mapping DTDL to ASP: No input provided';
-		}
-
-		try {
-			const dtdl = typeof dtdlInput === 'string' ? JSON.parse(dtdlInput) : dtdlInput;
-			const validationResult = await DTDL.validateDtdl(dtdl, false);
-
-			if (!validationResult.valid) {
-				return `INVALID ${JSON.stringify(validationResult.errors)}`;
-			}
-
-			let aspProgram = '';
-
-			if (Array.isArray(dtdl)) {
-				dtdl.forEach((iface) => (aspProgram += DTDL.processInterface(iface)));
-			} else {
-				aspProgram += DTDL.processInterface(dtdl);
-			}
-
-			aspProgram += DTDL.generateInferenceRules();
-			return aspProgram;
-		} catch (error) {
-			return `% Error mapping DTDL to ASP: ${
-				error instanceof Error ? error.message : String(error)
-			}`;
-		}
+		return res.join('\n');
 	};
 }
