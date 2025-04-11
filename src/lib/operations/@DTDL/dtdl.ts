@@ -7,13 +7,9 @@ export class DTDL {
 		return str.replace(/"/g, '\\"');
 	};
 
-	private static mapStringProperty(predicate: string, id: string, name: string, value: string, res: string[]) {
-		res.push(`${predicate}(${id}, ${name}, "${DTDL.escapeString(value)}").`);
-	}
-
-	private static mapLocalizableStringProperty(predicate: string, id: string, name: string, value: string, res: string[]) {
-		const the_value = typeof value === 'string' ? value : JSON.stringify(value);
-		res.push(`${predicate}(${id}, ${name}, "${DTDL.escapeString(the_value)}").`);
+	private static mapLocalizableStringProperty(id: string, name: string, value: string, res: string[]) {
+		const the_value = typeof value === 'string' ? value : value["en"];  // we only support English
+		res.push(`${name}(${id}, "${DTDL.escapeString(the_value)}").`);
 	}
 
 	private static schemaId(schema: any, ownerId?: string, name?: string) {
@@ -26,15 +22,15 @@ export class DTDL {
 		return `(${ownerId}, ${name})`;
 	}
 
-	private static mapCommentDescriptionDisplayName(predicate: string, obj: any, id: string, res: string[]) {
+	private static mapMetadata(obj: any, id: string, res: string[]) {
 		if (obj.comment) {
-			this.mapStringProperty(predicate, id, 'comment', obj['comment'], res);
+			res.push(`comment(${id}, "${DTDL.escapeString(obj['comment'])}").`);
 		}
 		if (obj.description) {
-			this.mapLocalizableStringProperty(predicate, id, 'description', obj['description'], res);
+			this.mapLocalizableStringProperty(id, 'description', obj['description'], res);
 		}
 		if (obj.displayName) {
-			this.mapLocalizableStringProperty(predicate, id, 'displayName', obj['displayName'], res);
+			this.mapLocalizableStringProperty(id, 'displayName', obj['displayName'], res);
 		}
 	}
 
@@ -47,14 +43,14 @@ export class DTDL {
 			case 'Array':
 				const elemSchemaId = this.schemaId(schema.elementSchema, id, 'element');
 				res.push(`array(${id}, ${elemSchemaId}).`);
-				this.mapCommentDescriptionDisplayName('array', schema, id, res);
+				this.mapMetadata(schema, id, res);
 				DTDL.processSchema(elemSchemaId, schema.elementSchema, res);
 				break;
 
 			case 'Enum':
 				const valueSchemaId = this.schemaId(schema.valueSchema, id, 'value');
 				res.push(`enum(${id}, ${valueSchemaId}).`);
-				this.mapCommentDescriptionDisplayName('enum', schema, id, res);
+				this.mapMetadata(schema, id, res);
 				DTDL.processSchema(valueSchemaId, schema.valueSchema, res);
 
 				if (schema.enumValues?.length) {
@@ -64,29 +60,30 @@ export class DTDL {
 								? `"${DTDL.escapeString(value.enumValue)}"`
 								: value.enumValue;
 
-						res.push(`enum(${id}, value, "${value.name}", ${enumVal}).`);
+						res.push(`enum_value(${id}, "${value.name}", ${enumVal}).`);
 					});
 				}
 				break;
 
 			case 'Map':
-				const mapKeySchemaId = this.schemaId(schema.mapKey.schema, id, 'key')
+				// const mapKeySchemaId = this.schemaId(schema.mapKey.schema, id, 'key')   // must be string, let's skip it
 				const mapValueSchemaId = this.schemaId(schema.mapValue.schema, id, 'value')
-				res.push(`map(${id}, ${mapKeySchemaId}, ${mapValueSchemaId}).`);
-				this.mapCommentDescriptionDisplayName('map', schema, id, res);
+				// res.push(`map(${id}, ${mapKeySchemaId}, ${mapValueSchemaId}).`);
+				res.push(`map(${id}, ${mapValueSchemaId}).`);
+				this.mapMetadata(schema, id, res);
 				// DTDL.processSchema(mapKeySchemaId, schema.mapKey.schema, res);   // must be string
 				DTDL.processSchema(mapValueSchemaId, schema.mapValue.schema, res);
 				break;
 
 			case 'Object':
 				res.push(`object(${id}).`);
-				this.mapCommentDescriptionDisplayName('object', schema, id, res);
+				this.mapMetadata(schema, id, res);
 
 				if (schema.fields?.length) {
 					schema.fields.forEach((field) => {
 						const fieldSchemaId = this.schemaId(field.schema, id, field.name);
-						res.push(`field(${id}, "${field.name}", ${fieldSchemaId}).`);
-						this.mapCommentDescriptionDisplayName('array', schema, id, res);
+						res.push(`has_field(${id}, "${field.name}", ${fieldSchemaId}).`);
+						this.mapMetadata(schema, id, res);
 						DTDL.processSchema(fieldSchemaId, field.schema, res);
 					});
 				}
@@ -102,13 +99,13 @@ export class DTDL {
 		res.push(`schema(${id}, ${schemaId}).`);
 
 		if (property['@id']) {
-			res.push(`property(${id}, id, "${property['@id']}").`);
+			res.push(`id(${id}, "${property['@id']}").`);
 		}
 
-		this.mapCommentDescriptionDisplayName('property', property, id, res);
+		this.mapMetadata(property, id, res);
 
 		if (property.writable) {
-			res.push(`property(${id}, writable).`);
+			res.push(`writable(${id}).`);
 		}
 
 		DTDL.processSchema(schemaId, property.schema, res);
@@ -120,7 +117,7 @@ export class DTDL {
 		res.push(`has_telemetry(${ownerId}, "${telemetry.name}", ${id}).`);
 		res.push(`telemetry(${id}).`);
 		res.push(`schema(${id}, ${schemaId}).`);
-		this.mapCommentDescriptionDisplayName('telemetry', telemetry, id, res);
+		this.mapMetadata(telemetry, id, res);
 
 		DTDL.processSchema(schemaId, telemetry.schema, res);
 	};
@@ -129,27 +126,26 @@ export class DTDL {
 		const id = `(${ownerId}, "${relationship.name}")`;
 		res.push(`has_relationship(${ownerId}, "${relationship.name}", ${id}).`);
 		res.push(`relationship(${id}).`);
-		this.mapCommentDescriptionDisplayName('relationship', relationship, id, res);
+		this.mapMetadata(relationship, id, res);
 
 		if (relationship.minMultiplicity !== undefined) {
-			res.push(`relationship(${id}, minMultiplicity, ${relationship.minMultiplicity}).`);
+			res.push(`minMultiplicity(${id}, ${relationship.minMultiplicity}).`);
 		}
 
 		if (relationship.maxMultiplicity !== undefined) {
-			res.push(`relationship(${id}, maxMultiplicity, ${relationship.maxMultiplicity}).`);
+			res.push(`maxMultiplicity(${id}, ${relationship.maxMultiplicity}).`);
 		}
 
 		if (relationship.target) {
-			res.push(`relationship(${id}, target, "${relationship.target}").`);
+			res.push(`target(${id}, "${relationship.target}").`);
 		}
 
 		if (relationship.writable) {
-			res.push(`relationship(${id}, writable).`);
+			res.push(`writable(${id}).`);
 		}
 
 		if (relationship.properties?.length) {
 			relationship.properties.forEach((prop) => {
-				res.push(`relationship(${id}, property, "${prop.name}").`);
 				this.processProperty(id, prop, res);
 			});
 		}
@@ -159,14 +155,14 @@ export class DTDL {
 		const id = `(${ownerId}, "${command.name}")`;
 		res.push(`has_command(${ownerId}, "${command.name}", ${id}).`);
 		res.push(`command(${id}).`);
-		this.mapCommentDescriptionDisplayName('command', command, id, res);
+		this.mapMetadata(command, id, res);
 
 		if (command.request) {
 			const reqSchemaId = this.schemaId(command.request.schema, ownerId, command.request.name);
-			res.push(`command(${id}, request, ${reqSchemaId}).`);
+			res.push(`command_request(${id}, ${reqSchemaId}).`);
 
 			if (command.request.nullable) {
-				res.push(`command(${id}, request, nullable).`);
+				res.push(`nullable_command_request(${id}).`);
 			}
 
 			DTDL.processSchema(reqSchemaId, command.request.schema, res);
@@ -174,10 +170,10 @@ export class DTDL {
 
 		if (command.response) {
 			const respSchemaId = this.schemaId(command.response.schema, ownerId, command.response.name);
-			res.push(`command(${id}, response, ${respSchemaId}).`);
+			res.push(`command_response(${id}, ${respSchemaId}).`);
 
 			if (command.response.nullable) {
-				res.push(`command(${id}, response, nullable).`);
+				res.push(`nullable_command_response(${id}).`);
 			}
 			DTDL.processSchema(respSchemaId, command.response.schema, res);
 		}
@@ -189,7 +185,7 @@ export class DTDL {
 		res.push(`has_component(${ownerId}, "${component.name}", ${id}).`);
 		res.push(`component(${id}).`);
 		res.push(`schema(${id}, ${schemaId}).`);
-		this.mapCommentDescriptionDisplayName('component', component, id, res);
+		this.mapMetadata(component, id, res);
 
 		this.processSchema(schemaId, component.schema, res);
 	};
@@ -201,7 +197,7 @@ export class DTDL {
 
 		const id = `"${iface['@id']}"`;
 		res.push(`interface(${id}).`);
-		this.mapCommentDescriptionDisplayName('interface', iface, id, res);
+		this.mapMetadata(iface, id, res);
 
 		if (iface.contents?.length) {
 			iface.contents.forEach((content) => {
@@ -230,7 +226,7 @@ export class DTDL {
 		if (iface.extends) {
 			const extendsList = Array.isArray(iface.extends) ? iface.extends : [iface.extends];
 			extendsList.forEach((ext) => {
-				res.push(`interface(${id}, extends, "${ext}").`);
+				res.push(`extends(${id}, "${ext}").`);
 			});
 		}
 
@@ -261,7 +257,7 @@ export class DTDL {
 		}
 	};
 
-	public static async parser(dtdlInput: string) {
+	public static async parser(dtdlInput: string, prefix: string) {
 		const dtdl = Utils.parse_relaxed_json(dtdlInput);
 		await DTDL.validateDtdl(dtdl);
 
@@ -273,6 +269,6 @@ export class DTDL {
 			DTDL.processInterface(dtdl, res);
 		}
 
-		return res.join('\n');
+		return res.map(fact => `${prefix}${fact}`).join('\n');
 	};
 }

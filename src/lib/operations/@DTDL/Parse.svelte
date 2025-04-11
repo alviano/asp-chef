@@ -7,6 +7,7 @@
     const operation = "@DTDL/Parse";
     const default_extra_options = {
         predicate: '__base64__',
+        prefix: '',
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
@@ -17,7 +18,7 @@
                 for (const atom of part) {
                     if (atom.predicate === options.predicate) {
                         const content = Base64.decode(atom.terms[0].string);
-                        const program = await DTDL.parser(content);
+                        const program = await DTDL.parser(content, options.prefix);
                         const encoded_term = Base64.encode(program);
                         input_part.push(Utils.parse_atom(`${options.predicate}("${encoded_term}")`));
                     } else {
@@ -52,5 +53,7 @@
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="DTDL-predicate" />
+        <InputGroupText>Prefix</InputGroupText>
+        <Input type="text" placeholder="prefix" bind:value={options.prefix} on:input={edit} data-testid="DTDL-prefix" />
     </InputGroup>
 </Operation>

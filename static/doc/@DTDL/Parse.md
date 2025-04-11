@@ -4,6 +4,8 @@ The Digital Twin is expected to be Base64-encoded.
 Facts are put in the same predicate, as a single Base64-encoded content.
 You can use **Search Models** or other ingredients to process such facts (for example, to combine them with an ASP program).
 
+A prefix for the predicates representing the digital twin(s) can be specified.  
+
 Refer https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v4/DTDL.v4.md for details of DTDL.
 
 §§§§
@@ -34,14 +36,14 @@ Let's consider the first example from the documentation:
 If we store the above content in an **Encode** ingredient, and after that we add a **@DTDL/Parse** ingredient, we obtain (a Base64-encoded fact encoding) the following facts:
 ```asp
 interface("dtmi:com:example:Thermostat;1").
-interface("dtmi:com:example:Thermostat;1", displayName, "Thermostat").
+displayName("dtmi:com:example:Thermostat;1", "Thermostat").
 has_telemetry("dtmi:com:example:Thermostat;1", "temp", ("dtmi:com:example:Thermostat;1", "temp")).
 telemetry(("dtmi:com:example:Thermostat;1", "temp")).
 schema(("dtmi:com:example:Thermostat;1", "temp"), "double").
 has_property("dtmi:com:example:Thermostat;1", "setPointTemp", ("dtmi:com:example:Thermostat;1", "setPointTemp")).
 property(("dtmi:com:example:Thermostat;1", "setPointTemp")).
 schema(("dtmi:com:example:Thermostat;1", "setPointTemp"), "double").
-property(("dtmi:com:example:Thermostat;1", "setPointTemp"), writable).
+writable(("dtmi:com:example:Thermostat;1", "setPointTemp")).
 ```
 
 Add a **Search Models** ingredient to effectively add the above atoms to the processed interpretation, and after that just play with other ingredients.
@@ -50,10 +52,10 @@ For example, a graphical representation can be obtained combining **Encode** and
 {
   data: {
     nodes: [
-      {{= {{f"{ id: "${I}", label: "{{= Name : interface("${I}", displayName, Name) }}", group: "interface" }"}} : interface(I) }}
+      {{= {{f"{ id: "${I}", label: "{{= Name : displayName("${I}", Name) }}", group: "interface" }"}} : interface(I) }}
       {{= {{f"{ id: '${P}', label: "{{= S : schema(${P}, S) }}", group: "property" }"}} : property(P) }}
       {{= {{f"{ id: '${T}', label: "{{= S : schema(${T}, S) }}", group: "telemetry" }"}} : telemetry(T) }}
-      {{= {{f"{ id: '${C}', label: "{{= S : command(${C}, request, S) }} => {{= S : command(${C}, response, S) }}", group: "command" }"}} : command(C) }}
+      {{= {{f"{ id: '${C}', label: "{{= S : command_request(${C}, S) }} => {{= S : command_response(${C}, S) }}", group: "command" }"}} : command(C) }}
       {{= {{f"{ id: '${C}', label: "{{= S : schema(${C}, S) }}", group: "component" }"}} : component(C) }}
       {{= {{f"{ id: '${R}', group: "relationship" }"}} : relationship(R) }}
     ],
