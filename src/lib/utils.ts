@@ -653,14 +653,18 @@ export class Utils extends BaseUtils {
             } else if (atom.predicate === 'base64') {
                 replacement.push(`${prefix}${terms.map(term => Base64.decode(term)).join(term_separator)}${suffix}`);
             } else if (atom.predicate === 'tree') {
-                const tree = trees.get(atom.terms[0].str);
-                function tree_string(node: string) {
-                    const res = tree.nodes[node];
-                    const replacement = !tree.links[node] || tree.links[node].length === 0 ? '' :
-                        tree.links[node].map(tree_string).join(tree.separator);
-                    return res.replace(tree.children_on, replacement);
+                if (atom.terms.length >= 2 && atom.terms[1].functor === 'root') {
+                    const tree = trees.get(atom.terms[0].str);
+
+                    function tree_string(node: string) {
+                        const res = tree.nodes[node];
+                        const replacement = !tree.links[node] || tree.links[node].length === 0 ? '' :
+                            tree.links[node].map(tree_string).join(tree.separator);
+                        return res.replace(tree.children_on, replacement);
+                    }
+
+                    replacement.push(`${prefix}${tree_string(tree.root)}${suffix}`);
                 }
-                replacement.push(`${prefix}${tree_string(tree.root)}${suffix}`);
             } else if (atom.predicate === 'qrcode') {
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
