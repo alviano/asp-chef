@@ -10,7 +10,8 @@ import {clingo_remote_on, clingo_remote_uuid, processing_index, server_url} from
 import {get} from "svelte/store";
 import {Base64} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
-import {toJson} from 'really-relaxed-json';
+import { toJson } from 'really-relaxed-json';
+import {JSONPath} from "jsonpath-plus";
 
 const dom_purify_config = new DOMPurifyConfig(consts);
 
@@ -488,16 +489,16 @@ export class Utils extends BaseUtils {
                     persistent_atoms.push(...query_answer);
                     message = message.replace(the_match[0], '');
                 } else {
-                    message = message.replace(the_match[0], Utils.markdown_process_match([...persistent_atoms, ...query_answer], index));
+                    message = message.replace(the_match[0], Utils.markdown_process_match(part, [...persistent_atoms, ...query_answer], index));
                 }
             }
         }
         return message;
     }
 
-    static markdown_process_match(query_answer, index) {
+    static markdown_process_match(part, query_answer, index) {
         const output_predicates = [
-            'base64', 'qrcode', 'png', 'gif', 'jpeg', 'th', 'tr', 'ol', 'ul', 'matrix', 'tree',
+            'base64', 'qrcode', 'png', 'gif', 'jpeg', 'th', 'tr', 'ol', 'ul', 'matrix', 'tree', 'json'
         ];
 
         let matrix = null;
@@ -637,6 +638,19 @@ export class Utils extends BaseUtils {
             return true;
         });
 
+        // handle json atoms
+        output_atoms = output_atoms.filter(atom => {
+            if (atom.predicate !== 'json') {
+                return true;
+            }
+            if (atom.terms.length < 2) {
+                Utils.snackbar(`Invalid atom in \#${index}: ${atom.str}`);
+                return false;
+            }
+            
+            return true;
+        });
+
         // sort atoms
         output_atoms = _.orderBy(output_atoms, [atom => {
             if (atom.predicate === 'th') {
@@ -671,6 +685,37 @@ export class Utils extends BaseUtils {
                 } else {
                     replacement.push(`${prefix}[${terms.join(term_separator)}](qrcode)${suffix}`);
                 }
+            }else if (atom.predicate === 'json') { 
+                const jsonRegex = /json\((?:[^)]*?,\s*)*?([_a-zA-Z][_a-zA-Z0-9]*)(?=\s*(?:,|\)))/g;
+
+                const jsonPredicate = [...atom.str.matchAll(jsonRegex).map(m => m[1])]
+                        
+                const candidateJsons = part.filter(atom => atom.predicate === jsonPredicate[0]);
+
+                const jsonObjects = [];
+                candidateJsons.forEach(atom => {
+                    atom.terms.forEach(term => {
+                        try {
+                            const decodedString = Base64.decode(term.str);
+                            const json = JSON.parse(decodedString);
+                            jsonObjects.push(json);
+                        } catch (e) {
+                            //ignore
+                        }
+                    });       
+                });
+
+                const jsonPathQueries = atom.terms.map(term => term.str).filter(str => typeof str === 'string' && /^"\$\.[\w\.\[\]'"-]+"$/.test(str)).map(str => str.slice(1, -1));
+
+                const result = [];
+
+                jsonPathQueries.forEach(jpquery => {
+                    jsonObjects.forEach(json => { 
+                        result.push(JSONPath({ path: jpquery, json: json }));
+                    });
+                });
+
+                replacement.push(`${result.join(term_separator)}`);
             } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
