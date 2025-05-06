@@ -19,7 +19,7 @@ export class Dumbo {
         return Utils.parse_atom(`${predicate}(${prefix}"${encoded_term}")`);
     }
 
-    public static async fetch(url, data, ) {
+    public static async fetch(url, data) {
         const response = await fetch(`${get(server_url)}/dumbo/${url}`, {
             method: "POST",
             mode: "cors",
