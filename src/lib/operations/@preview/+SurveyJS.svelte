@@ -22,6 +22,7 @@
 
     onMount(async () => {
         let atom = configuration_atom;
+        
         if (atom.terms.length !== 1) {
             Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. SurveyJS`);
             return;
@@ -52,5 +53,5 @@
 </script>
 
 <div class="survey-container" bind:this={survey_container}></div>
-<Button on:click={() => { if (survey.validate()) on_data_change(survey.data) } }>OK</Button>
-<Button on:click={() => on_data_change(null) }>Clear</Button>
+<Button class="inputButton" on:click={() => { if (survey.validate()) on_data_change(survey.data) } }>OK</Button>
+<Button class="inputButton" on:click={() => on_data_change(null) }>Clear</Button>
