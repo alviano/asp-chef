@@ -43,6 +43,8 @@ Predicate `base64/1` decodes Base64-encoded content.
 
 Predicate `qrcode/1` (and links `[...](qrcode)`) are shown as QR-codes.
 
+Predicate `json/2+` can be used to extract data from a JSON using jsonpath-plus queries. The predicate accepts the predicate of the encoded base64 JSON, and one or more jsonpath-plus query.
+
 Mustache queries have access to the **Lua Chef Library**.
 Check details in the following operations:
 - **Lua Expression @-terms**
