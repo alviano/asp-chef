@@ -57,7 +57,9 @@
     }
 
     onMount(async () => {
-        templates = await Dumbo.fetch_core_templates();
+        if (id !== undefined) {
+            templates = await Dumbo.fetch_core_templates();
+        }
 
         listeners.set(id, async (input, options) => {
             if (!output_div) {
@@ -100,14 +102,12 @@
         />
     </InputGroup>
     <div slot="output" style="height: {options.height}px; overflow-y: auto" data-testid="Documentation-content" bind:this={output_div}>
-        {#each templates as template}
-            {#if template.match(new RegExp(options.filter, 'i'))}
-                <div style="margin: 0.5em">
-                    <h2>{template}</h2>
-                    {@html Utils.render_markdown(Dumbo.core_template_documentation(template))}
-                </div>
-                <hr />
-            {/if}
+        {#each templates.filter(template => template.match(new RegExp(options.filter, 'i'))) as template}
+            <div style="margin: 0.5em">
+                <h2>{template}</h2>
+                {@html Utils.render_markdown(Dumbo.core_template_documentation(template))}
+            </div>
+            <hr />
         {/each}
     </div>
 </Operation>

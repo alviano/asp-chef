@@ -49,10 +49,22 @@ export class Dumbo {
             }
             this.__core_templates = templates;
         }
-        return this.__core_templates.keys();
+        return [...this.__core_templates.keys()];
     }
 
     public static core_template_documentation(template: string) {
-        return this.__core_templates.get(template).documentation;
+        try {
+            return this.__core_templates.get(template).documentation;
+        } catch (e) {
+            return "";
+        }
+    }
+
+    public static core_template_predicates(template: string) {
+        try {
+            return this.__core_templates.get(template).predicates;
+        } catch (e) {
+            return [];
+        }
     }
 }
