@@ -6,6 +6,7 @@
     const operation = "@preview/SurveyJS";
     const default_extra_options = {
         predicate: "__survey__",
+        IO_predicate: "__base64__",
         multistage: false,
         echo: false,
         show_model_index: false,
@@ -19,7 +20,7 @@
             listeners.get(id)(input);
         } catch (error) { /* component not mounted, possibly because of headless mode */ }
         const result = options.echo ? input : input.map(part => part.filter(atom => atom.predicate !== options.predicate));
-        return options.data ? result.map(part => [...part, Utils.parse_atom(`__base64__("${Base64.encode(JSON.stringify(options.data))}")`)]) : result;
+        return options.data ? result.map(part => [...part, Utils.parse_atom(`${options.IO_predicate}("${Base64.encode(JSON.stringify(options.data))}")`)]) : result;
     });
 </script>
 
@@ -59,6 +60,10 @@
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="SurveyJS-predicate" />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
         <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText>I/O Predicate</InputGroupText>
+        <Input type="text" placeholder="predicate" bind:value={options.IO_predicate} on:input={edit} data-testid="SurveyJS-IOpredicate" />
     </InputGroup>
     <div slot="output">
         <div class="m-1" style="overflow-y: auto;">
