@@ -73,7 +73,7 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <SurveyJS part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" data="{options.data}"
+                        <SurveyJS part="{model}" IO_predicate = "{options.IO_predicate}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" data="{options.data}"
                                   on_data_change="{(d) => { options.data = d; edit(); } }"  />
                     {/each}
                 {/key}
