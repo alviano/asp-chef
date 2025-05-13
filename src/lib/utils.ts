@@ -420,6 +420,31 @@ export class Utils extends BaseUtils {
         }
     }
 
+    static extract_json_values(part, IO_predicate, data) {
+        const candidate_jsons = part.filter(atom => atom.predicate === IO_predicate);
+        const jsons = [];
+
+        candidate_jsons.forEach(atom => {
+            atom.terms.forEach(json => {
+                try {
+                    jsons.push(JSON.parse(Base64.decode(json.str)));
+                } catch (error) {
+                    //ignore
+                }
+            });
+        });
+
+        
+        if (jsons.length > 0) {
+            let mergedData = {};
+            jsons.forEach(json => {
+                mergedData = { ...mergedData, ...json };
+            });
+            data = mergedData;
+        }
+        return data;
+    }
+
     private static __preprocess_mustache(message) {
         const matches = message.matchAll(/\{\{([f]?)"(((?!"}}).)*)"}}/gs);
         if (matches !== null) {

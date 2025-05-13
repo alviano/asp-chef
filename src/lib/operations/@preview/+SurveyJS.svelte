@@ -9,6 +9,7 @@
     // import { LayeredDarkPanelless } from "survey-core/themes";
 
     export let part;
+    export let IO_predicate;
     export let index;
     export let configuration_atom;
     export let multistage;
@@ -38,6 +39,7 @@
             const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
             survey = new Model(configuration);
+            survey.data = Utils.extract_json_values(part, IO_predicate, data);
             survey.showCompleteButton = false;
             survey.render(survey_container);
             // survey.applyTheme(LayeredDarkPanelless);
