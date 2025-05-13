@@ -137,6 +137,7 @@
     <InputGroup>
         {#each predicate_mapping as [predicate, new_name], index}
             <InputGroup>
+                <InputGroupText></InputGroupText>
                 <Input value="{predicate}" disabled="{true}" />
                 <Input type="text"
                        value={new_name}
@@ -154,7 +155,7 @@
                 <h2>{options.template_name}</h2>
                 {@html Utils.render_markdown(Dumbo.core_template_documentation(options.template_name))}
                 <hr />
-                <pre class="position-relative p-2"><div class="position-absolute top-0 end-0" style="z-index: 1;"><button class="btn btn-secondary btn-sm" on:click={() => navigator.clipboard.writeText(pack_apply_template(options.template_name))} aria-label="copy"><i class="bi-clipboard-plus"></i></button></div><code>{pack_apply_template(options.template_name, options.predicate_mapping)}</code></pre>
+                <pre class="position-relative p-2"><div class="position-absolute top-0 end-0" style="z-index: 1;"><button class="btn btn-secondary btn-sm" on:click={() => navigator.clipboard.writeText(pack_apply_template(options.template_name, options.predicate_mapping))} aria-label="copy"><i class="bi-clipboard-plus"></i></button></div><code>{pack_apply_template(options.template_name, options.predicate_mapping)}</code></pre>
             </div>
         {/if}
     </div>
