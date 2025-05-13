@@ -8,6 +8,7 @@
     const default_extra_options = {
         height: 500,
         filter: "",
+        show_rules: false,
         output_predicate: "",
     };
 
@@ -27,8 +28,9 @@
         const new_atoms = [];
         for (let template of templates.filter(template => template.match(new RegExp(options.filter, 'i')))) {
             const doc = Dumbo.core_template_documentation(template);
+            const rules = Dumbo.core_template_program(template);
             const content = Base64.encode(
-                `## ${template}\n\n${doc}`
+                `## ${template}\n\n${doc}` + (options.show_rules ? `\n\n#### Template Rules\n\n\`\`\`\n${rules}\n\`\`\`` : '')
             );
             const encoded_content = `${options.output_predicate}("${content}")`;
             new_atoms.push(Utils.parse_atom(encoded_content));
@@ -38,7 +40,7 @@
 </script>
 
 <script>
-    import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount, tick} from "svelte";
 
@@ -85,6 +87,7 @@
                style="max-width: 5em;"
                on:input={edit}
         />
+        <Button outline="{!options.show_rules}" on:click={() => { options.show_rules = !options.show_rules; edit(); }}>Show Rules</Button>
         <InputGroupText>Output predicate</InputGroupText>
         <Input type="text"
                bind:value="{options.output_predicate}"
@@ -106,6 +109,10 @@
             <div style="margin: 0.5em">
                 <h2>{template}</h2>
                 {@html Utils.render_markdown(Dumbo.core_template_documentation(template))}
+                {#if options.show_rules}
+                    <h4>Template Rules</h4>
+                    {@html Utils.render_markdown('```asp\n' + Dumbo.core_template_program(template) + '\n```')}
+                {/if}
             </div>
             <hr />
         {/each}
