@@ -6,11 +6,11 @@ to use this shortening service on other GitHub accounts and repository
 -->
 
 <script>
-    import {page} from '$app/stores';
+    import {page} from '$app/state';
     import {Recipe} from "$lib/recipe";
 
     async function fetch_url() {
-        const url = await Recipe.expand_if_short_link($page.url);
+        const url = await Recipe.expand_if_short_link($page.url, false);
         if (url.toString() !== location.href.toString()) {
             location.href = url;
         } else {
