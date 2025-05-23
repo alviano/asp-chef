@@ -6,7 +6,7 @@ to use this shortening service on other GitHub accounts and repository
 -->
 
 <script>
-    import {page} from '$app/state';
+    import {page} from '$app/stores';
     import {Recipe} from "$lib/recipe";
 
     async function fetch_url() {
