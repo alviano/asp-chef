@@ -2,7 +2,7 @@
   import {Icon, Nav, Navbar, NavbarBrand, NavItem, NavLink} from '@sveltestrap/sveltestrap';
   import Popover from "$lib/Popover.svelte";
   import {consts} from "$lib/consts";
-  import {page} from '$app/stores';
+  import {page} from '$app/state';
 </script>
 
 <Navbar color="dark" expand="md" class="navbar-dark d-print-none" dark>
