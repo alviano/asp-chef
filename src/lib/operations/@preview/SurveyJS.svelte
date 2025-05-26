@@ -6,8 +6,8 @@
     const operation = "@preview/SurveyJS";
     const default_extra_options = {
         predicate: "__survey__",
-        input_predicate: "__base64__",
-        output_predicate: "__surveyoutput__",
+        input_predicate: "__input__",
+        output_predicate: "__output__",
         instance_index: 0,
         multistage: false,
         echo: false,
