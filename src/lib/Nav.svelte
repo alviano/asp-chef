@@ -1,6 +1,8 @@
 <script>
-  import {Collapse, Icon, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from '@sveltestrap/sveltestrap';
+  import {Icon, Nav, Navbar, NavbarBrand, NavItem, NavLink} from '@sveltestrap/sveltestrap';
   import Popover from "$lib/Popover.svelte";
+  import {consts} from "$lib/consts";
+  import {page} from '$app/state';
 </script>
 
 <Navbar color="dark" expand="md" class="navbar-dark d-print-none" dark>
@@ -15,12 +17,15 @@
         <p>
           ASP Chef is a simple, intuitive web app for analysing answer sets without having to deal with complex tools or programming languages.
         </p>
-        <p>
-          Proudly brought to you by Mario Alviano, Davide Cirimele and Luis Angel Rodriguez Reiners.
-        </p>
-        <p>
-          More details on the GitHub repository <code>https://github.com/alviano/asp-chef</code>.
-        </p>
+        {#if new URL(page.url).host === new URL(consts.DOMAIN).host}
+          <p>
+            Concept, idea and first implementation proudly brought to you by Mario Alviano, Davide Cirimele and Luis Angel Rodriguez Reiners.
+            Open source
+          </p>
+          <p>
+            More details on the GitHub repository <code>https://github.com/alviano/asp-chef</code>.
+          </p>
+        {/if}
         <p>
           <strong>Click for some examples and tutorials!</strong>
         </p>

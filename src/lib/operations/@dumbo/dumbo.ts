@@ -67,4 +67,12 @@ export class Dumbo {
             return [];
         }
     }
+
+    public static core_template_program(template: string) {
+        try {
+            return this.__core_templates.get(template).program;
+        } catch (e) {
+            return [];
+        }
+    }
 }

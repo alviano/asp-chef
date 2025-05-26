@@ -337,7 +337,7 @@ export class Recipe {
         };
     }
 
-    static async expand_if_short_link(recipe_url: string) : Promise<string> {
+    static async expand_if_short_link(recipe_url: string, include_domain = true) : Promise<string> {
         const the_recipe_url = new URL(recipe_url);
         const parts = Utils.split_with_limit(the_recipe_url.pathname, "/", 3);
         if (parts.length === 3 && parts[1] === "s") {
@@ -366,7 +366,7 @@ export class Recipe {
                 content = await response.text();
             }
             const expanded_url = new URL(content);
-            return `${consts.DOMAIN}${expanded_url.hash}`;
+            return `${include_domain ? consts.DOMAIN : ''}/${expanded_url.hash}`;
         } else {
             return recipe_url;
         }
