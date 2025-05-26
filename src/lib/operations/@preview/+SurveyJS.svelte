@@ -5,21 +5,22 @@
     import {Utils} from "$lib/utils.js";
     import {Base64} from "js-base64";
     import {onMount} from "svelte";
-    import {Button} from "@sveltestrap/sveltestrap";
+    import {Button, Input} from "@sveltestrap/sveltestrap";
     // import { LayeredDarkPanelless } from "survey-core/themes";
 
     export let part;
-    export let IO_predicate;
     export let index;
     export let configuration_atom;
     export let multistage;
-    export let data;
-    export let on_data_change = (data) => {};
+    export let input;
+    export let on_output_change = (data) => {};
+    export let on_value_change = (data) => {};
 
     let survey_container;
     let survey;
+    
 
-    $: survey && data ? survey.data = data : null;
+    $: survey && input ? survey.data = input : null;
 
     onMount(async () => {
         let atom = configuration_atom;
@@ -39,9 +40,13 @@
             const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
             survey = new Model(configuration);
-            survey.data = Utils.extract_json_values(part, IO_predicate, data);
+            survey.data = input;
             survey.showCompleteButton = false;
             survey.render(survey_container);
+
+            survey.onValueChanged.add(sender => {
+                on_value_change(sender.data);
+            });
             // survey.applyTheme(LayeredDarkPanelless);
             // survey.onValueChanged.add(sender => {
             //     if (survey.validate()) {
@@ -55,5 +60,5 @@
 </script>
 
 <div class="survey-container" bind:this={survey_container}></div>
-<Button class="inputButton" on:click={() => { if (survey.validate()) on_data_change(survey.data) } }>OK</Button>
-<Button class="inputButton" on:click={() => on_data_change(null) }>Clear</Button>
+<Button class="inputButton" on:click={() => { if (survey.validate()) on_output_change(survey.data) } }>OK</Button>
+<Button class="inputButton" on:click={() => {on_output_change(null); on_value_change(null)}}>Clear</Button>

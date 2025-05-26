@@ -8,7 +8,7 @@ import ClingoWorker from '$lib/clingo.worker?worker';
 import JavascriptWorker from '$lib/javascript.worker?worker';
 import {clingo_remote_on, clingo_remote_uuid, processing_index, server_url} from "$lib/stores";
 import {get} from "svelte/store";
-import {Base64} from "js-base64";
+import {Base64, decode} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
 import { toJson } from 'really-relaxed-json';
 import {JSONPath} from "jsonpath-plus";
@@ -420,28 +420,44 @@ export class Utils extends BaseUtils {
         }
     }
 
-    static extract_json_values(part, IO_predicate, data) {
-        const candidate_jsons = part.filter(atom => atom.predicate === IO_predicate);
-        const jsons = [];
+    static compare_jsons(a, b) {
+        if (a === b) return true;
+        if (typeof a !== typeof b) return false;
+        if (typeof a !== "object" || a === null || b === null) return false;
+
+        const keysA = Object.keys(a);
+        const keysB = Object.keys(b);
+        if (keysA.length !== keysB.length) return false;
+
+        return keysA.every(key => this.compare_jsons(a[key], b[key]));
+    }
+
+    static parseArray(array: string) {
+
+    }
+
+    static extract_json_objects(input, predicate) {
+        const candidate_jsons = input[0].filter(atom => atom.predicate === predicate);
+        let data = [];
 
         candidate_jsons.forEach(atom => {
             atom.terms.forEach(json => {
-                try {
-                    jsons.push(JSON.parse(Base64.decode(json.str)));
-                } catch (error) {
-                    //ignore
+                if (json.string !== "") {
+                    try {
+                        const decodedInput = JSON.parse(Base64.decode(json.str).trim());
+                        if (Array.isArray(decodedInput)) {
+                            data = [...data, ...decodedInput];
+                        }
+                        else {
+                            data.push(decodedInput);
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
                 }
             });
         });
-
         
-        if (jsons.length > 0) {
-            let mergedData = {};
-            jsons.forEach(json => {
-                mergedData = { ...mergedData, ...json };
-            });
-            data = mergedData;
-        }
         return data;
     }
 
@@ -717,17 +733,24 @@ export class Utils extends BaseUtils {
                         
                 const candidateJsons = part.filter(atom => atom.predicate === jsonPredicate[0]);
 
-                const jsonObjects = [];
+                let jsonObjects = [];
+
                 candidateJsons.forEach(atom => {
-                    atom.terms.forEach(term => {
-                        try {
-                            const decodedString = Base64.decode(term.str);
-                            const json = JSON.parse(decodedString);
-                            jsonObjects.push(json);
-                        } catch (e) {
-                            //ignore
+                    atom.terms.forEach(json => {
+                        if (json.string !== "") {
+                            try {
+                                const decodedInput = JSON.parse(Base64.decode(json.str).trim());
+                                if (Array.isArray(decodedInput)) {
+                                    jsonObjects = [...jsonObjects, ...decodedInput];
+                                }
+                                else {
+                                    jsonObjects.push(decodedInput);
+                                }
+                            } catch (error) {
+                                console.log(error);
+                            }
                         }
-                    });       
+                    });
                 });
 
                 const jsonPathQueries = atom.terms.map(term => term.str).filter(str => typeof str === 'string' && /^"\$\.[\w\.\[\]'"-]+"$/.test(str)).map(str => str.slice(1, -1));
@@ -1079,7 +1102,7 @@ end
         // Override console methods
         console.log = (...args) => {
             originalConsole.log(...args);
-            logToPage("log", ...args);
+            //logToPage("log", ...args);
         };
 
         console.warn = (...args) => {

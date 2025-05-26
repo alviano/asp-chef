@@ -93,6 +93,11 @@ pre.scroll div:has(button:first-child) {
   color: white;
 }
 
+.optionsCheckbox{
+  width: auto;
+  height: inherit;
+}
+
 @media print {
   * {
     font-size: 10pt;
