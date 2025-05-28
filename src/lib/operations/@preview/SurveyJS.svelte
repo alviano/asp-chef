@@ -49,22 +49,37 @@
     let previousInput = null;
     let previousInputPredicate = null;
 
+    $: displayedIndex = options ? options.instance_index + 1 : 1;
+
+    $: {
+        if(options){
+            const newIndex = displayedIndex - 1;
+            if (
+                !isNaN(newIndex) && newIndex !== options.instance_index && newIndex >= 0 && newIndex < options.data.length
+            ) {
+                options.instance_index = newIndex;
+                edit();
+            }
+        }
+    }
+
     function sync_input(input){
         if(options.instance_index>options.data.length-1 && options.instance_index !== 0)
             options.instance_index = options.data.length-1;
         
         if(previousInput !== input || (options.input_predicate !== previousInputPredicate)){
+
             jsons = Utils.extract_json_objects(input, options.input_predicate);
             
             jsons.forEach(json =>{
                 const exists = options.data.some(existing => Utils.compare_jsons(existing.input, json));
 
                 if(!exists){
-                    options.data.push({predicate: options.output_predicate, input: json, value: json, output: null});
+                    options.data.push({predicate: options.input_predicate, input: json, value: json, output: null});
                 }
             });
 
-            options.data = options.data.filter(json => (jsons.some(new_json => Utils.compare_jsons(json.input, new_json)) || (json.input === null && (json.value !== null || json.output !== null))) && json.predicate === options.output_predicate)
+            options.data = options.data.filter(json => (jsons.some(new_json => Utils.compare_jsons(json.input, new_json)) || (json.input === null && json.predicate === options.input_predicate)))
             .sort((a,b)=>{
                 if (a.input === null && b.input !== null) return 1;
                 if (a.input !== null && b.input === null) return -1;
@@ -72,7 +87,7 @@
             });
                 
             if(options.data.length === 0){
-                options.data.push({predicate: options.output_predicate, input: null, value: null, output: null});
+                options.data.push({predicate: options.input_predicate, input: null, value: null, output: null});
             }
 
             previousInput = input;
@@ -115,18 +130,11 @@
     <InputGroup>
         <InputGroupText>Instance #</InputGroupText>
         <Input type="number"
-               value={options.instance_index+1}
+               bind:value={displayedIndex}
                min= "1"
                max={options.data.length}
                style="max-width: 5em;"
-               on:input={(e) => {
-                    const newIndex = parseInt(e.target.value) - 1;
-                    if (!isNaN(newIndex)) {
-                        if(newIndex >= 0 && newIndex <= options.data.length-1){
-                            options.instance_index = newIndex;
-                            edit();
-                        }
-                    }}}/>
+               />
         <InputGroupText style={"flex: 1"}>of {options.data.length}</InputGroupText>
         <ButtonGroup>
             <Popover title="Jump to instance #1" value="Jump to the first instance of the Survey">
@@ -144,7 +152,7 @@
         </ButtonGroup>
         <ButtonGroup>
             <Popover title="Add instance" value="Add a new instance to the Survey">
-                <Button size="lg" outline="{true}" on:click={() => { options.data.push({predicate: options.output_predicate, input: null, value: null, output: null}); options.instance_index = options.data.length-1; edit(); }}><Icon name="plus-lg"/></Button>
+                <Button size="lg" outline="{true}" on:click={() => { options.data.push({predicate: options.input_predicate, input: null, value: null, output: null}); options.instance_index = options.data.length-1; edit(); }}><Icon name="plus-lg"/></Button>
             </Popover>
             <Popover title="Remove instance" value="Remove instance #{options.instance_index + 1} from the Survey">
                 <Button size="lg" outline="{true}" on:click={() => { options.data.length>1 ? options.data.splice(options.instance_index, 1) : options.data[0] = {predicate: options.output_predicate, input: null, value: null, output: null}; if(options.instance_index>0) options.instance_index-= 1; edit(); }}><Icon name="trash"/></Button>
