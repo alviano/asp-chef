@@ -755,19 +755,21 @@ export class Utils extends BaseUtils {
 
                 const result = [];
 
-                jsonObjects.forEach(json => {
-                    const values = [];
-                    atom.terms.forEach(term => {
+                atom.terms.forEach(term => {
                         try {
-                            values.push(JSONPath({ path: term.string, json }));
+                            const extracted = JSONPath({ path: term.string, json: jsonObjects });
+                            if (extracted.length === 0) {
+                                jsonObjects.forEach(json => {
+                                    extracted.push(JSONPath({ path: term.string, json: json }));
+                                })
+                            }
+                            extracted.forEach(obj => result.push(obj));
                         } catch (err) {
                             //Ignore
                         }
                     });
-                    result.push(values);
-                });
 
-                replacement.push(`${result.join(term_separator)}`);
+                replacement.push(`${result}`);
             } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
