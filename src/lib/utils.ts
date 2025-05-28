@@ -11,7 +11,7 @@ import {get} from "svelte/store";
 import {Base64, decode} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
 import { toJson } from 'really-relaxed-json';
-import {JSONPath} from "jsonpath-plus";
+import { JSONPath } from "jsonpath-plus";
 
 const dom_purify_config = new DOMPurifyConfig(consts);
 
@@ -753,14 +753,18 @@ export class Utils extends BaseUtils {
                     });
                 });
 
-                const jsonPathQueries = atom.terms.map(term => term.str).filter(str => typeof str === 'string' && /^"\$\.[\w\.\[\]'"-]+"$/.test(str)).map(str => str.slice(1, -1));
-
                 const result = [];
 
-                jsonPathQueries.forEach(jpquery => {
-                    jsonObjects.forEach(json => { 
-                        result.push(JSONPath({ path: jpquery, json: json }));
+                jsonObjects.forEach(json => {
+                    const values = [];
+                    atom.terms.forEach(term => {
+                        try {
+                            values.push(JSONPath({ path: term.string, json }));
+                        } catch (err) {
+                            //Ignore
+                        }
                     });
+                    result.push(values);
                 });
 
                 replacement.push(`${result.join(term_separator)}`);
