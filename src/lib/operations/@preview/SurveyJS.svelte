@@ -51,22 +51,12 @@
 
     $: displayedIndex = options ? options.instance_index + 1 : 1;
 
-    $: {
-        if(options){
-            const newIndex = displayedIndex - 1;
-            if (
-                !isNaN(newIndex) && newIndex !== options.instance_index && newIndex >= 0 && newIndex < options.data.length
-            ) {
-                options.instance_index = newIndex;
-                edit();
-            }
-        }
+    function checkIndex(){
+        if(options.instance_index>options.data.length-1 && options.instance_index !== 0)
+            options.instance_index = options.data.length-1;
     }
 
     function sync_input(input){
-        if(options.instance_index>options.data.length-1 && options.instance_index !== 0)
-            options.instance_index = options.data.length-1;
-        
         if(previousInput !== input || (options.input_predicate !== previousInputPredicate)){
 
             jsons = Utils.extract_json_objects(input, options.input_predicate);
@@ -105,6 +95,7 @@
             models = input;
             sync_input(input);
             previousInput = input;
+            checkIndex();
         });
     });
 
@@ -134,6 +125,13 @@
                min= "1"
                max={options.data.length}
                style="max-width: 5em;"
+               on:blur={() => {
+                    if (displayedIndex < 1) 
+                        displayedIndex = 1;
+                    if (displayedIndex > options.data.length) 
+                        displayedIndex = options.data.length;
+                    options.instance_index = displayedIndex - 1;
+                }}
                />
         <InputGroupText style={"flex: 1"}>of {options.data.length}</InputGroupText>
         <ButtonGroup>
@@ -165,10 +163,19 @@
                 {#if options.show_model_index}
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
-                {#key model}
+                {#key model_index}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <SurveyJS input="{options.data[options.instance_index]?.value}" part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}"
-                                on_output_change="{(d) => { options.data[options.instance_index].output = d; edit(); } }" on_value_change="{(d) => { options.data[options.instance_index].value = d; } }"  />
+                        <!--<SurveyJS input="{currentInput}" part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}"
+                                on_output_change="{(d) => { options.data[options.instance_index].output = d; edit(); } }" on_value_change="{(d) => { options.data[options.instance_index].value = d; edit(); } }"  />-->
+                            <SurveyJS
+                                input="{options.data[options.instance_index]?.value}"
+                                part="{model}"
+                                index="{index}"
+                                configuration_atom="{configuration}"
+                                multistage="{options.multistage}"
+                                on_output_change="{(d) => { options.data[options.instance_index].output = d; edit(); }}"
+                                on_value_change="{(d) => { options.data[options.instance_index].value = d; edit(); }}"
+                            />
                     {/each}
                 {/key}
             {/each}

@@ -20,7 +20,7 @@
     let survey;
     
 
-    $: survey && input ? survey.data = input : null;
+    $: survey ? survey.data = input : null;
 
     onMount(async () => {
         let atom = configuration_atom;
