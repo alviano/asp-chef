@@ -163,7 +163,7 @@
                 {#if options.show_model_index}
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
-                {#key model_index}
+                {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
                         <!--<SurveyJS input="{currentInput}" part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}"
                                 on_output_change="{(d) => { options.data[options.instance_index].output = d; edit(); } }" on_value_change="{(d) => { options.data[options.instance_index].value = d; edit(); } }"  />-->
