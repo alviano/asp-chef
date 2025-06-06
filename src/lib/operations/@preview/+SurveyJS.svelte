@@ -41,7 +41,9 @@
             const configuration = Utils.parse_relaxed_json(expanded_content);
             survey = new Model(configuration);
             survey.data = input;
-            survey.showCompleteButton = false;
+            if (configuration.showCompleteButton === undefined) {
+                survey.showCompleteButton = false;
+            }
             survey.render(survey_container);
 
             survey.onValueChanged.add(sender => {

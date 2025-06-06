@@ -939,7 +939,7 @@ function ${prefix}upper(s)
 end
 
 function ${prefix}double_quote(s)
-  return string.format("\\"%s\\"", s.string)
+  return string.format("\\"%s\\"", string.gsub(s.string,"\\"","\\\\\\""))
 end
 
 function ${prefix}tostring(value)
