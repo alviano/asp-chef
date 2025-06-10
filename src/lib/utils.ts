@@ -1108,7 +1108,7 @@ end
         // Override console methods
         console.log = (...args) => {
             originalConsole.log(...args);
-            //logToPage("log", ...args);
+            logToPage("log", ...args);
         };
 
         console.warn = (...args) => {

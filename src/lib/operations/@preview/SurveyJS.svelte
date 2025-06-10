@@ -8,7 +8,7 @@
         predicate: "__survey__",
         input_predicate: "__input__",
         output_predicate: "__output__",
-        instance_index: 0,
+        // instance_index: 0,
         multistage: false,
         echo: false,
         show_model_index: false,
@@ -22,11 +22,17 @@
             listeners.get(id)(input);
         } catch (error) { /* component not mounted, possibly because of headless mode */ }
 
-        const result = options.echo ? input : input.map(part => part.filter(atom => atom.predicate !== options.predicate));
-        
-        const res = options.data && options.data.length > 0 ? result.map(part => [...part, Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(options.data?.map(result => result.output).filter(result => result!=null)))}")`)]) : result;
-        
-        return res;
+        const filtered = options.echo ? input : input.map(part => part.filter(atom => atom.predicate !== options.predicate));
+        return filtered.map((part, index) => {
+            if (index < options.data.length && options.data[index] !== null) {
+                const output_atom = Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(options.data[index]))}")`);
+                return [...part, output_atom];
+            }
+            return part;
+        });
+        // return options.data && options.data.length > 0 ? result.map(part => [...part,
+        //     Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(options.data.filter(record => record.value !== null).map(record => record.value)))}")`)
+        // ]) : result;
     });
 </script>
 
@@ -35,7 +41,6 @@
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import SurveyJS from "./+SurveyJS.svelte";
-	import { merge } from "vega";
 	import Popover from "$lib/Popover.svelte";
 
     export let id;
@@ -45,57 +50,45 @@
     export let keybinding;
 
     let models = [];
-    let jsons = [];
-    let previousInput = null;
-    let previousInputPredicate = null;
 
-    $: displayedIndex = options ? options.instance_index + 1 : 1;
+    // function checkIndex() {
+    //     if (options.instance_index > options.data.length - 1 && options.instance_index !== 0) {
+    //         options.instance_index = options.data.length - 1;
+    //     }
+    // }
 
-    function checkIndex(){
-        if(options.instance_index>options.data.length-1 && options.instance_index !== 0)
-            options.instance_index = options.data.length-1;
-    }
-
-    function sync_input(input){
-        if(previousInput !== input || (options.input_predicate !== previousInputPredicate)){
-
-            jsons = Utils.extract_json_objects(input, options.input_predicate);
-            
-            jsons.forEach(json =>{
-                const exists = options.data.some(existing => Utils.compare_jsons(existing.input, json));
-
-                if(!exists){
-                    options.data.push({predicate: options.input_predicate, input: json, value: json, output: null});
-                }
-            });
-
-            options.data = options.data.filter(json => (jsons.some(new_json => Utils.compare_jsons(json.input, new_json)) || (json.input === null && json.predicate === options.input_predicate)))
-            .sort((a,b)=>{
-                if (a.input === null && b.input !== null) return 1;
-                if (a.input !== null && b.input === null) return -1;
-                return 0;
-            });
-                
-            if(options.data.length === 0){
-                options.data.push({predicate: options.input_predicate, input: null, value: null, output: null});
-            }
-
-            previousInput = input;
-        }
-        if(previousInputPredicate !== options.input_predicate)
-            previousInputPredicate = options.input_predicate;
-    }
+    // function sync_input(input) {
+    //     // why only the first model? we have to take from all models (and it's also not a nice solution)
+    //     options.data = [
+    //         input[0].filter(atom => atom.predicate === options.input_predicate).map(atom => {
+    //             return { input: true, value: JSON.parse(Base64.decode(atom.terms[0].string)) };
+    //         }),
+    //         ...options.data.filter(record => !record.input),
+    //     ];
+    //
+    //     if (options.data.length === 0) {
+    //         options.data.push({ input: false, value: null });
+    //     }
+    // }
 
     function edit() {
         Recipe.edit_operation(id, index, options);
     }
 
+    function get_input_from_model(model) {
+        // for now, let's take the first input atom only
+        const filtered = model.filter(atom => atom.predicate === options.input_predicate);
+        if (filtered.length > 0) {
+            return JSON.parse(Base64.decode(filtered[0].terms[0].string));
+        }
+        return null;
+    }
+
     onMount(() => {
         listeners.set(id, (input) => {
             models = input;
-            sync_input(input);
-            previousInput = input;
-            checkIndex();
+            // sync_input(input);
+            // checkIndex();
         });
     });
 
@@ -118,46 +111,45 @@
         <InputGroupText>Output Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.output_predicate} on:input={edit} data-testid="SurveyJS-Outputpredicate" />
     </InputGroup>
-    <InputGroup>
-        <InputGroupText>Instance #</InputGroupText>
-        <Input type="number"
-               bind:value={displayedIndex}
-               min= "1"
-               max={options.data.length}
-               style="max-width: 5em;"
-               on:blur={() => {
-                    if (displayedIndex < 1) 
-                        displayedIndex = 1;
-                    if (displayedIndex > options.data.length) 
-                        displayedIndex = options.data.length;
-                    options.instance_index = displayedIndex - 1;
-                }}
-               />
-        <InputGroupText style={"flex: 1"}>of {options.data.length}</InputGroupText>
-        <ButtonGroup>
-            <Popover title="Jump to instance #1" value="Jump to the first instance of the Survey">
-                <Button size="lg" outline="{true}" on:click={() => { options.instance_index = 0; edit(); }}><Icon name="chevron-double-left" /></Button>
-            </Popover>
-            <Popover title="Go to left" value="Move to the previous instance of the Survey">
-                <Button size="lg" outline="{true}" on:click={() => { options.instance_index>0 ? options.instance_index -= 1 : options.instance_index; edit(); }}><Icon name="arrow-left"/></Button>
-            </Popover>
-            <Popover title="Go to right" value="Move to the next instance of the Survey">
-                <Button size="lg" outline="{true}" on:click={() => { options.instance_index<options.data.length-1 ? options.instance_index += 1 : options.instance_index; edit(); }}><Icon name="arrow-right"/></Button>
-            </Popover>
-            <Popover title="Jump to the last instance" value="Jump to the last instance of the Survey">
-                <Button size="lg" outline="{true}" on:click={() => { options.instance_index = options.data.length-1; edit(); }}><Icon name="chevron-double-right" /></Button>
-            </Popover>
-        </ButtonGroup>
-        <ButtonGroup>
-            <Popover title="Add instance" value="Add a new instance to the Survey">
-                <Button size="lg" outline="{true}" on:click={() => { options.data.push({predicate: options.input_predicate, input: null, value: null, output: null}); options.instance_index = options.data.length-1; edit(); }}><Icon name="plus-lg"/></Button>
-            </Popover>
-            <Popover title="Remove instance" value="Remove instance #{options.instance_index + 1} from the Survey">
-                <Button size="lg" outline="{true}" on:click={() => { options.data.length>1 ? options.data.splice(options.instance_index, 1) : options.data[0] = {predicate: options.output_predicate, input: null, value: null, output: null}; if(options.instance_index>0) options.instance_index-= 1; edit(); }}><Icon name="trash"/></Button>
-            </Popover>
-        </ButtonGroup>
-    </InputGroup>
     <div slot="output">
+<!--        <InputGroup>-->
+<!--            <InputGroupText>Instance #</InputGroupText>-->
+<!--            <Input type="number"-->
+<!--                   bind:value={options.instanceIndex}-->
+<!--                   min= "1"-->
+<!--                   max={options.data.length}-->
+<!--                   style="max-width: 5em;"-->
+<!--                   on:blur={() => {-->
+<!--                        if (options.instanceIndex < 1)-->
+<!--                            options.instanceIndex = 1;-->
+<!--                        if (options.instanceIndex > options.data.length)-->
+<!--                            options.instanceIndex = options.data.length;-->
+<!--                    }}-->
+<!--                   />-->
+<!--            <InputGroupText style={"flex: 1"}>of {options.data.length}</InputGroupText>-->
+<!--            <ButtonGroup>-->
+<!--                <Popover title="Jump to instance #1" value="Jump to the first instance of the Survey">-->
+<!--                    <Button size="lg" outline="{true}" on:click={() => { options.instance_index = 1; edit(); }}><Icon name="chevron-double-left" /></Button>-->
+<!--                </Popover>-->
+<!--                <Popover title="Go to left" value="Move to the previous instance of the Survey">-->
+<!--                    <Button size="lg" outline="{true}" on:click={() => { options.instance_index > 1 ? options.instance_index -= 1 : null; edit(); }}><Icon name="arrow-left"/></Button>-->
+<!--                </Popover>-->
+<!--                <Popover title="Go to right" value="Move to the next instance of the Survey">-->
+<!--                    <Button size="lg" outline="{true}" on:click={() => { options.instance_index < options.data.length ? options.instance_index += 1 : null; edit(); }}><Icon name="arrow-right"/></Button>-->
+<!--                </Popover>-->
+<!--                <Popover title="Jump to the last instance" value="Jump to the last instance of the Survey">-->
+<!--                    <Button size="lg" outline="{true}" on:click={() => { options.instance_index = options.data.length; edit(); }}><Icon name="chevron-double-right" /></Button>-->
+<!--                </Popover>-->
+<!--            </ButtonGroup>-->
+<!--            <ButtonGroup>-->
+<!--                <Popover title="Add instance" value="Add a new instance to the Survey">-->
+<!--                    <Button size="lg" outline="{true}" on:click={() => { options.data.push({ input: false, value: null }); options.instance_index = options.data.length; edit(); }}><Icon name="plus-lg"/></Button>-->
+<!--                </Popover>-->
+<!--                <Popover title="Remove instance" value="Remove instance #{options.instance_index} from the Survey">-->
+<!--                    <Button size="lg" outline="{true}" on:click={() => { options.data.length > 1 ? options.data.splice(options.instance_index, 1) : options.data[0] = { input: false, value: null }; if(options.instance_index > 1) options.instance_index -= 1; edit(); }}><Icon name="trash"/></Button>-->
+<!--                </Popover>-->
+<!--            </ButtonGroup>-->
+<!--        </InputGroup>-->
         <div class="m-1" style="overflow-y: auto;">
             {#each models as model, model_index}
                 {#if options.show_model_index}
@@ -165,17 +157,16 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <!--<SurveyJS input="{currentInput}" part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}"
-                                on_output_change="{(d) => { options.data[options.instance_index].output = d; edit(); } }" on_value_change="{(d) => { options.data[options.instance_index].value = d; edit(); } }"  />-->
-                            <SurveyJS
-                                input="{options.data[options.instance_index]?.value}"
-                                part="{model}"
-                                index="{index}"
-                                configuration_atom="{configuration}"
-                                multistage="{options.multistage}"
-                                on_output_change="{(d) => { options.data[options.instance_index].output = d; edit(); }}"
-                                on_value_change="{(d) => { options.data[options.instance_index].value = d; edit(); }}"
-                            />
+                            <!--input="{options.data[options.instance_index]?.value}"-->
+                        <SurveyJS
+                            input="{options.data[model_index] || get_input_from_model(model)}"
+                            part="{model}"
+                            index="{index}"
+                            configuration_atom="{configuration}"
+                            multistage="{options.multistage}"
+                            on_ok="{(data) => { options.data[model_index] = data; edit(); }}"
+                            on_clear="{() => { options.data[model_index] = null; edit(); }}"
+                        />
                     {/each}
                 {/key}
             {/each}
