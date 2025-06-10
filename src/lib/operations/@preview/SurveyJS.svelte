@@ -29,23 +29,19 @@
 
         return filtered.map((part, index) => {
             if (index < options.data.length && options.data[index] !== null) {
-                const output_atom = Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(options.data[index]))}")`);
-                return [...part, output_atom];
+                const output_atoms = options.data[index].map(data => Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(data))}")`));
+                return [...part, ...output_atoms];
             }
             return part;
         });
-        // return options.data && options.data.length > 0 ? result.map(part => [...part,
-        //     Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(options.data.filter(record => record.value !== null).map(record => record.value)))}")`)
-        // ]) : result;
     });
 </script>
 
 <script>
-    import {Button, ButtonGroup, Icon, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import SurveyJS from "./+SurveyJS.svelte";
-	import Popover from "$lib/Popover.svelte";
 
     export let id;
     export let options;
@@ -77,6 +73,13 @@
 
     function edit() {
         Recipe.edit_operation(id, index, options);
+    }
+
+    function set_data(model_index, configuration_index, data) {
+        if (!options.data[model_index]) {
+            options.data[model_index] = [];
+        }
+        options.data[model_index][configuration_index] = data;
     }
 
     onMount(() => {
@@ -147,16 +150,16 @@
                     <h6 class="text-center">Model #{model_index + 1}</h6>
                 {/if}
                 {#key model}
-                    {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
+                    {#each model.filter(atom => atom.predicate === options.predicate) as configuration, configuration_index}
                             <!--input="{options.data[options.instance_index]?.value}"-->
                         <SurveyJS
                             part="{model}"
                             index="{index}"
                             configuration_atom="{configuration}"
                             multistage="{options.multistage}"
-                            data="{options.data[model_index]}"
-                            on_ok="{(data) => { options.data[model_index] = data; edit(); }}"
-                            on_clear="{() => { options.data[model_index] = null; edit(); }}"
+                            data="{options.data[model_index] ? options.data[model_index][configuration_index] : null}"
+                            on_ok="{(data) => { set_data(model_index, configuration_index, data); edit(); }}"
+                            on_clear="{() => { set_data(model_index, configuration_index, null); edit(); }}"
                         />
                     {/each}
                 {/key}
