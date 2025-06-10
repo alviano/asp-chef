@@ -11,6 +11,7 @@
     export let index;
     export let configuration_atom;
     export let multistage;
+    export let data;
     export let on_ok = (data) => {};
     export let on_clear = (data) => {};
 
@@ -35,7 +36,10 @@
             const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
             survey = new Model(configuration);
-            if (configuration.data) {
+            if (data) {
+                survey.data = data;
+            }
+            else if (configuration.data) {
                 survey.data = configuration.data;
             }
             if (configuration.showCompleteButton === undefined) {

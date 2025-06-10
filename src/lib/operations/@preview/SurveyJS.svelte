@@ -154,6 +154,7 @@
                             index="{index}"
                             configuration_atom="{configuration}"
                             multistage="{options.multistage}"
+                            data="{options.data[model_index]}"
                             on_ok="{(data) => { options.data[model_index] = data; edit(); }}"
                             on_clear="{() => { options.data[model_index] = null; edit(); }}"
                         />
