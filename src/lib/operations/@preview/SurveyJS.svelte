@@ -6,7 +6,6 @@
     const operation = "@preview/SurveyJS";
     const default_extra_options = {
         predicate: "__survey__",
-        input_predicate: "__input__",
         output_predicate: "__output__",
         // instance_index: 0,
         multistage: false,
@@ -23,6 +22,11 @@
         } catch (error) { /* component not mounted, possibly because of headless mode */ }
 
         const filtered = options.echo ? input : input.map(part => part.filter(atom => atom.predicate !== options.predicate));
+
+        if (!options.output_predicate) {
+            return filtered;
+        }
+
         return filtered.map((part, index) => {
             if (index < options.data.length && options.data[index] !== null) {
                 const output_atom = Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(options.data[index]))}")`);
@@ -75,15 +79,6 @@
         Recipe.edit_operation(id, index, options);
     }
 
-    function get_input_from_model(model) {
-        // for now, let's take the first input atom only
-        const filtered = model.filter(atom => atom.predicate === options.input_predicate);
-        if (filtered.length > 0) {
-            return JSON.parse(Base64.decode(filtered[0].terms[0].string));
-        }
-        return null;
-    }
-
     onMount(() => {
         listeners.set(id, (input) => {
             models = input;
@@ -104,10 +99,6 @@
         <Button outline="{!options.multistage}" on:click={() => { options.multistage = !options.multistage; edit(); }}>Multi-Stage</Button>
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
         <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
-    </InputGroup>
-    <InputGroup>
-        <InputGroupText>Input Predicate</InputGroupText>
-        <Input type="text" placeholder="predicate" bind:value={options.input_predicate} on:input={edit} data-testid="SurveyJS-Inputpredicate" />
         <InputGroupText>Output Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.output_predicate} on:input={edit} data-testid="SurveyJS-Outputpredicate" />
     </InputGroup>
@@ -159,7 +150,6 @@
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
                             <!--input="{options.data[options.instance_index]?.value}"-->
                         <SurveyJS
-                            input="{options.data[model_index] || get_input_from_model(model)}"
                             part="{model}"
                             index="{index}"
                             configuration_atom="{configuration}"
