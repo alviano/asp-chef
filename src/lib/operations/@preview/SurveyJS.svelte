@@ -159,7 +159,7 @@
                             multistage="{options.multistage}"
                             data="{options.data[model_index] ? options.data[model_index][configuration_index] : null}"
                             on_ok="{(data) => { set_data(model_index, configuration_index, data); edit(); }}"
-                            on_clear="{() => { set_data(model_index, configuration_index, null); edit(); }}"
+                            on_clear="{() => { set_data(model_index, configuration_index, []); edit(); }}"
                         />
                     {/each}
                 {/key}
