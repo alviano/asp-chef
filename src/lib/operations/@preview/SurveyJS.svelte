@@ -29,7 +29,8 @@
 
         return filtered.map((part, index) => {
             if (index < options.data.length && options.data[index] !== null) {
-                const output_atoms = options.data[index].map(data => Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(data))}")`));
+                const data_length = input[index].filter(atom => atom.predicate === options.predicate).length;
+                const output_atoms = options.data[index].filter((data, data_index) => !!data && data_index < data_length).map(data => Utils.parse_atom(`${options.output_predicate}("${Base64.encode(JSON.stringify(data))}")`));
                 return [...part, ...output_atoms];
             }
             return part;
