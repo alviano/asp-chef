@@ -26,7 +26,7 @@
 
             const output = await Recipe.process(data.input || '', data.encode_input);
             return !data.decode_output ? Utils.flatten_output(output) : output.map(model =>
-                model.map(atom => atom.predicate !== '__base64__' ? atom.str : Base64.decode(atom.terms[0].string)).join('\n'))
+                model.map(atom => atom.predicate !== '__base64__' ? `${atom.str}.` : Base64.decode(atom.terms[0].string)).join('\n'))
                 .join(consts.SYMBOLS.MODELS_SEPARATOR);
         }
     }
