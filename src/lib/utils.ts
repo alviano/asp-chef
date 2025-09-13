@@ -726,7 +726,8 @@ export class Utils extends BaseUtils {
                 } else {
                     replacement.push(`${prefix}[${terms.join(term_separator)}](qrcode)${suffix}`);
                 }
-            }else if (atom.predicate === 'json') { 
+            }else if (atom.predicate === 'json') {
+                // TODO: this part must be revised
                 const jsonRegex = /json\((?:[^)]*?,\s*)*?([_a-zA-Z][_a-zA-Z0-9]*)(?=\s*(?:,|\)))/g;
 
                 const jsonPredicate = [...atom.str.matchAll(jsonRegex).map(m => m[1])]
