@@ -1,0 +1,37 @@
+import { Utils } from "$lib/utils";
+import { get } from "svelte/store";
+import { server_url } from "$lib/stores";
+
+export class Opa {
+    public static get PREDICATE() {
+        return "__opa__";
+    }
+
+    public static validate_one_model(input) {
+        if (input.length !== 1) {
+            throw new Error("Expecting one model, not " + input.length);
+        }
+    }
+
+    public static encode_program(program, predicate, prefix = "") {
+        const encoded_term = btoa(program);
+        return Utils.parse_atom(`${predicate}(${prefix}"${encoded_term}")`);
+    }
+
+    public static async fetch(url, data) {
+        const response = await fetch(`${get(server_url)}/opa/${url}`, {
+            method: "POST",
+            mode: "cors",
+            cache: Utils.browser_cache_policy,
+            credentials: "same-origin",
+            headers: new Headers([["Content-Type", "application/json"]]),
+            body: JSON.stringify(data),
+        });
+        const json = await response.json();
+        if ("error" in json) {
+            throw new Error(json.error);
+        }
+        return json;
+    }
+
+}
