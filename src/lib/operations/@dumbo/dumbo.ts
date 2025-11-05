@@ -75,4 +75,8 @@ export class Dumbo {
             return [];
         }
     }
+
+		public static is_core_template(template: string) {
+				return this.__core_templates && this.__core_templates.has(template);
+		}
 }

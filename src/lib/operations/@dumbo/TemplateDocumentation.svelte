@@ -10,13 +10,14 @@
         filter: "",
         show_rules: false,
         output_predicate: "",
+		custom_template_input_predicate: "",
     };
 
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         try {
-            await listeners.get(id)(input, options, templates);
+            await listeners.get(id)(input, options);
         } catch (error) { /* component not mounted, possibly because of headless mode */ }
 
 
@@ -53,6 +54,7 @@
     let output_div;
 
     let templates = [];
+	let localCustomTemplates = new Map();
 
     function edit() {
         Recipe.edit_operation(id, index, options);
@@ -67,6 +69,29 @@
             if (!output_div) {
                 return;
             }
+			const program = [];
+			for (const part of input) {
+				part.forEach(atom => {
+					if (atom.predicate === options.custom_template_input_predicate) {
+						program.push(Base64.decode(atom.terms[0].str));
+					}
+				});
+			}
+			try {
+				localCustomTemplates = new Map();
+				if (program) {
+					const response = await Dumbo.fetch('template/parse-custom-template/', { program: program.join('\n') });
+					for (const [name, template] of Object.entries(response)) {
+						const predicates = template.predicates.map(pred => `\`${pred}\``).join(', ');
+						template.documentation = `__Predicates:__ ${predicates}\n\n` + template.documentation.replaceAll('\n', '\n\n').replaceAll('\\n', '\n');
+						localCustomTemplates.set(name, template);
+					}
+					localCustomTemplates = new Map(localCustomTemplates);
+				}
+			}
+			catch (error) {
+				Recipe.set_errors_at_index(index, error);
+			}
             await tick();
             Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
         });
@@ -78,17 +103,25 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
+	<InputGroup>
+		<InputGroupText style="width: 10em;">Templates Library</InputGroupText>
+		<Input type="text"
+			   bind:value="{options.custom_template_input_predicate}"
+			   placeholder="predicate"
+			   on:input={edit}
+		/>
+		<InputGroupText>Height</InputGroupText>
+		<Input type="number"
+			   bind:value={options.height}
+			   min="20"
+			   step="20"
+			   style="max-width: 5em;"
+			   on:input={edit}
+		/>
+		<Button outline="{!options.show_rules}" on:click={() => { options.show_rules = !options.show_rules; edit(); }}>Show Rules</Button>
+	</InputGroup>
     <InputGroup>
-        <InputGroupText>Height</InputGroupText>
-        <Input type="number"
-               bind:value={options.height}
-               min="20"
-               step="20"
-               style="max-width: 5em;"
-               on:input={edit}
-        />
-        <Button outline="{!options.show_rules}" on:click={() => { options.show_rules = !options.show_rules; edit(); }}>Show Rules</Button>
-        <InputGroupText>Output predicate</InputGroupText>
+        <InputGroupText style="width: 10em;">Output predicate</InputGroupText>
         <Input type="text"
                bind:value="{options.output_predicate}"
                placeholder="predicate"
@@ -116,5 +149,19 @@
             </div>
             <hr />
         {/each}
+		{#if localCustomTemplates.size > 0}
+			<h1>Custom Templates</h1>
+			{#each Array.from(localCustomTemplates.entries()) as [key, template]}
+				<div style="margin: 0.5em">
+					<h3>{key}</h3>
+					{@html Utils.render_markdown(template.documentation)}
+					{#if options.show_rules}
+						<h4>Template Rules</h4>
+						{@html Utils.render_markdown('```asp\n' + template.program + '\n```')}
+					{/if}
+				</div>
+				<hr />
+			{/each}
+		{/if}
     </div>
 </Operation>

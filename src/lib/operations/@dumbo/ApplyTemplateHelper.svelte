@@ -7,12 +7,17 @@
     const default_extra_options = {
         template_name: '',
         predicate_mapping: [],
-        output_ptedicate: '__program__',
+        output_predicate: '__program__',
+		custom_template_input_predicate: "",
     };
 
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
+		try {
+			await listeners.get(id)(input, options);
+		} catch (error) { /* component not mounted, possibly because of headless mode */ }
+
         if (!options.template_name || !options.output_predicate) {
             return input;
         }
@@ -56,6 +61,7 @@
     let templates = [];
     let doc = '';
     let predicate_mapping = [];
+	let localCustomTemplates = new Map();
 
     function change_predicate_mapping(index, value) {
         predicate_mapping[index][1] = value;
@@ -68,23 +74,35 @@
     }
 
     async function add_predicates_of_template(template) {
-        if (template) {
-            const predicates = Dumbo.core_template_predicates(template);
-            predicates.forEach(predicate => {
-                if (!predicate_mapping.some(value => value[0] === predicate)) {
-                    predicate_mapping.push([predicate, '']);
-                }
-            });
-        }
-        predicate_mapping = predicate_mapping;
+		let predicates = [];
+
+		if (Dumbo.is_core_template(template)) {
+			predicates = Dumbo.core_template_predicates(template);
+		} else if (localCustomTemplates.has(template)) {
+			predicates = localCustomTemplates.get(template).predicates;
+		} else {
+			Recipe.set_errors_at_index(index,"Predicate mapping not found");
+		}
+		const newMappings = predicates
+				.filter(p => !predicate_mapping.some(([existing]) => existing === p))
+				.map(p => [p, '']);
+
+		predicate_mapping = [...predicate_mapping, ...newMappings];
         edit();
     }
 
     async function remove_predicates_not_in_template(template) {
-        if (template) {
-            const predicates = new Set(Dumbo.core_template_predicates(template));
-            predicate_mapping = predicate_mapping.filter(value => predicates.has(value[0]));
-        }
+		let predicates = [];
+
+		if (Dumbo.is_core_template(template)) {
+			predicates = Dumbo.core_template_predicates(template);
+		} else if (localCustomTemplates.has(template)) {
+			predicates = localCustomTemplates.get(template).predicates;
+		} else {
+			Recipe.set_errors_at_index(index,"Predicate mapping not found");
+		}
+		predicate_mapping = predicate_mapping.filter(([pred]) => predicates.includes(pred));
+		predicate_mapping = [...predicate_mapping];
         edit();
     }
 
@@ -96,6 +114,33 @@
         if (options) {
             predicate_mapping = options.predicate_mapping;
         }
+
+		listeners.set(id, async (input, options) => {
+			let program = "";
+			for (const part of input) {
+				part.forEach(atom => {
+					if (atom.predicate === options.custom_template_input_predicate) {
+						program += Base64.decode(atom.terms[0].str);
+					}
+				});
+			}
+			try {
+				localCustomTemplates = new Map();
+				if (program !== "") {
+					const response = await Dumbo.fetch('template/parse-custom-template/', { program });
+
+					for (const [name, template] of Object.entries(response)) {
+						const predicates = template.predicates.map(pred => `\`${pred}\``).join(', ');
+						template.documentation = `__Predicates:__ ${predicates}\n\n` + template.documentation.replaceAll('\n', '\n\n').replaceAll('\\n', '\n');
+						localCustomTemplates.set(name, template);
+					}
+					localCustomTemplates = new Map(localCustomTemplates);
+				}
+			}
+			catch (error) {
+				Recipe.set_errors_at_index(index,error);
+			}
+		});
     });
 
     onDestroy(() => {
@@ -107,8 +152,16 @@
     <div slot="description">
         {@html Utils.render_markdown(doc)}
     </div>
+	<InputGroup>
+		<InputGroupText style="width: 10em;">Templates Library</InputGroupText>
+		<Input type="text"
+			   bind:value="{options.custom_template_input_predicate}"
+			   placeholder="predicate"
+			   on:input={edit}
+		/>
+	</InputGroup>
     <InputGroup>
-        <InputGroupText>Output Predicate</InputGroupText>
+        <InputGroupText style="width: 10em;">Output Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.output_predicate} on:input={edit} data-testid="ApplyTemplate-output_predicate" />
     </InputGroup>
     <InputGroup>
@@ -126,6 +179,13 @@
                  <Input type="radio" bind:group={options.template_name} value={template} label="{template}" on:change={() => add_predicates_of_template(options.template_name)} />
              </InputGroup>
         {/each}
+		{#if localCustomTemplates.size > 0}
+			{#each Array.from(localCustomTemplates.entries()) as [key, template]}
+				<InputGroup class="ps-2">
+					<Input type="radio" bind:group={options.template_name} value={key} label="{key}" on:change={() => add_predicates_of_template(options.template_name)} />
+				</InputGroup>
+			{/each}
+		{/if}
     </InputGroup>
     <InputGroup>
         <Input type="text" value="Predicate mapping" disabled={true} />
@@ -153,7 +213,13 @@
         {#if options.template_name}
             <div style="margin: 0.5em">
                 <h2>{options.template_name}</h2>
-                {@html Utils.render_markdown(Dumbo.core_template_documentation(options.template_name))}
+				{#if Dumbo.is_core_template(options.template_name)}
+					{@html Utils.render_markdown(Dumbo.core_template_documentation(options.template_name))}
+				{:else if localCustomTemplates.has(options.template_name)}
+					{@html Utils.render_markdown(localCustomTemplates.get(options.template_name).documentation)}
+				{:else}
+					<em>No documentation available for this template.</em>
+				{/if}
                 <hr />
                 <pre class="position-relative p-2"><div class="position-absolute top-0 end-0" style="z-index: 1;"><button class="btn btn-secondary btn-sm" on:click={() => navigator.clipboard.writeText(pack_apply_template(options.template_name, options.predicate_mapping))} aria-label="copy"><i class="bi-clipboard-plus"></i></button></div><code>{pack_apply_template(options.template_name, options.predicate_mapping)}</code></pre>
             </div>
