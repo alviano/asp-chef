@@ -1,7 +1,7 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
 
-    const operation = "ApexCharts";
+    const operation = "@deprecated/ApexCharts";
     const default_extra_options = {
         predicate: "__chart__",
         multistage: false,

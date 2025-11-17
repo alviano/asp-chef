@@ -1,9 +1,9 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe.js";
+    import {Recipe} from "$lib/recipe";
 
-    const operation = "Tabulator";
+    const operation = "TreeSpider";
     const default_extra_options = {
-        predicate: "__tab__",
+        predicate: "__tree__",
         multistage: false,
         echo: false,
         show_model_index: false,
@@ -23,7 +23,7 @@
     import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import Tabulator from "./+Tabulator.svelte";
+    import TreeSpider from "./+TreeSpider.svelte";
 
     export let id;
     export let options;
@@ -51,7 +51,7 @@
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
-        <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Tabulator-predicate" />
+        <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="TreeSpider-predicate" />
         <Button outline="{!options.multistage}" on:click={() => { options.multistage = !options.multistage; edit(); }}>Multi-Stage</Button>
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
         <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
@@ -64,7 +64,7 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <Tabulator part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
+                        <TreeSpider part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
                     {/each}
                 {/key}
             {/each}
