@@ -432,35 +432,6 @@ export class Utils extends BaseUtils {
         return keysA.every(key => this.compare_jsons(a[key], b[key]));
     }
 
-    static parseArray(array: string) {
-
-    }
-
-    static extract_json_objects(input, predicate) {
-        const candidate_jsons = input[0].filter(atom => atom.predicate === predicate);
-        let data = [];
-
-        candidate_jsons.forEach(atom => {
-            atom.terms.forEach(json => {
-                if (json.string !== "") {
-                    try {
-                        const decodedInput = JSON.parse(Base64.decode(json.str).trim());
-                        if (Array.isArray(decodedInput)) {
-                            data = [...data, ...decodedInput];
-                        }
-                        else {
-                            data.push(decodedInput);
-                        }
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }
-            });
-        });
-        
-        return data;
-    }
-
     private static __preprocess_mustache(message) {
         const matches = message.matchAll(/\{\{([f]?)"(((?!"}}).)*)"}}/gs);
         if (matches !== null) {
@@ -722,55 +693,28 @@ export class Utils extends BaseUtils {
                 }
             } else if (atom.predicate === 'qrcode') {
                 if (atom.terms.length !== 1) {
-                    Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
+                    Utils.snackbar(`Wrong number of terms in #${index}. (Markdown?): ${atom.str}`);
                 } else {
                     replacement.push(`${prefix}[${terms.join(term_separator)}](qrcode)${suffix}`);
                 }
-            }else if (atom.predicate === 'json') {
-                // TODO: this part must be revised
-                const jsonRegex = /json\((?:[^)]*?,\s*)*?([_a-zA-Z][_a-zA-Z0-9]*)(?=\s*(?:,|\)))/g;
-
-                const jsonPredicate = [...atom.str.matchAll(jsonRegex).map(m => m[1])]
-                        
-                const candidateJsons = part.filter(atom => atom.predicate === jsonPredicate[0]);
-
-                let jsonObjects = [];
-
-                candidateJsons.forEach(atom => {
-                    atom.terms.forEach(json => {
-                        if (json.string !== "") {
-                            try {
-                                const decodedInput = JSON.parse(Base64.decode(json.str).trim());
-                                if (Array.isArray(decodedInput)) {
-                                    jsonObjects = [...jsonObjects, ...decodedInput];
-                                }
-                                else {
-                                    jsonObjects.push(decodedInput);
-                                }
-                            } catch (error) {
-                                console.log(error);
-                            }
+            } else if (atom.predicate === 'json') {
+                if (atom.terms.length !== 2 && atom.terms.length !== 3) {
+                    Utils.snackbar(`Wrong number of terms in #${index}. (Markdown?): ${atom.str}`);
+                } else {
+                    try {
+                        const json_objects = JSON.parse(Base64.decode(atom.terms[0].string));
+                        const result = JSONPath({ path: atom.terms[1].string, json: json_objects })[0];
+                        const mapper = atom.terms.length === 2 ? res => `${res}` :
+                                res => `${atom.terms[2].str}(${/^\p{Lu}/u.test(res) ? '"' + res.replaceAll('"', '\\"') + '"' : res}).`;
+                        if (Array.isArray(result)) {
+                            result.forEach(res => replacement.push(mapper(res)));
+                        } else {
+                            replacement.push(mapper(result));
                         }
-                    });
-                });
-
-                const result = [];
-
-                atom.terms.forEach(term => {
-                        try {
-                            const extracted = JSONPath({ path: term.string, json: jsonObjects });
-                            if (extracted.length === 0) {
-                                jsonObjects.forEach(json => {
-                                    extracted.push(JSONPath({ path: term.string, json: json }));
-                                })
-                            }
-                            extracted.forEach(obj => result.push(obj));
-                        } catch (err) {
-                            //Ignore
-                        }
-                    });
-
-                replacement.push(`${result}`);
+                    } catch (error) {
+                        Utils.snackbar(`Wrong terms in #${index}. (Markdown?): ${atom.str}\n${error}`);
+                    }
+                }
             } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
@@ -1110,6 +1054,7 @@ end
         console.log = (...args) => {
             originalConsole.log(...args);
             logToPage("log", ...args);
+            originalConsole.log(Error().stack)
         };
 
         console.warn = (...args) => {
