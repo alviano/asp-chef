@@ -47,7 +47,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import CodeMirror from "svelte-codemirror-editor";
+    import CodeMirror from "$lib/CodeMirror.svelte";
     import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
 
     export let id;
@@ -82,6 +82,6 @@
     <CodeMirror bind:value={options.extra_atoms}
                 lineWrapping="{true}"
                 placeholder="more_extra_atoms(const,Var,...). ..."
-                on:change={edit}
+                onchange={edit}
     />
 </Operation>

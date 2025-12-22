@@ -4,7 +4,7 @@
     import {keydown} from "dumbo-svelte";
     import Popover from "$lib/Popover.svelte";
     import {Utils} from "$lib/utils";
-    import CodeMirror from "svelte-codemirror-editor";
+    import CodeMirror from "$lib/CodeMirror.svelte";
     import {onDestroy, onMount} from "svelte";
     import {v4 as uuidv4} from "uuid";
 

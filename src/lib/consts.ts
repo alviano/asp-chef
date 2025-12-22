@@ -1,5 +1,6 @@
 export const consts = {
   DEBUG: import.meta.env.VITE_DEBUG === 'true',
+  TESTING: false,
   DOMAIN: import.meta.env.VITE_DOMAIN,
   PURIFY_LOG_ERRORS: import.meta.env.VITE_PURIFY_LOG_ERRORS === 'true',
   PURIFY_EXTERNAL_LINK_PREFIXES: [

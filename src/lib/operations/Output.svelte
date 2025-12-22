@@ -20,7 +20,7 @@
     import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import CodeMirror from "svelte-codemirror-editor";
+    import CodeMirror from "$lib/CodeMirror.svelte";
     import {AutoHideBadge} from "dumbo-svelte";
     import {Utils} from "$lib/utils";
 

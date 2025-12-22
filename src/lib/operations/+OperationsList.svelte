@@ -18,6 +18,8 @@
     let components = [];
     let component_to_add = null;
 
+    $: filter === 'TEST-3faf3fb6-5c02-451a-be19-2a55708d5194' ? consts.TESTING = true : null;
+
     async function load_components(filter) {
         components = Recipe.operation_components(filter);
     }
@@ -92,6 +94,7 @@
     </div>
     <Input type="search"
            id="OperationsDetail-search"
+           data-testid="OperationsDetail-search"
            bind:value={filter}
            placeholder=">>> Filter operations..."
            autocomplete="off"

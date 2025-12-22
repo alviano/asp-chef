@@ -36,7 +36,7 @@
 <script>
     import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
-    import CodeMirror from "svelte-codemirror-editor";
+    import CodeMirror from "$lib/CodeMirror.svelte";
 
     export let id;
     export let options;
@@ -81,7 +81,7 @@
                     placeholder={`One or more lines...`}
                     lineWrapping="{true}"
                     extensions={options.language && languages.has(options.language) ? [languages.get(options.language)] : []}
-                    on:change={edit}
+                    onchange={edit}
         />
         <pre class="d-test">{options.content}</pre>
     </div>

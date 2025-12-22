@@ -38,7 +38,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import CodeMirror from "svelte-codemirror-editor";
+    import CodeMirror from "$lib/CodeMirror.svelte";
     import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
 
     export let id;
@@ -67,6 +67,6 @@
     <CodeMirror bind:value={options.atoms}
                 lineWrapping="{true}"
                 placeholder="predicate(const,Var,...). ..."
-                on:change={edit}
+                onchange={edit}
     />
 </Operation>

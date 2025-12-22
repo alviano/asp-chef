@@ -144,7 +144,7 @@
 <script>
     import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
-    import CodeMirror from "svelte-codemirror-editor";
+    import CodeMirror from "$lib/CodeMirror.svelte";
 
     export let id;
     export let options;
@@ -187,7 +187,7 @@
         <CodeMirror bind:value={options.model}
                     placeholder={`MiniZinc model...`}
                     lineWrapping="{true}"
-                    on:change={edit}
+                    onchange={edit}
         />
         <pre type="textarea" class="d-test">{options.model}</pre>
     </div>

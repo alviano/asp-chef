@@ -110,7 +110,7 @@ export class TestRecipe {
 	async encode(content: string, trim = true, predicate = '__base64__') {
 		return await this.ingredient('Encode', async ingredient => {
 			await ingredient.getByTestId('Encode-content').getByRole('textbox').fill(trim ? content.trim() : content);
-				await ingredient.getByPlaceholder('predicate').fill(predicate);
+			await ingredient.getByPlaceholder('predicate').fill(predicate);
 		});
 	}
 
@@ -514,6 +514,11 @@ export class TestRecipe {
 export async function visit_homepage_and_accept_privacy_policy(page) {
 	await page.goto('/');
 	await page.getByRole('button').filter({ hasText: 'Accept and close' }).click();
+
+	// activate test mode (workaround for code-mirror)
+	await page.getByTestId('OperationsDetail-search').fill('TEST-3faf3fb6-5c02-451a-be19-2a55708d5194');
+	await page.getByTestId('OperationsDetail-search').fill('');
+	await page.getByTestId('OperationsDetail-search').blur();
 }
 
 export async function with_d_test_elements(location, callback) {

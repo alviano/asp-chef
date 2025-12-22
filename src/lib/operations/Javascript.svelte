@@ -51,7 +51,7 @@ week
 <script>
     import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
-    import CodeMirror from "svelte-codemirror-editor";
+    import CodeMirror from "$lib/CodeMirror.svelte";
     import {onDestroy, onMount} from "svelte";
     import Popover from "$lib/Popover.svelte";
     import {AutoHideBadge} from "dumbo-svelte";
@@ -188,7 +188,7 @@ week
                         placeholder={`One or more lines of Javascript code...`}
                         lineWrapping="{true}"
                         readonly="{remote_name}"
-                        on:change={edit}
+                        onchange={edit}
             />
             <pre class="d-test">{options.code}</pre>
         </div>
