@@ -432,94 +432,97 @@ export class Utils extends BaseUtils {
         return keysA.every(key => this.compare_jsons(a[key], b[key]));
     }
 
-		static async expand_mustache_queries(part, message, index, multistage = false) {
-		    if (!multistage) return this.__process_mustache(part, message, index);
+    static async expand_mustache_queries(part, message, index, multistage = false) {
+        if (!multistage) return this.__process_mustache(part, message, index);
 
-				let current = message, previous;
-				do {
-						previous = current;
-						current = await this.__process_mustache(part, current, index);
-				} while (current !== previous);
-				return current;
-		}
+        let current = message, previous;
+        do {
+            previous = current;
+            current = await this.__process_mustache(part, current, index);
+        } while (current !== previous);
+        return current;
+    }
 
-		static async __process_mustache(part, message, index) {
-				let ast;
-				try { ast = MUSTACHE_PARSER.parse(message); }
-				catch (e) { throw new Error(`#${index}. Parse Error: ${e.message}`); }
+    static async __process_mustache(part, message, index) {
+        let ast;
+        try {
+            ast = MUSTACHE_PARSER.parse(message);
+        } catch (e) {
+            throw new Error(`#${index}. Parse Error: ${e.message}`);
+        }
 
-				let buffer = "";
-				const persistent_atoms = [];
+        let buffer = "";
+        const persistent_atoms = [];
 
-				for (const node of ast.body) {
-						if (["Text", "Literal", "MultilineString", "FString"].includes(node.type)) {
-								buffer += this.__node_to_string(node);
-								continue;
-						}
+        for (const node of ast.body) {
+            if (["Text", "Literal", "MultilineString", "FString"].includes(node.type)) {
+                buffer += this.__node_to_string(node);
+                continue;
+            }
 
-						if (node.type === "Reset") {
-								persistent_atoms.length = 0;
-								continue;
-						}
+            if (node.type === "Reset") {
+                persistent_atoms.length = 0;
+                continue;
+            }
 
-						const code = this.__reconstruct_code(node.code || node.terms);
-						const program = this.__build_asp_program(part, node, code);
-						const models = await Utils.search_models(program, 1, true, true);
+            const code = this.__reconstruct_code(node.code || node.terms);
+            const program = this.__build_asp_program(part, node, code);
+            const models = await Utils.search_models(program, 1, true, true);
 
-						if (models.length !== 1) throw Error(`#${index}. Expected 1 model, found ${models.length}`);
+            if (models.length !== 1) throw Error(`#${index}. Expected 1 model, found ${models.length}`);
 
-						if (node.type === "Persistent") {
-								persistent_atoms.push(...models[0]);
-						} else {
-								const context = [...persistent_atoms, ...models[0]];
-								buffer += Utils.markdown_process_match(part, context, index);
-						}
-				}
-				return buffer;
-		}
+            if (node.type === "Persistent") {
+                persistent_atoms.push(...models[0]);
+            } else {
+                const context = [...persistent_atoms, ...models[0]];
+                buffer += Utils.markdown_process_match(part, context, index);
+            }
+        }
+        return buffer;
+    }
 
-		static __node_to_string(node) {
-				if (node.type === "FString") return this.__process_fstring(node);
-				if (node.type === "MultilineString") return `"${node.value}"`;
-				return node.value;
-		}
+    static __node_to_string(node) {
+        if (node.type === "FString") return this.__process_fstring(node);
+        if (node.type === "MultilineString") return `"${node.value}"`;
+        return node.value;
+    }
 
-		static __reconstruct_code(parts) {
-				if (!parts) return "";
-				return parts.map(p => this.__node_to_string(p)).join("");
-		}
+    static __reconstruct_code(parts) {
+        if (!parts) return "";
+        return parts.map(p => this.__node_to_string(p)).join("");
+    }
 
-		static __process_fstring(node) {
-				 let format_string = "";
-				 const args = [];
+    static __process_fstring(node) {
+        let format_string = "";
+        const args = [];
 
-				 for (const part of node.parts) {
-						 switch (part.type) {
-							   case 'Literal':
-										format_string += part.value
-										 .replaceAll('\\', '\\\\')
-										 .replaceAll('"', '\\"')
-										 .replaceAll('\n', '\\n');
-										break;
+        for (const part of node.parts) {
+            switch (part.type) {
+                case 'Literal':
+                    format_string += part.value
+                        .replaceAll('\\', '\\\\')
+                        .replaceAll('"', '\\"')
+                        .replaceAll('\n', '\\n');
+                    break;
 
-								 case 'Variable':
-								    format_string += part.format;
-									  args.push(`, ${part.name}`);
-									  break;
+                case 'Variable':
+                    format_string += part.format;
+                    args.push(`, ${part.name}`);
+                    break;
 
-								 case 'FString':
-								    format_string += '%s';
+                case 'FString':
+                    format_string += '%s';
 
-								    const raw_source = this.__reconstruct_fstring(part);
-										const safe_arg = raw_source.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+                    const raw_source = this.__reconstruct_fstring(part);
+                    const safe_arg = raw_source.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
 
-										args.push(`, "${safe_arg}"`);
-										break;
-						 }
-				 }
+                    args.push(`, "${safe_arg}"`);
+                    break;
+            }
+        }
 
-			   return `@string_format("${format_string}"${args.join('')})`;
-		 }
+        return `@string_format("${format_string}"${args.join('')})`;
+    }
 
 		static __reconstruct_fstring(node) {
 				let raw_content = "";

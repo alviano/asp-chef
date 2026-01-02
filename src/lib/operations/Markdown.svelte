@@ -51,7 +51,7 @@
                 const output_part = [];
                 for (let atom of model.filter(atom => atom.predicate === options.predicate)) {
                     const md = Base64.decode(atom.terms[0].string);
-                    output_part.push(await Utils.markdown_expand_mustache_queries(model, md, index));
+                    output_part.push(await Utils.expand_mustache_queries(model, md, index));
                 }
                 the_output.push(output_part.join('\n'));
             }

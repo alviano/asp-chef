@@ -69,17 +69,14 @@
             if (!output_div) {
                 return;
             }
-			const program = [];
-			for (const part of input) {
-				part.forEach(atom => {
-					if (atom.predicate === options.custom_template_input_predicate) {
-						program.push(Base64.decode(atom.terms[0].str));
-					}
-				});
-			}
+			const program = options.custom_template_input_predicate ?
+				input.flatMap(part =>
+					part.filter(atom => atom.predicate === options.custom_template_input_predicate))
+						.map(atom => Base64.decode(atom.terms[0].str)
+					) : [];
 			try {
 				localCustomTemplates = new Map();
-				if (program) {
+				if (program.length > 0) {
 					const response = await Dumbo.fetch('template/parse-custom-template/', { program: program.join('\n') });
 					for (const [name, template] of Object.entries(response)) {
 						const predicates = template.predicates.map(pred => `\`${pred}\``).join(', ');
