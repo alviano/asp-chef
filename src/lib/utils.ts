@@ -8,7 +8,7 @@ import ClingoWorker from '$lib/clingo.worker?worker';
 import JavascriptWorker from '$lib/javascript.worker?worker';
 import {clingo_remote_on, clingo_remote_uuid, processing_index, server_url} from "$lib/stores";
 import {get} from "svelte/store";
-import {Base64, decode} from "js-base64";
+import {Base64} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
 import { toJson } from 'really-relaxed-json';
 import { JSONPath } from "jsonpath-plus";
@@ -69,7 +69,7 @@ export class Utils extends BaseUtils {
 
     static add_copy_button(pre) {
         BaseUtils.add_copy_button(pre);
-        pre.addEventListener("scroll", event => {
+        pre.addEventListener("scroll", _ => {
             if (pre.scrollLeft === 0) {
                 pre.classList.remove("scroll");
             } else {
@@ -384,7 +384,7 @@ export class Utils extends BaseUtils {
 
     static public_url_github_from_jsDelivr(url) {
         const the_url = new URL(url);
-        const [_, gh, user, repo_version, file] = this.split_with_limit(the_url.pathname, '/', 5);
+        const [_, __, user, repo_version, file] = this.split_with_limit(the_url.pathname, '/', 5);
         const [repo, version] = repo_version.split('@');
         return `${consts.GITHUB_DOMAIN}/${user}/${repo}/blob/${version}/${file}`;
     }
@@ -432,81 +432,138 @@ export class Utils extends BaseUtils {
         return keysA.every(key => this.compare_jsons(a[key], b[key]));
     }
 
-    private static __preprocess_mustache(message) {
-        const matches = message.matchAll(/\{\{([f]?)"(((?!"}}).)*)"}}/gs);
-        if (matches !== null) {
-            for (const the_match of matches) {
-                const mode = the_match[1].trim();
-                let match = the_match[2].trim().replaceAll('\n', '\\n').replaceAll('"', '\\"').replaceAll('}}', '\\}}');
-                if (mode === 'f') {
-                    const vars = match.matchAll(/\$\{\s*([^:}]+)([:]%[\w%.]+)?\s*}/gs);
-                    const args = [];
-                    if (vars !== null) {
-                        for (const a_var of vars) {
-                            const formatter = a_var[2] ? a_var[2].substring(1) : "%s";
-                            args.push(`, ${a_var[1]}`);
-                            match = match.replace(a_var[0], formatter);
-                        }
-                    }
-                    message = message.replace(the_match[0], `@string_format("${match}"${args.join('')})`);
-                } else {
-                    message = message.replace(the_match[0], `"${match}"`);
-                }
-            }
-        }
-        return message;
-    }
+		static async expand_mustache_queries(part, message, index, multistage = false) {
+		    if (!multistage) return this.__process_mustache(part, message, index);
 
-    static async expand_mustache_queries(part, message, index, multistage = false) {
-        return multistage ? await this.markdown_expand_mustache_queries_recursively(part, message, index)
-            : await this.markdown_expand_mustache_queries(part, message, index);
-    }
+				let current = message, previous;
+				do {
+						previous = current;
+						current = await this.__process_mustache(part, current, index);
+				} while (current !== previous);
+				return current;
+		}
 
-    static async markdown_expand_mustache_queries_recursively(part, message, index) {
-        let old_message;
-        do {
-            old_message = message;
-            message = await this.markdown_expand_mustache_queries(part, old_message, index);
-        } while(message !== old_message);
-        return message;
-    }
+		static async __process_mustache(part, message, index) {
+				let ast;
+				try { ast = MUSTACHE_PARSER.parse(message); }
+				catch (e) { throw new Error(`#${index}. Parse Error: ${e.message}`); }
 
-    static async markdown_expand_mustache_queries(part, message, index) {
-        message = this.__preprocess_mustache(message);
-        const matches = message.matchAll(/\{\{([=*+-]?)((\\}}|(?!}}).)*)}}/gs);
-        const persistent_atoms = [];
-        if (matches !== null) {
-            for (const the_match of matches) {
-                const mode = the_match[1].trim();
-                const match = the_match[2].trim().replaceAll('\\}', '}');
+				let buffer = "";
+				const persistent_atoms = [];
 
-                if (mode === '-') {
-                    if (match) {
-                        throw Error(`#${index}. Mode - cannot use queries`);
-                    }
-                    persistent_atoms.length = 0;
-                    message = message.replace(the_match[0], '');
-                    continue;
-                }
+				for (const node of ast.body) {
+						if (["Text", "Literal", "MultilineString", "FString"].includes(node.type)) {
+								buffer += this.__node_to_string(node);
+								continue;
+						}
 
-                const inline = ['=', '+'].includes(mode);
-                const program = part.map(atom => atom.predicate || atom.functor ? `${atom.str}.` : `__const__(${atom.str}).`).join('\n') + '\n#show.\n' +
-                    (inline ? `#show ${match}.` : match);
-                let query_answer = await Utils.search_models(program, 1, true, true);
-                if (query_answer.length !== 1) {
-                    throw Error(`#${index}. Expected at least one model, ${query_answer.length} found`);
-                }
-                query_answer = query_answer[0]
-                if (mode === '+' || mode === '*') {
-                    persistent_atoms.push(...query_answer);
-                    message = message.replace(the_match[0], '');
-                } else {
-                    message = message.replace(the_match[0], Utils.markdown_process_match(part, [...persistent_atoms, ...query_answer], index));
-                }
-            }
-        }
-        return message;
-    }
+						if (node.type === "Reset") {
+								persistent_atoms.length = 0;
+								continue;
+						}
+
+						const code = this.__reconstruct_code(node.code || node.terms);
+						const program = this.__build_asp_program(part, node, code);
+						const models = await Utils.search_models(program, 1, true, true);
+
+						if (models.length !== 1) throw Error(`#${index}. Expected 1 model, found ${models.length}`);
+
+						if (node.type === "Persistent") {
+								persistent_atoms.push(...models[0]);
+						} else {
+								const context = [...persistent_atoms, ...models[0]];
+								buffer += Utils.markdown_process_match(part, context, index);
+						}
+				}
+				return buffer;
+		}
+
+		static __node_to_string(node) {
+				if (node.type === "FString") return this.__process_fstring(node);
+				if (node.type === "MultilineString") return `"${node.value}"`;
+				return node.value;
+		}
+
+		static __reconstruct_code(parts) {
+				if (!parts) return "";
+				return parts.map(p => this.__node_to_string(p)).join("");
+		}
+
+		static __process_fstring(node) {
+				 let format_string = "";
+				 const args = [];
+
+				 for (const part of node.parts) {
+						 switch (part.type) {
+							   case 'Literal':
+										format_string += part.value
+										 .replaceAll('\\', '\\\\')
+										 .replaceAll('"', '\\"')
+										 .replaceAll('\n', '\\n');
+										break;
+
+								 case 'Variable':
+								    format_string += part.format;
+									  args.push(`, ${part.name}`);
+									  break;
+
+								 case 'FString':
+								    format_string += '%s';
+
+								    const raw_source = this.__reconstruct_fstring(part);
+										const safe_arg = raw_source.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+
+										args.push(`, "${safe_arg}"`);
+										break;
+						 }
+				 }
+
+			   return `@string_format("${format_string}"${args.join('')})`;
+		 }
+
+		static __reconstruct_fstring(node) {
+				let raw_content = "";
+
+				for (const p of node.parts) {
+						if (p.type === "Literal") {
+								raw_content += p.value;
+						} else if (p.type === "Variable") {
+								const fmt = p.format === "%s" ? "" : p.format;
+								raw_content += `\${${p.name}${fmt}}`;
+						} else if (p.type === "FString") {
+								raw_content += this.__reconstruct_fstring(p);
+						}
+				}
+
+				return `{{f"${raw_content}"}}`;
+	}
+
+		static __build_asp_program(part, node, code_str) {
+				const base = part.map(a => a.predicate || a.functor ? `${a.str}.` : `__const__(${a.str}).`).join('\n');
+				let logic = "", show = "";
+
+				switch (node.type) {
+						case "Expression":
+								const terms = this.__reconstruct_code(node.terms).trim();
+
+								if (node.code && node.code.length > 0) {
+										const body = this.__reconstruct_code(node.code).trim();
+										show = `#show ${terms} : ${body}.`;
+								} else {
+										show = `#show ${terms}.`;
+								}
+								break;
+
+						case "Persistent":
+								show = `#show ${code_str.trim()}.`;
+								break;
+
+						default:
+								logic = code_str.trim();
+				}
+
+				return `${base}\n#show.\n${logic}\n${show}`;
+		}
 
     static markdown_process_match(part, query_answer, index) {
         const output_predicates = [
@@ -996,7 +1053,6 @@ end
 
             let output = [];
             let styles = [''];
-            let i = 0;
             let mainString = args[0]; // Base string
             let argIndex = 1; // Track argument position
 
@@ -1105,3 +1161,86 @@ space
 = [ \\t\\n]+
 `;
 const PARSER = peg.generate(GRAMMAR);
+
+const MUSTACHE_GRAMMAR = `
+Start
+  = content:RecursiveContent { return { type: "Program", body: content } }
+
+RecursiveContent
+  = head:Content tail:RecursiveContent? { 
+      return [head, ...(tail || [])]; 
+  }
+
+Content
+  = MustacheReset
+  / FString
+  / MustacheExpression
+  / MustachePersistent
+  / MustacheQuery
+  / LiteralContent
+  
+MustacheReset
+  = "{{-}}" { return { type: "Reset" } }
+
+MustachePersistent
+  = "{{" mode:[*+] _ asp:AspContent "}}" { 
+      return { type: "Persistent", mode: mode, code: asp } 
+  }
+
+MustacheExpression
+  = "{{=" _ left:MustacheTerms _ ":"? _ right:AspContent? "}}" { 
+      return { type: "Expression", terms: left, code: right } 
+  }
+
+MustacheQuery
+  = "{{" _ asp:AspContent _ "}}" { 
+      return { type: "Query", code: asp } 
+  }
+
+MustacheTerms
+  = parts:(FString / MultilineString / QuotedString / TermText)* { return parts }
+
+AspContent
+  = parts:(MultilineString / AspText)* { return parts }
+
+QuotedString
+  = val:$('"' ('\\\\' . / !'"' .)* '"') { return { type: "Text", value: val } }
+  / val:$("'" ('\\\\' . / !"'" .)* "'") { return { type: "Text", value: val } }
+
+TermText
+  = val:$( (!":" !"}}" !"{{" !'"' !"'" .)+ ) { return { type: "Text", value: val } }
+
+AspText
+  = val:$( (!"}}" !"{{" .)+ ) { return { type: "Text", value: val } }
+
+FString
+  = "{{" 'f"' parts:FStringBody '"}}'  { return { type: "FString", parts: parts } }
+
+FStringBody
+  = parts:(FStringInterpolation / FStringLiteral / FString)* { return parts }
+
+FStringInterpolation
+  = "\${"  _ v:VarName fmt:FormatSpecifier? _ "}" {
+      return { type: "Variable", name: v, format: fmt || "%s" }
+  }
+
+FStringLiteral
+  = val:$( (!"\${" !'"}}' !'{{f"' .)+ ) { return { type: "Literal", value: val } }
+
+VarName 
+  = name:$([^:}]+) { return name.trim() }
+
+FormatSpecifier 
+  = ":" fmt:$([%a-zA-Z0-9.]+) { return fmt }
+
+MultilineString
+  = "{{" '"' val:$( (!'"}}'  .)* ) '"}}'  { return { type: "MultilineString", value: val } }
+
+LiteralContent
+  = val:$( (!"{{" .)+ ) { return { type: "Text", value: val } }
+
+_ = [ \\t\\n\\r]*
+`;
+
+const MUSTACHE_PARSER = peg.generate(MUSTACHE_GRAMMAR);
+
