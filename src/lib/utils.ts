@@ -1174,6 +1174,7 @@ RecursiveContent
 Content
   = MustacheReset
   / FString
+  / MultilineString
   / MustacheExpression
   / MustachePersistent
   / MustacheQuery
