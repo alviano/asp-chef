@@ -16,6 +16,13 @@ test.describe("Expand Mustache Queries", () => {
 		recipe = await TestRecipe.create(page);
 	});
 
+	test("empty", async () => {
+		await check(recipe, `
+		`, `
+		`, `
+		`);
+	});
+
 	test("inline", async () => {
 		await check(recipe, `
 foo(bar).
@@ -122,6 +129,24 @@ data(5, "Margret Marmajuke", 16, "yellow", "31/01/1999").
 		);
   });
 
+test("multiline with quote char (1)", async () => {
+    await check(recipe, `
+    `, `
+{{ #show {{"a "nice" string"}} : #true. }}
+    `, `
+a "nice" string
+    `);
+  });
+
+test("multiline with quote char (2)", async () => {
+    await check(recipe, `
+    `, `
+{{= {{"a "nice" string"}} : #true }}
+    `, `
+a "nice" string
+    `);
+  });
+
   test("nested_fstring", async () => {
     await check(recipe, `
 n("level1").
@@ -129,6 +154,24 @@ n("level1").
 {{= {{f"L1: \${X} -> {{f"L2"}}"}} : n(X) }}
     `, `
 L1: level1 -> {{f"L2"}}
+    `);
+  });
+
+  test("nesting 1", async () => {
+    await check(recipe, `
+    `, `
+{{ #show {{f"ok"}} : #true. }}
+    `, `
+ok
+    `);
+  });
+
+  test("nesting 2", async () => {
+    await check(recipe, `
+    `, `
+{{ #show "{{= "ok" : #true }}" : #true. }}
+    `, `
+ok
     `);
   });
 

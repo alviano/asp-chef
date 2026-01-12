@@ -483,13 +483,20 @@ export class Utils extends BaseUtils {
 
     static __node_to_string(node) {
         if (node.type === "FString") return this.__process_fstring(node);
-        if (node.type === "MultilineString") return `"${node.value}"`;
+        if (node.type === "MultilineString") return `"${this.__escape_string(node.value)}"`;
         return node.value;
     }
 
     static __reconstruct_code(parts) {
         if (!parts) return "";
         return parts.map(p => this.__node_to_string(p)).join("");
+    }
+
+    static __escape_string(str) {
+        return str
+            .replaceAll('\\', '\\\\')
+            .replaceAll('"', '\\"')
+            .replaceAll('\n', '\\n');
     }
 
     static __process_fstring(node) {
@@ -499,10 +506,7 @@ export class Utils extends BaseUtils {
         for (const part of node.parts) {
             switch (part.type) {
                 case 'Literal':
-                    format_string += part.value
-                        .replaceAll('\\', '\\\\')
-                        .replaceAll('"', '\\"')
-                        .replaceAll('\n', '\\n');
+                    format_string += this.__escape_string(part.value);
                     break;
 
                 case 'Variable':
@@ -514,7 +518,7 @@ export class Utils extends BaseUtils {
                     format_string += '%s';
 
                     const raw_source = this.__reconstruct_fstring(part);
-                    const safe_arg = raw_source.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+                    const safe_arg = this.__escape_string(raw_source);
 
                     args.push(`, "${safe_arg}"`);
                     break;
@@ -524,49 +528,49 @@ export class Utils extends BaseUtils {
         return `@string_format("${format_string}"${args.join('')})`;
     }
 
-		static __reconstruct_fstring(node) {
-				let raw_content = "";
+    static __reconstruct_fstring(node) {
+        let raw_content = "";
 
-				for (const p of node.parts) {
-						if (p.type === "Literal") {
-								raw_content += p.value;
-						} else if (p.type === "Variable") {
-								const fmt = p.format === "%s" ? "" : p.format;
-								raw_content += `\${${p.name}${fmt}}`;
-						} else if (p.type === "FString") {
-								raw_content += this.__reconstruct_fstring(p);
-						}
-				}
+        for (const p of node.parts) {
+                if (p.type === "Literal") {
+                        raw_content += p.value;
+                } else if (p.type === "Variable") {
+                        const fmt = p.format === "%s" ? "" : p.format;
+                        raw_content += `\${${p.name}${fmt}}`;
+                } else if (p.type === "FString") {
+                        raw_content += this.__reconstruct_fstring(p);
+                }
+        }
 
-				return `{{f"${raw_content}"}}`;
+        return `{{f"${raw_content}"}}`;
 	}
 
-		static __build_asp_program(part, node, code_str) {
-				const base = part.map(a => a.predicate || a.functor ? `${a.str}.` : `__const__(${a.str}).`).join('\n');
-				let logic = "", show = "";
+    static __build_asp_program(part, node, code_str) {
+        const base = part.map(a => a.predicate || a.functor ? `${a.str}.` : `__const__(${a.str}).`).join('\n');
+        let logic = "", show = "";
 
-				switch (node.type) {
-						case "Expression":
-								const terms = this.__reconstruct_code(node.terms).trim();
+        switch (node.type) {
+            case "Expression":
+                const terms = this.__reconstruct_code(node.terms).trim();
 
-								if (node.code && node.code.length > 0) {
-										const body = this.__reconstruct_code(node.code).trim();
-										show = `#show ${terms} : ${body}.`;
-								} else {
-										show = `#show ${terms}.`;
-								}
-								break;
+                if (node.code && node.code.length > 0) {
+                        const body = this.__reconstruct_code(node.code).trim();
+                        show = `#show ${terms} : ${body}.`;
+                } else {
+                        show = `#show ${terms}.`;
+                }
+                break;
 
-						case "Persistent":
-								show = `#show ${code_str.trim()}.`;
-								break;
+            case "Persistent":
+                show = `#show ${code_str.trim()}.`;
+                break;
 
-						default:
-								logic = code_str.trim();
-				}
+            default:
+                logic = code_str.trim();
+        }
 
-				return `${base}\n#show.\n${logic}\n${show}`;
-		}
+        return `${base}\n#show.\n${logic}\n${show}`;
+    }
 
     static markdown_process_match(part, query_answer, index) {
         const output_predicates = [
@@ -1167,19 +1171,14 @@ const PARSER = peg.generate(GRAMMAR);
 
 const MUSTACHE_GRAMMAR = `
 Start
-  = content:RecursiveContent { return { type: "Program", body: content } }
-
-RecursiveContent
-  = head:Content tail:RecursiveContent? { 
-      return [head, ...(tail || [])]; 
-  }
+  = content:Content* { return { type: "Program", body: content } }
 
 Content
   = MustacheReset
+  / MustachePersistent
   / FString
   / MultilineString
   / MustacheExpression
-  / MustachePersistent
   / MustacheQuery
   / LiteralContent
   
@@ -1187,25 +1186,25 @@ MustacheReset
   = "{{-}}" { return { type: "Reset" } }
 
 MustachePersistent
-  = "{{" mode:[*+] _ asp:AspContent "}}" { 
+  = "{{" mode:[*+] asp:AspContent "}}" { 
       return { type: "Persistent", mode: mode, code: asp } 
   }
 
 MustacheExpression
-  = "{{=" _ left:MustacheTerms _ ":"? _ right:AspContent? "}}" { 
+  = "{{=" left:MustacheTerms ":"? right:AspContent? "}}" { 
       return { type: "Expression", terms: left, code: right } 
   }
 
 MustacheQuery
-  = "{{" _ asp:AspContent _ "}}" { 
+  = "{{" asp:AspContent "}}" { 
       return { type: "Query", code: asp } 
   }
 
 MustacheTerms
-  = parts:(FString / MultilineString / QuotedString / TermText)* { return parts }
+  = parts:(FString / MultilineString / MustacheExpression / QuotedString / TermText)* { return parts }
 
 AspContent
-  = parts:(MultilineString / AspText)* { return parts }
+  = parts:(FString / MultilineString / MustacheExpression / AspText)* { return parts }
 
 QuotedString
   = val:$('"' ('\\\\' . / !'"' .)* '"') { return { type: "Text", value: val } }
@@ -1218,13 +1217,13 @@ AspText
   = val:$( (!"}}" !"{{" .)+ ) { return { type: "Text", value: val } }
 
 FString
-  = "{{" 'f"' parts:FStringBody '"}}'  { return { type: "FString", parts: parts } }
+  = '{{f"' parts:FStringBody '"}}'  { return { type: "FString", parts: parts } }
 
 FStringBody
   = parts:(FStringInterpolation / FStringLiteral / FString)* { return parts }
 
 FStringInterpolation
-  = "\${"  _ v:VarName fmt:FormatSpecifier? _ "}" {
+  = "\${" v:VarName fmt:FormatSpecifier? "}" {
       return { type: "Variable", name: v, format: fmt || "%s" }
   }
 
@@ -1238,12 +1237,10 @@ FormatSpecifier
   = ":" fmt:$([%a-zA-Z0-9.]+) { return fmt }
 
 MultilineString
-  = "{{" '"' val:$( (!'"}}'  .)* ) '"}}'  { return { type: "MultilineString", value: val } }
+  = '{{"' val:$( (!'"}}'  .)* ) '"}}'  { return { type: "MultilineString", value: val } }
 
 LiteralContent
   = val:$( (!"{{" .)+ ) { return { type: "Text", value: val } }
-
-_ = [ \\t\\n\\r]*
 `;
 
 const MUSTACHE_PARSER = peg.generate(MUSTACHE_GRAMMAR);
