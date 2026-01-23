@@ -85,7 +85,7 @@
                     if (api_key) {
                         for (let message_index = 0; message_index < messages.length; message_index++) {
                             const message = messages[message_index].content;
-                            messages[message_index].content = await Utils.markdown_expand_mustache_queries(part, message, index);
+                            messages[message_index].content = await Utils.expand_mustache_queries(part, message, index);
                         }
                         const response = await call_server(server_type, server, api_key, endpoint, model, temperature, messages);
                         const text = response.choices ? response.choices[0].message.content : response.message.content;
