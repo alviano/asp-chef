@@ -484,6 +484,7 @@ export class Utils extends BaseUtils {
     static __node_to_string(node) {
         if (node.type === "FString") return this.__process_fstring(node);
         if (node.type === "MultilineString") return `"${this.__escape_string(node.value)}"`;
+        if (node.type === 'Expression') return this.__reconstruct_code(node.terms).replaceAll('"','');
         return node.value;
     }
 
@@ -532,14 +533,14 @@ export class Utils extends BaseUtils {
         let raw_content = "";
 
         for (const p of node.parts) {
-                if (p.type === "Literal") {
-                        raw_content += p.value;
-                } else if (p.type === "Variable") {
-                        const fmt = p.format === "%s" ? "" : p.format;
-                        raw_content += `\${${p.name}${fmt}}`;
-                } else if (p.type === "FString") {
-                        raw_content += this.__reconstruct_fstring(p);
-                }
+            if (p.type === "Literal") {
+                raw_content += p.value;
+            } else if (p.type === "Variable") {
+                const fmt = p.format === "%s" ? "" : p.format;
+                raw_content += `\${${p.name}${fmt}}`;
+            } else if (p.type === "FString") {
+                raw_content += this.__reconstruct_fstring(p);
+            }
         }
 
         return `{{f"${raw_content}"}}`;
