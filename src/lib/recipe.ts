@@ -342,8 +342,21 @@ export class Recipe {
         const parts = Utils.split_with_limit(the_recipe_url.pathname, "/", 3);
         if (parts.length === 3 && parts[1] === "s") {
             const path = decodeURIComponent(parts[2]).replace(/\+/g, ' ');
-            const hash = the_recipe_url.hash;
-            const user_repo = hash ? hash.substring(1) : `${consts.SHORT_LINKS_DEFAULT_USERNAME}/${consts.SHORT_LINKS_DEFAULT_REPOSITORY}`;
+
+            let input = null;
+            let user_repo = `${consts.SHORT_LINKS_DEFAULT_USERNAME}/${consts.SHORT_LINKS_DEFAULT_REPOSITORY}`;
+            let hash = the_recipe_url.hash;
+            if (hash) {
+                hash = hash.substring(1);
+                const input__user_repo = Utils.split_with_limit(hash, ";", 2);
+                if (input__user_repo.length === 2) {
+                    input = input__user_repo[0];
+                    user_repo = input__user_repo[1] || user_repo;
+                } else {
+                    user_repo = hash;
+                }
+            }
+
             const url = `${consts.GITHUB_API_DOMAIN}/repos/${user_repo}/contents/${path}.url`;
             const options = {
                 headers: {
@@ -355,7 +368,7 @@ export class Recipe {
             }
             const response = await fetch(url, options);
             if (response.status !== 200) {
-                throw new Error(`Cannot load ${url}`);
+                throw new Error(`Cannot load ${url}` + (get(github_api_token) ? "\nIs the GitHub token valid?" : ""));
             }
             const contentType = response.headers.get("content-type");
             let content;
@@ -366,7 +379,11 @@ export class Recipe {
                 content = await response.text();
             }
             const expanded_url = new URL(content);
-            return `${include_domain ? consts.DOMAIN : ''}/${expanded_url.hash}`;
+            if (input) {
+                return `${include_domain ? consts.DOMAIN : ''}/open#${input};${expanded_url.hash.substring(1)}`;
+            } else {
+                return `${include_domain ? consts.DOMAIN : ''}/${expanded_url.hash}`;
+            }
         } else {
             return recipe_url;
         }

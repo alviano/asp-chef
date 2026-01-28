@@ -1,6 +1,6 @@
 {
 	"name": "asp-chef",
-	"version": "1.18.7",
+	"version": "1.19.0",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --port 5188",
@@ -17,7 +17,7 @@
 	"devDependencies": {
 		"@playwright/test": "^1.56.1",
 		"@sveltejs/adapter-auto": "^7.0.0",
-		"@sveltejs/kit": "2.48.5",
+		"@sveltejs/kit": "2.49.5",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@types/c3": "^0.7.11",
 		"@types/jest": "^30.0.0",
