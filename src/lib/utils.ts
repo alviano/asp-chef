@@ -12,7 +12,7 @@ import {Base64} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
 import { toJson } from 'really-relaxed-json';
 import { JSONPath } from "jsonpath-plus";
-
+	import yaml from 'js-yaml';
 const dom_purify_config = new DOMPurifyConfig(consts);
 
 const originalConsole = {
@@ -1131,6 +1131,27 @@ end
             logToPage("error", ...args);
         };
     }
+
+
+
+    static download(obj, filename) {
+		let dataStr = '';
+		let type = filename.endsWith('.json') ? 'json' : 'yaml';
+
+		if (type === 'json') {
+			dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj, null, 2));
+		} else {
+			const yamlData = yaml.dump(obj);
+			dataStr = 'data:text/yaml;charset=utf-8,' + encodeURIComponent(yamlData);
+		}
+
+		const downloadAnchorNode = document.createElement('a');
+		downloadAnchorNode.setAttribute('href', dataStr);
+		downloadAnchorNode.setAttribute('download', filename);
+		document.body.appendChild(downloadAnchorNode);
+		downloadAnchorNode.click();
+		downloadAnchorNode.remove();
+	}
 }
 
 const GRAMMAR = `
