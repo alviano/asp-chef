@@ -297,7 +297,7 @@
 	<InputGroup class="m-2 justify-content-end">
 		<Popover
 			title="Debug information"
-			value="Download the debug information as JSON. The debug information includes the list of errors found in the DTDL model and suggestions for fixing them (if available)."
+			value="Download the debug information as JSON. The debug information includes the list of errors found in the DTDL model"
 		>
 			<Button class="m-1" on:click={() => Utils.download(debugData, 'debug_errors.json')}
 				><i class="bi bi-download"></i> <span>Error Json</span></Button
@@ -305,7 +305,7 @@
 		</Popover>
 		<Popover
 			title="Debug information"
-			value="Download the debug information as YAML file. The debug information includes the list of errors found in the DTDL model and suggestions for fixing them (if available)."
+			value="Download the debug information as YAML file. The debug information includes the list of errors found in the DTDL model"
 		>
 			<Button class="m-1" on:click={() => Utils.download(debugData, 'debug_errors.yaml')}
 				><i class="bi bi-download"></i> <span>Error Yaml</span></Button
