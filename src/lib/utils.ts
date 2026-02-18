@@ -10,10 +10,12 @@ import {clingo_remote_on, clingo_remote_uuid, processing_index, server_url} from
 import {get} from "svelte/store";
 import {Base64} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
-import { toJson } from 'really-relaxed-json';
+import really_relaxed_json from 'really-relaxed-json';
 import { JSONPath } from "jsonpath-plus";
 import yaml from 'js-yaml';
 const dom_purify_config = new DOMPurifyConfig(consts);
+
+const { toJson } = really_relaxed_json;
 
 const originalConsole = {
     uuid: 'a9162e31-3e85-4736-a548-98f38b7bb25e',
