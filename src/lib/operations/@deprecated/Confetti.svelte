@@ -1,5 +1,5 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe.js";
+    import {Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
 
     const operation = "@deprecated/Confetti";
