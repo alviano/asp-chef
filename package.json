@@ -91,7 +91,6 @@
 		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 	},
 	"overrides": {
-		"cookie": "^0.7.0",
-		"d3-color": "^3.1.0"
+		"cookie": "^0.7.0"
 	}
 }
