@@ -1,6 +1,6 @@
 <script>
-    import "c3/c3.css";
-    import {generate} from 'c3';
+    //import "c3/c3.css";
+    //import {generate} from 'c3';
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {onMount} from "svelte";
@@ -28,10 +28,10 @@
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
-            generate({
+            /*generate({
                 ...configuration,
                 bindto: chart,
-            });
+            });*/
         } catch (err) {
             Utils.snackbar(`#${index + 1}. C3.js: ${err}`);
         }
