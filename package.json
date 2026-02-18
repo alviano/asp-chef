@@ -29,7 +29,7 @@
 		"d3-scale-chromatic": "latest",
 		"d3-selection": "latest",
 		"d3-zoom": "latest",
-		"eslint": "^9.39.2",
+		"eslint": "^10.0.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.15.0",
 		"mdsvex": "^0.12.6",

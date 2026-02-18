@@ -12,7 +12,7 @@ import {Base64} from "js-base64";
 import {v4 as uuidv4} from 'uuid';
 import { toJson } from 'really-relaxed-json';
 import { JSONPath } from "jsonpath-plus";
-	import yaml from 'js-yaml';
+import yaml from 'js-yaml';
 const dom_purify_config = new DOMPurifyConfig(consts);
 
 const originalConsole = {
