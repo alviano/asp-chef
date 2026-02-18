@@ -1,7 +1,7 @@
-The **@dumbo/PyQASP** operation invokes the [PyQASP](https://github.com/MazzottaG/PyQASP) solver with the program Base64-encoded in `__program__/1`.
+The **@dumbo/Casper** operation invokes the [Casper](https://github.com/ndria00/Casper) solver with the program Base64-encoded in `__program__/1`.
 
 This operation requires the [ASP Chef CLI](https://github.com/alviano/asp-chef-cli) and a local server (e.g., `python -m asp_chef_cli server`).
-The binary `pyqasp` must be in the PATH.
+The Casper solver must be callable using the `casper` command.
 
 §§§§
 
@@ -26,7 +26,8 @@ No hacker can successfully coordinate a massive brute force, a complex SQLi, and
 We can encode the above scenario as follows:
 ```asp
 %@exists
-{defense(Defense)} :- mitigates(Defense, _).
+defense(Defense) :- mitigates(Defense, Attack), not nDefense(Defense).
+nDefense(Defense) :- mitigates(Defense, Attack), not defense(Defense).
 
 % copy atoms from the interpretation in input
 mitigates(rate_limit,brute_force).
@@ -38,7 +39,8 @@ mitigated(Attack) :- defense(Defense), mitigates(Defense, Attack).
 
 
 %@forall
-{attack(Attack)} :- mitigates(_, Attack).
+attack(Attack) :- mitigates(Defense, Attack), not nAttack(Attack).
+nAttack(Attack) :- mitigates(Defense, Attack), not attack(Attack).
 
 % soc trigger(s)
 :- attack(brute_force), attack(sqli), attack(phishing).
@@ -48,12 +50,12 @@ mitigated(Attack) :- defense(Defense), mitigates(Defense, Attack).
 :- attack(X), not mitigated(X).
 ```
 
-If we pack a recipe with the above program in an **Encode** ingredient (with _Predicate_ `__program__`) followed by **@dumbo/PyQASP** (with _Enumerate_ active), and use **Select Predicates** to keep `defense/1`, we obtain the following answer sets:
+If we pack a recipe with the above program in an **Encode** ingredient (with _Predicate_ `__program__`) followed by **@dumbo/Casper** (with _Enumerate_ active), and use **Select Predicates** to keep `defense/1`, we obtain the following answer sets:
 ```asp
+defense(rate_limit).
 defense(waf).
 defense(zero_trust).
 §
-defense(rate_limit).
 defense(waf).
 defense(zero_trust).
 ```
@@ -73,7 +75,8 @@ soc_trigger(1, phishing).
 the program in the **Encode** ingredient can become
 ```asp
 %@exists
-{defense(Defense)} :- mitigates(Defense, _).
+defense(Defense) :- mitigates(Defense, Attack), not nDefense(Defense).
+nDefense(Defense) :- mitigates(Defense, Attack), not defense(Defense).
 
 % copy atoms from the interpretation in input
 {{= @string_concat(mitigates(Defense, Attack), ".") : mitigates(Defense, Attack) }}
@@ -82,7 +85,8 @@ mitigated(Attack) :- defense(Defense), mitigates(Defense, Attack).
 
 
 %@forall
-{attack(Attack)} :- mitigates(_, Attack).
+attack(Attack) :- mitigates(Defense, Attack), not nAttack(Attack).
+nAttack(Attack) :- mitigates(Defense, Attack), not attack(Attack).
 
 % soc trigger(s)
 {{= {{f":- {{
@@ -96,4 +100,4 @@ mitigated(Attack) :- defense(Defense), mitigates(Defense, Attack).
 %@constraint
 :- attack(X), not mitigated(X).
 ```
-Adding **Expand Mustache Queries** with *Multi-Stage* active before **@dumbo/PyQASP** would result in the two answer sets above.
+Adding **Expand Mustache Queries** with *Multi-Stage* active before **@dumbo/Casper** would result in the two answer sets above.

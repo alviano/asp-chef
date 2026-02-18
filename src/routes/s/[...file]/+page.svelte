@@ -1,7 +1,7 @@
 <!--
 https://tinyurl.com/aschef points to https://asp-chef.alviano.net/s
 
-register https://tinyurl.com/SOMETHING pointing to https://asp-chef.alviano.net/s?d=PATH#USERNAME/REPOSITORY
+register https://tinyurl.com/SOMETHING pointing to https://asp-chef.alviano.net/s/PATH#USERNAME/REPOSITORY
 to use this shortening service on other GitHub accounts and repository
 -->
 

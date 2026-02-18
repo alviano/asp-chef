@@ -4,7 +4,9 @@
     const operation = "Markdown";
     const default_extra_options = {
         predicate: '__base64__',
+        multistage: false,
         echo: false,
+        show_model_index: false,
     };
 
     const listeners = new Map();
@@ -20,13 +22,8 @@
 <script>
     import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
-    import {onDestroy, onMount, tick} from "svelte";
-    import {consts} from "$lib/consts";
-    import {Base64} from "js-base64";
-    import {Utils} from "$lib/utils";
-    import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
-    import QrCode from "svelte-qrcode";
-    import { mount } from 'svelte';
+    import {onDestroy, onMount} from "svelte";
+    import Markdown from "./+Markdown.svelte";
 
     export let id;
     export let options;
@@ -34,50 +31,15 @@
     export let add_to_recipe;
     export let keybinding;
 
-    let output = '';
-    let output_div;
+    let models = [];
 
     function edit() {
         Recipe.edit_operation(id, index, options);
     }
 
     onMount(() => {
-        listeners.set(id, async (input) => {
-            if (!output_div) {
-                return;
-            }
-            const the_output = [];
-            for (let model of input) {
-                const output_part = [];
-                for (let atom of model.filter(atom => atom.predicate === options.predicate)) {
-                    const md = Base64.decode(atom.terms[0].string);
-                    output_part.push(await Utils.expand_mustache_queries(model, md, index));
-                }
-                the_output.push(output_part.join('\n'));
-            }
-            output = the_output.join('\n\n');
-            await tick();
-            renderMathInElement(output_div,  {
-                delimiters: [
-                    { left: '\\(', right: '\\)', display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                ],
-            });
-            Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
-            Array.from(output_div.getElementsByTagName('a'))
-                .filter(element => element.href === `${consts.DOMAIN}/qrcode`)
-                .forEach(element => {
-                    const content = element.text;
-                    element.innerHTML = "";
-                    element.removeAttribute("href");
-                    element.removeAttribute("target");
-                    mount(QrCode, {
-                        target: element,
-                        props: {
-                            value: content,
-                        },
-                    });
-                });
+        listeners.set(id, (input) => {
+            models = input;
         });
     });
 
@@ -90,32 +52,20 @@
     <InputGroup>
         <InputGroupText>Predicate</InputGroupText>
         <Input type="text" placeholder="predicate" bind:value={options.predicate} on:input={edit} data-testid="Markdown-predicate" />
+        <Button outline="{!options.multistage}" on:click={() => { options.multistage = !options.multistage; edit(); }}>Multi-Stage</Button>
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
+        <Button outline="{!options.show_model_index}" on:click={() => { options.show_model_index = !options.show_model_index; edit(); }}>Model Index</Button>
     </InputGroup>
-    <div slot="output" bind:this="{output_div}" class="p-2 output" data-testid="Markdown-output">
-        {@html Utils.render_markdown(output)}
+    <div slot="output" data-testid="Markdown-output">
+        {#each models as model, model_index}
+            {#if options.show_model_index}
+                <h6 class="text-center">Model #{model_index + 1}</h6>
+            {/if}
+            {#key model}
+                {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
+                    <Markdown part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
+                {/each}
+            {/key}
+        {/each}
     </div>
 </Operation>
-
-<style>
-    .output :global(td), .output :global(th) {
-        border: 1px solid #ddd;
-        padding: 8px;
-    }
-
-    .output :global(tr:nth-child(even)) {
-        background-color: #f2f2f2;
-    }
-
-    .output :global(tr:hover) {
-        background-color: #ddd;
-    }
-
-    .output :global(th) {
-        padding-top: 12px;
-        padding-bottom: 12px;
-        text-align: left;
-        background-color: #777;
-        color: white;
-    }
-</style>
