@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
-    import { Model } from 'https://cdn.jsdelivr.net/npm/minizinc/dist/minizinc.mjs';
+    //import { Model } from 'https://cdn.jsdelivr.net/npm/minizinc/dist/minizinc.mjs';
 
     const operation = "MiniZinc";
     const default_extra_options = {
@@ -56,6 +56,7 @@
             const ignored_atoms = [];
             const input_atoms = [];
             try {
+                /*
                 const minizinc_model = new Model();
 
                 const program = part.map(atom => {
@@ -132,7 +133,7 @@
                             .flatMap(([key, value]) => process_output(options.output_predicate, key, value))
                     ));
                 });
-                await solve;
+                await solve;*/
             } catch (error) {
                 Recipe.set_errors_at_index(index, error.message || error, res);
             }

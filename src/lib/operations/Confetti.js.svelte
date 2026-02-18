@@ -14,8 +14,8 @@
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         if (confetti === null) {
             try {
-                const {confetti: the_confetti} = (await import("https://esm.run/tsparticles-confetti@2.12.0/tsparticles.confetti.bundle.min.js"));
-                confetti = the_confetti;
+                //const {confetti: the_confetti} = (await import("https://esm.run/tsparticles-confetti@2.12.0/tsparticles.confetti.bundle.min.js"));
+                //confetti = the_confetti;
             } catch (error) {
                 console.error(error);
                 return input;
