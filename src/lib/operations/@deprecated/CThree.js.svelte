@@ -1,7 +1,7 @@
 <script context="module">
     import {Recipe} from "$lib/recipe";
 
-    const operation = "C Three.js";
+    const operation = "@deprecated/C Three.js";
     const default_extra_options = {
         predicate: "__chart__",
         multistage: false,
@@ -23,7 +23,7 @@
     import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import C3JS from "./+CThree.js.svelte";
+    import BillboardJs from "../+Billboard.js.svelte";
 
     export let id;
     export let options;
@@ -64,7 +64,7 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <C3JS part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
+                        <BillboardJs part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
                     {/each}
                 {/key}
             {/each}

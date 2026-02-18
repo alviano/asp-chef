@@ -15,12 +15,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. C3.js`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. Billboard.js`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. C3.js`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. Billboard.js`);
             return;
         }
 
@@ -33,7 +33,7 @@
                 bindto: chart,
             });*/
         } catch (err) {
-            Utils.snackbar(`#${index + 1}. C3.js: ${err}`);
+            Utils.snackbar(`#${index + 1}. Billboard.js: ${err}`);
         }
     });
 </script>
