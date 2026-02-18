@@ -28,10 +28,10 @@
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
-            /*generate({
+            bb.generate({
                 ...configuration,
                 bindto: chart,
-            });*/
+            });
         } catch (err) {
             Utils.snackbar(`#${index + 1}. Billboard.js: ${err}`);
         }
