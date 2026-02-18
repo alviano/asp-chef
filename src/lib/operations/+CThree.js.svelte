@@ -1,6 +1,6 @@
 <script>
-    import "c3/c3.css";
-    import {generate} from 'c3';
+	import "billboard.js/dist/billboard.css";
+	import bb from 'billboard.js/dist/billboard.pkgd';
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {onMount} from "svelte";
@@ -15,12 +15,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. C3.js`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. billboard.js`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. C3.js`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. billboard.js`);
             return;
         }
 
@@ -28,12 +28,12 @@
             const content = Base64.decode(atom.string);
             const expanded_content = await Utils.expand_mustache_queries(part, content, index, multistage);
             const configuration = Utils.parse_relaxed_json(expanded_content);
-            generate({
+            bb.generate({
                 ...configuration,
                 bindto: chart,
             });
         } catch (err) {
-            Utils.snackbar(`#${index + 1}. C3.js: ${err}`);
+            Utils.snackbar(`#${index + 1}. billboard.js: ${err}`);
         }
     });
 </script>

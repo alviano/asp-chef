@@ -451,12 +451,12 @@ export class Utils extends BaseUtils {
             throw new Error(`#${index}. Parse Error: ${e.message}`);
         }
 
-        let buffer = "";
+        let buffer = [];
         const persistent_atoms = [];
 
         for (const node of ast.body) {
             if (["Text", "Literal", "MultilineString", "FString"].includes(node.type)) {
-                buffer += this.__node_to_string(node);
+                buffer.push(this.__node_to_string(node));
                 continue;
             }
 
@@ -475,10 +475,10 @@ export class Utils extends BaseUtils {
                 persistent_atoms.push(...models[0]);
             } else {
                 const context = [...persistent_atoms, ...models[0]];
-                buffer += Utils.markdown_process_match(part, context, index);
+                buffer.push(Utils.markdown_process_match(part, context, index));
             }
         }
-        return buffer;
+        return buffer.join("");
     }
 
     static __node_to_string(node) {
