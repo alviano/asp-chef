@@ -1,4 +1,11 @@
 The **C Three.js** operation shows input models in charts powered by the C3.js framework.
+**Warning!**
+Deprecated operation (it fallbacks to a possibly-old version of **Billboard.js**).
+Use the new **Billboard.js** operation.
+
+----
+
+The **@deprecated/C Three.js** operation shows input models in charts powered by the C3.js framework.
 
 Charts are obtained from instances of `__chart__/1` (which can be echoed in the output).
 
