@@ -13,11 +13,11 @@ export class LLMs {
 		return 'https://api.groq.com/openai/v1';
 	}
 
-	private static api_keys_in_local_storage() {
+	public static api_keys_in_local_storage() {
 		return JSON.parse(localStorage.getItem(LLMs.STORAGE_API_KEYS_KEY()) || '{}');
 	}
 
-	private static api_keys_in_session_storage() {
+	public static api_keys_in_session_storage() {
 		return JSON.parse(sessionStorage.getItem(LLMs.STORAGE_API_KEYS_KEY()) || '{}');
 	}
 

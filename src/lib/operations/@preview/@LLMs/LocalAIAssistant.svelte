@@ -73,6 +73,16 @@
         editingContent = messages[index].content;
     }
 
+    function deleteMessage(index) {
+        if (isGeneratingLocally) return;
+        messages = messages.filter((_, i) => i !== index);
+        if (editingIndex === index) {
+            cancelEdit();
+        } else if (editingIndex > index) {
+            editingIndex--;
+        }
+    }
+
     function cancelEdit() {
         editingIndex = -1;
         editingContent = "";
@@ -166,6 +176,27 @@
         isGeneratingLocally = false;
     }
 
+    async function reset_service_worker() {
+        Utils.confirm({
+            message: "This will unregister the service worker and reload the page to fix stuck states. Continue?",
+            onconfirm: async () => {
+                if ("serviceWorker" in navigator) {
+                    try {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        for (let registration of registrations) {
+                            await registration.unregister();
+                        }
+                        Utils.snackbar("Service Worker reset. Reloading...");
+                        setTimeout(() => window.location.reload(), 500);
+                    } catch (e) {
+                        console.error("Reset failed:", e);
+                        Utils.snackbar("Reset failed: " + e.message);
+                    }
+                }
+            }
+        });
+    }
+
     async function clear_messages() {
         // 1. Instantly wipe the UI and flag the stream to stop
         messages = [];
@@ -214,6 +245,7 @@
                 temperature: options.temperature,
                 top_p: options.top_p,
                 max_tokens: options.max_tokens,
+                repetition_penalty: options.repetition_penalty,
                 stream: true,
             });
 
@@ -283,127 +315,262 @@
     }
 </script>
 
-<Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div class="p-2 border rounded bg-light shadow-sm">
+<style>
+    /* Custom Scrollbar for the Kitchen */
+    .chat-box::-webkit-scrollbar { width: 6px; }
+    .chat-box::-webkit-scrollbar-track { background: transparent; }
+    .chat-box::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
 
-        <div class="mb-2 p-2 bg-white border rounded d-flex justify-content-between align-items-center">
-            <span class="small fw-bold text-muted">Active Global Model:</span>
+    /* Message Bubbles */
+    .message-container {
+        transition: transform 0.2s ease;
+    }
+
+    .message-bubble {
+        border-radius: 12px;
+        position: relative;
+        transition: all 0.2s ease;
+        max-width: 95%;
+    }
+
+    .user-bubble {
+        background: #f8fbff;
+        border-right: 4px solid #0d6efd !important;
+        box-shadow: 0 2px 4px rgba(13, 110, 253, 0.05);
+        margin-left: auto;
+    }
+
+    .assistant-bubble {
+        background: #ffffff;
+        border-left: 4px solid #198754 !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-right: auto;
+    }
+
+    /* Action buttons visible on hover */
+    .message-actions {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 6px;
+        padding: 2px 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 10;
+    }
+
+    .message-bubble:hover .message-actions {
+        opacity: 1;
+    }
+
+    /* Thinking block styling */
+    .thought-section {
+        background: #fff9eb;
+        border-radius: 6px;
+        border: 1px dashed #ffeeba;
+    }
+
+    .status-pill {
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    /* Alignment Fix for Input Area */
+    .input-row {
+        display: grid;
+        grid-template-columns: 1fr 100px;
+        gap: 10px;
+        align-items: start;
+    }
+
+    .kitchen-closed-overlay {
+        background: rgba(241, 245, 249, 0.8);
+        backdrop-filter: blur(2px);
+        border-radius: 12px;
+        z-index: 20;
+    }
+</style>
+
+<Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
+    <div class="p-3 border-0 rounded-3 bg-white shadow-sm overflow-hidden" style="border: 1px solid #e2e8f0 !important;">
+
+        <div class="mb-3 p-2 bg-light border rounded-pill d-flex justify-content-between align-items-center px-3">
+            <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle { ($kitchenState.activeModel && $kitchenState.activeModel === options.model) ? 'bg-success' : 'bg-secondary' }" style="width: 8px; height: 8px; box-shadow: 0 0 5px { ($kitchenState.activeModel && $kitchenState.activeModel === options.model) ? '#198754' : '#6c757d' }"></div>
+                <span class="small fw-bold text-muted status-pill">
+                    {($kitchenState.activeModel && $kitchenState.activeModel === options.model) ? 'Kitchen Online' : 'Kitchen Closed'}
+                </span>
+            </div>
             {#if $kitchenState.activeModel}
-                <span class="badge bg-success">{$kitchenState.activeModel}</span>
-            {:else}
-                <span class="badge bg-secondary">None Loaded</span>
+                <span class="badge rounded-pill bg-white text-dark border shadow-sm px-3" style="font-size: 0.75rem;">
+                    {$kitchenState.activeModel}
+                </span>
             {/if}
         </div>
 
-        <div class="d-flex gap-2 mb-2">
-            <InputGroup size="sm">
-                <InputGroupText>Model</InputGroupText>
-                <Input type="text" bind:value={options.model} on:input={edit} disabled={$kitchenState.isBusy || $kitchenState.isLoading} list="model-options-{id}"/>
+        <div class="d-flex gap-2 mb-3">
+            <InputGroup size="sm" class="shadow-sm rounded">
+                <InputGroupText class="bg-white border-end-0">🤖</InputGroupText>
+                <Input type="text" bind:value={options.model} on:input={edit} disabled={$kitchenState.isBusy || $kitchenState.isLoading} list="model-options-{id}" class="border-start-0 border-end-0" placeholder="Select model..."/>
                 <datalist id="model-options-{id}">
                     {#each availableModels as modelName}<option value={modelName}></option>{/each}
                 </datalist>
 
-                <Button color={$kitchenState.activeModel === options.model ? "warning" : "primary"} on:click={load_model} disabled={$kitchenState.isLoading || $kitchenState.isBusy || !options.model}>
-                    {#if $kitchenState.isLoading} Loading...
+                <Button color={$kitchenState.activeModel === options.model ? "warning" : "primary"} on:click={load_model} disabled={$kitchenState.isLoading || $kitchenState.isBusy || !options.model} class="px-3 fw-bold">
+                    {#if $kitchenState.isLoading} <span class="spinner-border spinner-border-sm me-1"></span> Prep...
                     {:else if !$kitchenState.activeModel} Load
                     {:else if $kitchenState.activeModel === options.model} Reload
-                    {:else} Replace {/if}
+                    {:else} Swap Chef {/if}
                 </Button>
             </InputGroup>
-            <Button color="outline-secondary" size="sm" on:click={() => isTuningOpen = !isTuningOpen}>Tune ⚙️</Button>
+            <Button color="outline-secondary" size="sm" class="rounded shadow-sm" on:click={() => isTuningOpen = !isTuningOpen}>⚙️</Button>
+            <Button color="outline-danger" size="sm" class="rounded shadow-sm" on:click={reset_service_worker} title="Reset Service Worker">🔄</Button>
         </div>
 
         <Collapse isOpen={isTuningOpen}>
-            <div class="p-2 mb-2 border rounded bg-white" style="font-size: 0.85rem; border-style: dashed !important;">
-                <div class="row g-2">
+            <div class="p-3 mb-3 border rounded-3 bg-white shadow-inner" style="border-style: dashed !important; border-color: #cbd5e0 !important;">
+                <div class="row g-3">
                     <div class="col-6">
-                        <label class="small fw-bold d-block">
-                            Temp: {options.temperature}
-                            <input type="range" class="form-range" min="0" max="2" step="0.1" bind:value={options.temperature} on:change={edit} />
+                        <!-- svelte-ignore a11y_label_has_associated_control -->
+                        <label class="small fw-bold text-muted d-flex justify-content-between mb-1">
+                            <span>HEAT (TEMP)</span>
+                            <span>{options.temperature}</span>
                         </label>
+                        <input type="range" class="form-range" min="0" max="2" step="0.1" bind:value={options.temperature} on:change={edit} />
                     </div>
                     <div class="col-6">
-                        <label class="small fw-bold d-block">
-                            Top P: {options.top_p}
-                            <input type="range" class="form-range" min="0" max="1" step="0.05" bind:value={options.top_p} on:change={edit} />
+                        <!-- svelte-ignore a11y_label_has_associated_control -->
+                        <label class="small fw-bold text-muted d-flex justify-content-between mb-1">
+                            <span>PRECISION (TOP P)</span>
+                            <span>{options.top_p}</span>
                         </label>
+                        <input type="range" class="form-range" min="0" max="1" step="0.05" bind:value={options.top_p} on:change={edit} />
+                    </div>
+                    <div class="col-6 mt-2">
+                        <!-- svelte-ignore a11y_label_has_associated_control -->
+                        <label class="small fw-bold text-muted d-flex justify-content-between mb-1">
+                            <span>MAX OUTPUT</span>
+                            <span>{options.max_tokens}</span>
+                        </label>
+                        <input type="range" class="form-range" min="64" max="4096" step="64" bind:value={options.max_tokens} on:change={edit} />
+                    </div>
+                    <div class="col-6 mt-2">
+                        <!-- svelte-ignore a11y_label_has_associated_control -->
+                        <label class="small fw-bold text-muted d-flex justify-content-between mb-1">
+                            <span>REPETITION</span>
+                            <span>{options.repetition_penalty}</span>
+                        </label>
+                        <input type="range" class="form-range" min="1.0" max="2.0" step="0.01" bind:value={options.repetition_penalty} on:change={edit} />
                     </div>
                 </div>
             </div>
         </Collapse>
 
-        <InputGroup size="sm" class="mb-2">
-            <InputGroupText>System</InputGroupText>
-            <Input type="textarea" bind:value={options.system_prompt} on:input={edit} rows={1} disabled={$kitchenState.isBusy} />
+        <InputGroup size="sm" class="mb-3 shadow-sm rounded overflow-hidden">
+            <InputGroupText class="bg-dark text-white border-0"><small class="fw-bold px-1">SYSTEM</small></InputGroupText>
+            <Input type="textarea" bind:value={options.system_prompt} on:input={edit} rows={1} disabled={$kitchenState.isBusy} class="border-0 bg-light" style="resize: none;" />
         </InputGroup>
 
         {#if $kitchenState.isLoading}
-            <Progress animated striped={$kitchenState.progress === 0} color={$kitchenState.progress === 0 ? "info" : "primary"} value={$kitchenState.progress === 0 ? 100 : $kitchenState.progress} class="mb-2" />
-            <div class="text-center small monospace mb-2">{$kitchenState.progressText}</div>
+            <div class="mb-3 px-1">
+                <Progress animated striped={$kitchenState.progress === 0} color="primary" value={$kitchenState.progress === 0 ? 100 : $kitchenState.progress} style="height: 8px;" class="rounded-pill shadow-sm" />
+                <div class="text-center mt-2 monospace text-primary" style="font-size: 0.7rem;">{$kitchenState.progressText}</div>
+            </div>
         {/if}
 
-        {#if $kitchenState.activeModel}
-            <div bind:this={chatContainer} class="chat-box mb-2" style="height:400px; overflow-y:auto; background:#fdfdfd; border:1px solid #dee2e6; padding:15px; border-radius:8px;" on:scroll={(e) => { isUserScrolling = (e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight) > 30; }}>
-                {#each messages as msg, i}
-                    <div class="mb-3 p-2 rounded position-relative {msg.role === 'user' ? 'bg-light border-end border-primary border-3' : 'bg-white border shadow-sm border-start border-success border-3'} group">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <div class="fw-bold small text-muted">{msg.role === 'user' ? '👨‍🍳 USER' : '🤖 AI'}</div>
-                            <div class="d-flex gap-1 opacity-75">
-                                <button class="btn btn-sm btn-link p-0 text-decoration-none" on:click={() => copyToClipboard(msg.content)} title="Copy message">
-                                    <small>📋</small>
-                                </button>
-                                {#if msg.role === 'user'}
-                                    <button class="btn btn-sm btn-link p-0 text-decoration-none" on:click={() => editMessage(i)} title="Edit message">
-                                        <small>✏️</small>
-                                    </button>
-                                {/if}
-                            </div>
-                        </div>
+        <div class="position-relative">
+            {#if !$kitchenState.activeModel || $kitchenState.activeModel !== options.model || $kitchenState.isLoading}
+                <div class="kitchen-closed-overlay position-absolute w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center p-4">
+                    <span style="font-size: 3rem;" class="mb-2">⏳</span>
+                    <h6 class="fw-bold text-muted">Kitchen Station Blocked</h6>
+                    <p class="small text-muted px-4">
+                        {#if $kitchenState.isLoading} Prepping the environment... {:else} Please load <strong>{options.model}</strong> to start the session. {/if}
+                    </p>
+                    {#if !$kitchenState.isLoading}
+                        <Button color="primary" size="sm" class="rounded-pill px-4 shadow-sm" on:click={load_model}>Load Chef</Button>
+                    {/if}
+                </div>
+            {/if}
 
-                        {#if editingIndex === i}
-                            <Input type="textarea" bind:value={editingContent} rows={3} class="mb-2" />
-                            <div class="d-flex gap-2 justify-content-end">
-                                <Button size="sm" color="secondary" on:click={cancelEdit}>Cancel</Button>
-                                <Button size="sm" color="primary" on:click={saveEdit}>Save</Button>
+            <div bind:this={chatContainer} class="chat-box mb-3 d-flex flex-column gap-3" style="height:400px; overflow-y:auto; background:#f1f5f9; border:1px solid #e2e8f0; padding:20px; border-radius:12px;" on:scroll={() => { if (chatContainer) isUserScrolling = (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) > 30; }}>
+
+                {#if messages.length === 0}
+                    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-50">
+                        <span style="font-size: 3rem;">🥘</span>
+                        <p class="small mt-2 fw-bold">The station is ready. Ask for a recipe or technique.</p>
+                    </div>
+                {/if}
+
+                {#each messages as msg, i}
+                    <div class="message-container d-flex flex-column">
+                        <div class="message-bubble p-3 border {msg.role === 'user' ? 'user-bubble' : 'assistant-bubble'}">
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="fw-bold text-uppercase text-muted" style="font-size: 0.65rem; letter-spacing: 1px;">
+                                    {msg.role === 'user' ? '👨‍🍳 Head Chef' : '🤖 Sous Chef'}
+                                </div>
+                                <div class="message-actions position-absolute top-0 end-0 m-2 d-flex gap-1 border">
+                                    <button class="btn btn-sm btn-link p-0 px-1 text-decoration-none" on:click={() => copyToClipboard(msg.content)} title="Copy">📋</button>
+                                    <button class="btn btn-sm btn-link p-0 px-1 text-decoration-none" on:click={() => editMessage(i)} title="Edit">✏️</button>
+                                    <button class="btn btn-sm btn-link p-0 px-1 text-decoration-none text-danger" on:click={() => deleteMessage(i)} title="Delete" disabled={isGeneratingLocally}>🗑️</button>
+                                </div>
                             </div>
-                        {:else}
-                            {#each parseMessage(msg.content) as part}
-                                {#if part.type === 'thought'}
-                                    <div class="mb-2 border-start border-2 ps-2 bg-light bg-opacity-50">
-                                        <button class="btn btn-sm btn-link text-decoration-none py-0 px-1 text-muted" style="font-size: 0.75rem" on:click={() => msg.showThinking = !msg.showThinking}>
-                                            {msg.showThinking ? '▼ Hide Thought' : '▶ Show Thought'} {part.isOpen ? '(thinking...)' : ''}
-                                        </button>
-                                        {#if msg.showThinking || (isGeneratingLocally && i === messages.length - 1 && part.isOpen)}
-                                            <div class="small text-muted mt-1 fst-italic">{@html Utils.render_markdown(part.content)}</div>
-                                        {/if}
-                                    </div>
-                                {:else}
-                                    <div class="markdown-body">
-                                        {@html Utils.render_markdown(part.content || (isGeneratingLocally && i === messages.length - 1 && msg.role === 'assistant' ? "..." : ""))}
-                                    </div>
-                                {/if}
-                            {/each}
-                        {/if}
+
+                            {#if editingIndex === i}
+                                <Input type="textarea" bind:value={editingContent} rows={3} class="mb-2 shadow-inner bg-white" />
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <Button size="sm" color="light" class="border" on:click={cancelEdit}>Cancel</Button>
+                                    <Button size="sm" color="primary" on:click={saveEdit}>Save</Button>
+                                </div>
+                            {:else}
+                                {#each parseMessage(msg.content) as part}
+                                    {#if part.type === 'thought'}
+                                        <div class="thought-section mb-2 p-2 ps-3">
+                                            <button class="btn btn-sm btn-link text-decoration-none p-0 text-warning fw-bold d-flex align-items-center" style="font-size: 0.7rem" on:click={() => msg.showThinking = !msg.showThinking}>
+                                                <span class="me-1">{msg.showThinking ? '▼' : '▶'}</span>
+                                                INTERNAL MONOLOGUE {part.isOpen ? '(THINKING...)' : ''}
+                                            </button>
+                                            {#if msg.showThinking || (isGeneratingLocally && i === messages.length - 1 && part.isOpen)}
+                                                <div class="small text-muted mt-2 fst-italic border-top pt-2 opacity-75">{@html Utils.render_markdown(part.content)}</div>
+                                            {/if}
+                                        </div>
+                                    {:else}
+                                        <div class="markdown-body text-dark" style="font-size: 0.95rem; line-height: 1.6;">
+                                            {@html Utils.render_markdown(part.content || (isGeneratingLocally && i === messages.length - 1 && msg.role === 'assistant' ? "..." : ""))}
+                                        </div>
+                                    {/if}
+                                {/each}
+                            {/if}
+                        </div>
                     </div>
                 {/each}
             </div>
 
-            <div class="d-flex gap-2">
-                <Input type="textarea" bind:value={userInput} placeholder="Ask the model..." disabled={$kitchenState.isBusy || $kitchenState.isLoading} on:keydown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send_message())} />
-                <div class="d-flex flex-column gap-1">
+            <div class="input-row align-items-stretch">
+                <div class="bg-white border rounded-3 p-1 shadow-sm d-flex align-items-center">
+                    <Input type="textarea" bind:value={userInput} placeholder="Ask your Sous-Chef..."
+                        class="border-0 shadow-none bg-transparent"
+                        style="max-height: 150px; min-height: 50px; resize: none; width: 100%;"
+                        disabled={$kitchenState.isBusy || $kitchenState.isLoading || $kitchenState.activeModel !== options.model}
+                        on:keydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send_message(); } }} />
+                </div>
+
+                <div class="d-flex flex-column gap-1 justify-content-between">
                     {#if isGeneratingLocally}
-                        <Button color="danger" on:click={() => sharedEngine.interruptGenerate()}>Stop</Button>
+                        <Button color="danger" class="rounded-3 shadow-sm fw-bold w-100" style="height: 50px;" on:click={() => sharedEngine.interruptGenerate()}>STOP</Button>
                     {:else}
-                        <Button color="primary" on:click={send_message} disabled={!userInput.trim() || $kitchenState.isBusy || $kitchenState.isLoading}>
-                            {$kitchenState.isBusy ? 'Busy...' : 'Send'}
+                        <Button color="success" class="rounded-3 shadow-sm fw-bold w-100" style="height: 50px;" on:click={send_message} disabled={!userInput.trim() || $kitchenState.isBusy || $kitchenState.isLoading || $kitchenState.activeModel !== options.model}>
+                            { $kitchenState.isBusy ? '...' : 'SEND' }
                         </Button>
-                        {#if $kitchenState.isBusy}
-                            <Button color="outline-danger" size="sm" style="font-size: 0.7rem;" on:click={force_stop_global}>Force Stop</Button>
-                        {/if}
                     {/if}
-                    <Button color="link" size="sm" class="text-decoration-none" on:click={clear_messages}>Clear</Button>
+                    <div class="d-flex flex-column align-items-center mt-1">
+                        {#if $kitchenState.isBusy && !isGeneratingLocally}
+                            <Button color="link" size="sm" class="text-danger text-decoration-none fw-bold p-0 mb-1" style="font-size: 0.6rem;" on:click={force_stop_global}>KILL</Button>
+                        {/if}
+                        <Button color="link" size="sm" class="text-muted text-decoration-none fw-bold p-0" style="font-size: 0.7rem;" on:click={clear_messages}>CLEAR</Button>
+                    </div>
                 </div>
             </div>
-        {/if}
+        </div>
     </div>
 </Operation>
