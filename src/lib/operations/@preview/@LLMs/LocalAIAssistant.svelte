@@ -1,6 +1,7 @@
 <script context="module">
     import { Recipe } from "$lib/recipe";
     import { CreateServiceWorkerMLCEngine, prebuiltAppConfig } from "@mlc-ai/web-llm";
+    import { writable } from "svelte/store";
 
     const operation = "@preview/@LLMs/Local AI Assistant";
     const default_extra_options = {
@@ -14,11 +15,42 @@
 
     const availableModels = prebuiltAppConfig.model_list.map(m => m.model_id);
 
+    export const kitchenState = writable({
+        activeModel: null,
+        isBusy: false,
+        isLoading: false,
+        progressText: '',
+        progress: 0
+    });
+
+    export let sharedEngine = null;
+
+    // --- PRIVATE INTERCOM ---
+    let syncChannel;
+    if (typeof window !== 'undefined') {
+        syncChannel = new BroadcastChannel('kitchen_state_channel');
+
+        syncChannel.onmessage = (event) => {
+            if (event.data?.type === 'KITCHEN_STATE_UPDATE') {
+                kitchenState.set(event.data.state);
+            }
+        };
+    }
+
+    export function mutateKitchen(payload) {
+        if (syncChannel) {
+            syncChannel.postMessage({
+                type: 'KITCHEN_MUTATE_STATE',
+                payload
+            });
+        }
+    }
+
     Recipe.register_operation_type(operation, async (input) => input);
 </script>
 
 <script>
-    import { onDestroy } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import { Button, Input, InputGroup, InputGroupText, Progress, Collapse } from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import { Utils } from "$lib/utils";
@@ -26,133 +58,155 @@
     export let id; export let options; export let index;
     export let add_to_recipe; export let keybinding;
 
-    let engine = null;
-    let loadProgress = 0;
-    let loadText = "";
-    let isLoading = false;
-    let isModelLoaded = false;
     let isTuningOpen = false;
-
-    // Chat State
     let messages = [];
     let userInput = "";
-    let isGenerating = false;
-    let pendingClear = false; // Tracks if we need to cleanly wipe messages after stopping
+    let isGeneratingLocally = false;
+    let pendingClear = false;
     let chatContainer;
     let isUserScrolling = false;
-
-    // Editing State
     let editingIndex = -1;
     let editingContent = "";
 
-    // Lifecycle safeguards to stop the engine gracefully on component destroy or page reload
-    onDestroy(() => {
-        if (isGenerating && engine) {
-            engine.interruptGenerate();
+    function editMessage(index) {
+        editingIndex = index;
+        editingContent = messages[index].content;
+    }
+
+    function cancelEdit() {
+        editingIndex = -1;
+        editingContent = "";
+    }
+
+    async function saveEdit() {
+        if (editingIndex === -1) return;
+        messages[editingIndex].content = editingContent;
+        messages = [...messages];
+        const prevIndex = editingIndex;
+        cancelEdit();
+
+        // If it was a user message, we might want to re-generate from here?
+        // For now, just save it.
+        if (messages[prevIndex].role === 'user' && prevIndex === messages.length - 1) {
+            // Optional: auto-regenerate if it's the last message
+        }
+    }
+
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            Utils.snackbar("Copied to clipboard!");
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+    }
+
+    onMount(async () => {
+        if ("serviceWorker" in navigator) {
+            await navigator.serviceWorker.register('/service-worker.js', { type: 'module' });
+            await navigator.serviceWorker.ready;
+
+            // Ask for state via our private channel ONLY
+            if (syncChannel) {
+                syncChannel.postMessage({ type: 'KITCHEN_REQUEST_STATE' });
+            }
         }
     });
 
-    function handleBeforeUnload() {
-        if (isGenerating && engine) {
-            engine.interruptGenerate();
+    onDestroy(() => {
+        if (isGeneratingLocally && sharedEngine) {
+            sharedEngine.interruptGenerate();
+            mutateKitchen({ isBusy: false });
         }
-    }
+    });
 
     function edit() { Recipe.edit_operation(id, index, options); }
 
-    function handle_model_change() {
-        isModelLoaded = false;
-        edit();
-    }
+    // --- ENGINE ACTIONS ---
 
     async function load_model() {
-        if (!options?.model || isLoading) return;
-        handle_model_change();
-        isLoading = true;
-        loadProgress = 0;
+        if (!options?.model || $kitchenState.isLoading) return;
+
+        mutateKitchen({
+            isLoading: true,
+            progress: 0,
+            progressText: "Prepping the Kitchen..."
+        });
 
         try {
-            if ("serviceWorker" in navigator) {
-                const registration = await navigator.serviceWorker.register('/service-worker.js', { type: 'module' });
-                await navigator.serviceWorker.ready;
-
-                if (!navigator.serviceWorker.controller) {
-                    await new Promise((resolve) => {
-                        navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true });
+            sharedEngine = await CreateServiceWorkerMLCEngine(options.model, {
+                initProgressCallback: (p) => {
+                    mutateKitchen({
+                        progress: Math.round((p?.progress ?? 0) * 100),
+                        progressText: p?.text ?? ""
                     });
                 }
-                if (navigator.storage?.persist) await navigator.storage.persist();
-            }
-
-            engine = await CreateServiceWorkerMLCEngine(options.model, {
-                initProgressCallback: (p) => {
-                    loadProgress = Math.round((p?.progress ?? 0) * 100);
-                    loadText = p?.text ?? "";
-                }
             });
 
-            isModelLoaded = true;
-            Utils.snackbar("Kitchen is ready! Service Worker connected.");
+            mutateKitchen({ isLoading: false, activeModel: options.model });
+            Utils.snackbar(`${options.model} is loaded and ready.`);
         } catch (error) {
-            console.error("Engine Load Error:", error);
-            Utils.snackbar(`Chef, we have a problem: ${error.message}`);
-        } finally {
-            isLoading = false;
+            console.error("Load Error:", error);
+            Utils.snackbar(`Load error: ${error.message}`);
+            mutateKitchen({ isLoading: false });
         }
     }
 
-    function parseMessage(content) {
-        const thinkMatch = content.match(/<think>([\s\S]*?)(?:<\/think>|$)/);
-        const thinking = thinkMatch ? thinkMatch[1].trim() : "";
-        const finalAnswer = content.replace(/<think>[\s\S]*?(?:<\/think>|$)/, "").trim();
-
-        return { thinking, finalAnswer };
-    }
-
-    function handle_scroll(e) {
-        const { scrollTop, scrollHeight, clientHeight } = e.target;
-        // If the user scrolls up more than 30px from the bottom, mark as user scrolling
-        isUserScrolling = scrollHeight - scrollTop - clientHeight > 30;
-    }
-
-    function scroll_to_bottom(force = false) {
-        if (force) isUserScrolling = false;
-        if (chatContainer && !isUserScrolling) {
-            requestAnimationFrame(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            });
+    async function ensureEngineConnected(modelId) {
+        // If another tab loaded the model, our local sharedEngine pointer might be null.
+        // Re-establish the client-side binding to the active SW.
+        if (!sharedEngine) {
+            sharedEngine = await CreateServiceWorkerMLCEngine(modelId);
         }
     }
 
-    function clear_messages() {
-        if (isGenerating && engine) {
-            pendingClear = true; // Mark for clearing once the stream cleanly exits
-            engine.interruptGenerate();
-        } else {
-            messages = [];
+    function force_stop_global() {
+        if (sharedEngine) sharedEngine.interruptGenerate();
+        mutateKitchen({ isBusy: false });
+        isGeneratingLocally = false;
+    }
+
+    async function clear_messages() {
+        // 1. Instantly wipe the UI and flag the stream to stop
+        messages = [];
+        pendingClear = true;
+
+        // 2. ONLY send the interrupt signal. Do NOT send resetChat().
+        if (sharedEngine && isGeneratingLocally) {
+            try {
+                force_stop_global();
+            } catch (e) {
+                console.error("Interrupt failed:", e);
+            }
+        }
+
+        // 3. Reset the flag immediately if we weren't generating
+        if (!isGeneratingLocally) {
+            pendingClear = false;
         }
     }
 
     async function send_message() {
-        if (!userInput.trim() || !isModelLoaded || isGenerating) return;
+        if (!userInput.trim() || !$kitchenState.activeModel || isGeneratingLocally || $kitchenState.isBusy) return;
 
-        const text = userInput.trim();
+        messages = [...messages, { role: "user", content: userInput.trim() }];
         userInput = "";
-        messages = [...messages, { role: "user", content: text }];
-
         await generate_response();
     }
 
     async function generate_response() {
-        if (!isModelLoaded || isGenerating) return;
-        isGenerating = true;
-        pendingClear = false; // Reset clear flag
+        if (!$kitchenState.activeModel || isGeneratingLocally || $kitchenState.isBusy) return;
+
+        isGeneratingLocally = true;
+        mutateKitchen({ isBusy: true });
+        pendingClear = false;
 
         messages = [...messages, { role: "assistant", content: "", showThinking: false }];
-        scroll_to_bottom(true); // Force scroll on new message
 
         try {
-            const response = await engine.chat.completions.create({
+            await ensureEngineConnected($kitchenState.activeModel);
+
+            const response = await sharedEngine.chat.completions.create({
                 messages: [
                     { role: "system", content: options.system_prompt },
                     ...messages.slice(0, -1).map(m => ({ role: m.role, content: m.content }))
@@ -160,31 +214,37 @@
                 temperature: options.temperature,
                 top_p: options.top_p,
                 max_tokens: options.max_tokens,
-                repetition_penalty: options.repetition_penalty,
                 stream: true,
             });
 
             for await (const chunk of response) {
+                if (pendingClear) break;
+
                 const cur = chunk.choices[0]?.delta?.content;
-                // Double-checking messages.length ensures no silent crashes
+
+                // CRUCIAL FIX: Check messages.length > 0 to prevent crashes
+                // if a chunk arrives the exact millisecond after clearing
                 if (cur && messages.length > 0) {
                     messages[messages.length - 1].content += cur;
-                    messages = messages;
-                    scroll_to_bottom(); // Only scrolls if isUserScrolling is false
+                    messages = [...messages]; // Forces Svelte to safely update the DOM
+
+                    if (chatContainer && !isUserScrolling) {
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
                 }
             }
         } catch (e) {
             if (e.name !== "AbortError") {
                 console.error("Generation Error:", e);
-                Utils.snackbar(`Engine Error: ${e.message}`);
-                if (e.message.toLowerCase().includes("worker") || e.message.toLowerCase().includes("context")) {
-                    isModelLoaded = false;
-                    engine = null;
+                if (e.message.toLowerCase().includes("worker")) {
+                    mutateKitchen({ activeModel: null, isBusy: false });
+                    sharedEngine = null;
                 }
             }
         } finally {
-            isGenerating = false;
-            // Wipe the array safely only AFTER the generation loop is fully closed
+            isGeneratingLocally = false;
+            mutateKitchen({ isBusy: false });
+
             if (pendingClear) {
                 messages = [];
                 pendingClear = false;
@@ -192,66 +252,81 @@
         }
     }
 
-    function save_edit(i) {
-        messages[i].content = editingContent;
-        messages = messages.slice(0, i + 1);
-        editingIndex = -1;
-        edit();
+    // Parses <think> tags for UI rendering
+    function parseMessage(content) {
+        const parts = [];
+        let remaining = content;
+
+        while (remaining.length > 0) {
+            const thinkStart = remaining.indexOf('<think>');
+            if (thinkStart === -1) {
+                parts.push({ type: 'text', content: remaining });
+                break;
+            }
+
+            if (thinkStart > 0) {
+                parts.push({ type: 'text', content: remaining.slice(0, thinkStart) });
+            }
+
+            const thinkEnd = remaining.indexOf('</think>', thinkStart + 7);
+            if (thinkEnd === -1) {
+                // Unclosed thinking tag (still streaming or model forgot)
+                parts.push({ type: 'thought', content: remaining.slice(thinkStart + 7), isOpen: true });
+                break;
+            } else {
+                parts.push({ type: 'thought', content: remaining.slice(thinkStart + 7, thinkEnd), isOpen: false });
+                remaining = remaining.slice(thinkEnd + 8);
+            }
+        }
+
+        return parts;
     }
 </script>
 
-<svelte:window on:beforeunload={handleBeforeUnload} />
-
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div class="p-2 border rounded bg-light shadow-sm">
+
+        <div class="mb-2 p-2 bg-white border rounded d-flex justify-content-between align-items-center">
+            <span class="small fw-bold text-muted">Active Global Model:</span>
+            {#if $kitchenState.activeModel}
+                <span class="badge bg-success">{$kitchenState.activeModel}</span>
+            {:else}
+                <span class="badge bg-secondary">None Loaded</span>
+            {/if}
+        </div>
+
         <div class="d-flex gap-2 mb-2">
             <InputGroup size="sm">
                 <InputGroupText>Model</InputGroupText>
-                <Input
-                    type="text"
-                    bind:value={options.model}
-                    on:input={handle_model_change}
-                    disabled={isGenerating || isLoading}
-                    list="model-options-{id}"
-                    placeholder="Search or type model ID..."
-                />
-
+                <Input type="text" bind:value={options.model} on:input={edit} disabled={$kitchenState.isBusy || $kitchenState.isLoading} list="model-options-{id}"/>
                 <datalist id="model-options-{id}">
-                    {#each availableModels as modelName}
-                        <option value={modelName}></option>
-                    {/each}
+                    {#each availableModels as modelName}<option value={modelName}></option>{/each}
                 </datalist>
-                <Button color={isModelLoaded ? "warning" : "primary"} on:click={load_model} disabled={isLoading}>
-                    {isModelLoaded ? 'Reload' : 'Load'}
+
+                <Button color={$kitchenState.activeModel === options.model ? "warning" : "primary"} on:click={load_model} disabled={$kitchenState.isLoading || $kitchenState.isBusy || !options.model}>
+                    {#if $kitchenState.isLoading} Loading...
+                    {:else if !$kitchenState.activeModel} Load
+                    {:else if $kitchenState.activeModel === options.model} Reload
+                    {:else} Replace {/if}
                 </Button>
             </InputGroup>
-            <Button color="outline-secondary" size="sm" on:click={() => isTuningOpen = !isTuningOpen}>
-                {isTuningOpen ? 'Hide Tuning' : 'Tune ⚙️'}
-            </Button>
+            <Button color="outline-secondary" size="sm" on:click={() => isTuningOpen = !isTuningOpen}>Tune ⚙️</Button>
         </div>
 
         <Collapse isOpen={isTuningOpen}>
-            <div class="tuning-panel p-2 mb-2 border rounded bg-white">
+            <div class="p-2 mb-2 border rounded bg-white" style="font-size: 0.85rem; border-style: dashed !important;">
                 <div class="row g-2">
                     <div class="col-6">
-                        <label class="small fw-bold">Temp: {options.temperature}</label>
-                        <input type="range" class="form-range" min="0" max="2" step="0.1" bind:value={options.temperature} on:change={edit} />
+                        <label class="small fw-bold d-block">
+                            Temp: {options.temperature}
+                            <input type="range" class="form-range" min="0" max="2" step="0.1" bind:value={options.temperature} on:change={edit} />
+                        </label>
                     </div>
                     <div class="col-6">
-                        <label class="small fw-bold">Top P: {options.top_p}</label>
-                        <input type="range" class="form-range" min="0" max="1" step="0.05" bind:value={options.top_p} on:change={edit} />
-                    </div>
-                    <div class="col-6">
-                        <InputGroup size="sm">
-                            <InputGroupText>Max Tokens</InputGroupText>
-                            <Input type="number" bind:value={options.max_tokens} on:input={edit} />
-                        </InputGroup>
-                    </div>
-                    <div class="col-6">
-                        <InputGroup size="sm">
-                            <InputGroupText>Rep. Penalty</InputGroupText>
-                            <Input type="number" step="0.1" bind:value={options.repetition_penalty} on:input={edit} />
-                        </InputGroup>
+                        <label class="small fw-bold d-block">
+                            Top P: {options.top_p}
+                            <input type="range" class="form-range" min="0" max="1" step="0.05" bind:value={options.top_p} on:change={edit} />
+                        </label>
                     </div>
                 </div>
             </div>
@@ -259,90 +334,76 @@
 
         <InputGroup size="sm" class="mb-2">
             <InputGroupText>System</InputGroupText>
-            <Input type="textarea" bind:value={options.system_prompt} on:input={edit} rows={1} />
+            <Input type="textarea" bind:value={options.system_prompt} on:input={edit} rows={1} disabled={$kitchenState.isBusy} />
         </InputGroup>
 
-        {#if isLoading}
-            <Progress
-                animated
-                striped={loadProgress === 0}
-                color={loadProgress === 0 ? "info" : "primary"}
-                value={loadProgress === 0 ? 100 : loadProgress}
-                class="mb-2"
-            />
-            <div class="text-center x-small monospace mb-2">{loadText}</div>
+        {#if $kitchenState.isLoading}
+            <Progress animated striped={$kitchenState.progress === 0} color={$kitchenState.progress === 0 ? "info" : "primary"} value={$kitchenState.progress === 0 ? 100 : $kitchenState.progress} class="mb-2" />
+            <div class="text-center small monospace mb-2">{$kitchenState.progressText}</div>
         {/if}
 
-        {#if isModelLoaded}
-            <div bind:this={chatContainer} class="chat-box mb-2" class:generating={isGenerating} on:scroll={handle_scroll}>
+        {#if $kitchenState.activeModel}
+            <div bind:this={chatContainer} class="chat-box mb-2" style="height:400px; overflow-y:auto; background:#fdfdfd; border:1px solid #dee2e6; padding:15px; border-radius:8px;" on:scroll={(e) => { isUserScrolling = (e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight) > 30; }}>
                 {#each messages as msg, i}
-                    {@const { thinking, finalAnswer } = parseMessage(msg.content)}
-                    <div class="message {msg.role} mb-3">
-                        <div class="d-flex justify-content-between x-small mb-1 align-items-center opacity-75">
-                            <span class="fw-bold">{msg.role === 'user' ? '👨‍🍳 HEAD CHEF' : '🤖 SOUS-CHEF'}</span>
-                            {#if !isGenerating}
-                                <div class="actions">
-                                    <button on:click={() => navigator.clipboard.writeText(msg.content)} title="Copy Raw">📋</button>
-                                    <button on:click={() => { editingIndex = i; editingContent = msg.content; }} title="Edit">✎</button>
-                                    <button on:click={() => messages = messages.filter((_, idx) => idx !== i)} title="Delete">✕</button>
-                                </div>
-                            {/if}
+                    <div class="mb-3 p-2 rounded position-relative {msg.role === 'user' ? 'bg-light border-end border-primary border-3' : 'bg-white border shadow-sm border-start border-success border-3'} group">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="fw-bold small text-muted">{msg.role === 'user' ? '👨‍🍳 USER' : '🤖 AI'}</div>
+                            <div class="d-flex gap-1 opacity-75">
+                                <button class="btn btn-sm btn-link p-0 text-decoration-none" on:click={() => copyToClipboard(msg.content)} title="Copy message">
+                                    <small>📋</small>
+                                </button>
+                                {#if msg.role === 'user'}
+                                    <button class="btn btn-sm btn-link p-0 text-decoration-none" on:click={() => editMessage(i)} title="Edit message">
+                                        <small>✏️</small>
+                                    </button>
+                                {/if}
+                            </div>
                         </div>
 
-                        <div class="content p-2 rounded shadow-sm">
-                            {#if editingIndex === i}
-                                <Input type="textarea" bind:value={editingContent} rows={4} class="edit-area mb-2" />
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <Button size="sm" color="success" on:click={() => save_edit(i)}>Save Edit</Button>
-                                    <Button size="sm" color="secondary" on:click={() => editingIndex = -1}>Cancel</Button>
-                                </div>
-                            {:else}
-                                {#if thinking}
-                                    <div class="thinking-container mb-2">
-                                        <button class="btn-think" on:click={() => messages[i].showThinking = !messages[i].showThinking}>
-                                            {msg.showThinking ? '▼ Hide Thought' : '▶ Show Thought'}
+                        {#if editingIndex === i}
+                            <Input type="textarea" bind:value={editingContent} rows={3} class="mb-2" />
+                            <div class="d-flex gap-2 justify-content-end">
+                                <Button size="sm" color="secondary" on:click={cancelEdit}>Cancel</Button>
+                                <Button size="sm" color="primary" on:click={saveEdit}>Save</Button>
+                            </div>
+                        {:else}
+                            {#each parseMessage(msg.content) as part}
+                                {#if part.type === 'thought'}
+                                    <div class="mb-2 border-start border-2 ps-2 bg-light bg-opacity-50">
+                                        <button class="btn btn-sm btn-link text-decoration-none py-0 px-1 text-muted" style="font-size: 0.75rem" on:click={() => msg.showThinking = !msg.showThinking}>
+                                            {msg.showThinking ? '▼ Hide Thought' : '▶ Show Thought'} {part.isOpen ? '(thinking...)' : ''}
                                         </button>
-                                        {#if msg.showThinking || (isGenerating && i === messages.length - 1)}
-                                            <div class="thinking-process mt-1 p-2">{@html Utils.render_markdown(thinking)}</div>
+                                        {#if msg.showThinking || (isGeneratingLocally && i === messages.length - 1 && part.isOpen)}
+                                            <div class="small text-muted mt-1 fst-italic">{@html Utils.render_markdown(part.content)}</div>
                                         {/if}
                                     </div>
+                                {:else}
+                                    <div class="markdown-body">
+                                        {@html Utils.render_markdown(part.content || (isGeneratingLocally && i === messages.length - 1 && msg.role === 'assistant' ? "..." : ""))}
+                                    </div>
                                 {/if}
-                                <div class="markdown-body">
-                                    {@html Utils.render_markdown(finalAnswer || (isGenerating && i === messages.length - 1 ? "..." : ""))}
-                                </div>
-                            {/if}
-                        </div>
+                            {/each}
+                        {/if}
                     </div>
                 {/each}
             </div>
 
             <div class="d-flex gap-2">
-                <Input type="textarea" bind:value={userInput} placeholder="Chef, what's the order? (Tip: conclude with /no_think to try to disable thinking)"
-                       disabled={isGenerating} on:keydown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send_message())} />
+                <Input type="textarea" bind:value={userInput} placeholder="Ask the model..." disabled={$kitchenState.isBusy || $kitchenState.isLoading} on:keydown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send_message())} />
                 <div class="d-flex flex-column gap-1">
-                    {#if isGenerating}
-                        <Button color="danger" on:click={() => engine.interruptGenerate()}>STOP</Button>
+                    {#if isGeneratingLocally}
+                        <Button color="danger" on:click={() => sharedEngine.interruptGenerate()}>Stop</Button>
                     {:else}
-                        <Button color="primary" on:click={send_message} disabled={!userInput.trim()}>SEND</Button>
+                        <Button color="primary" on:click={send_message} disabled={!userInput.trim() || $kitchenState.isBusy || $kitchenState.isLoading}>
+                            {$kitchenState.isBusy ? 'Busy...' : 'Send'}
+                        </Button>
+                        {#if $kitchenState.isBusy}
+                            <Button color="outline-danger" size="sm" style="font-size: 0.7rem;" on:click={force_stop_global}>Force Stop</Button>
+                        {/if}
                     {/if}
-                    <Button color="link" size="sm" on:click={clear_messages} class="text-decoration-none">Clear</Button>
+                    <Button color="link" size="sm" class="text-decoration-none" on:click={clear_messages}>Clear</Button>
                 </div>
             </div>
         {/if}
     </div>
 </Operation>
-
-<style>
-    .tuning-panel { font-size: 0.85rem; border: 1px dashed #ccc !important; }
-    .chat-box { height: 400px; overflow-y: auto; background: #fff; border: 1px solid #ced4da; padding: 15px; border-radius: 8px; }
-    .chat-box.generating { border-color: #0d6efd; }
-    .message.user .content { background: #f0f7ff; border-right: 3px solid #0d6efd; }
-    .message.assistant .content { background: #f8f9fa; border-left: 3px solid #198754; }
-    .btn-think { border: none; background: #eee; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; color: #666; }
-    .thinking-process { font-size: 0.85rem; color: #888; background: #fcfcfc; border-left: 2px solid #dee2e6; }
-    .edit-area { font-family: monospace; font-size: 0.85rem; background: #fffbe6; }
-    .x-small { font-size: 0.7rem; }
-    .actions button { border: none; background: transparent; font-size: 0.8rem; padding: 0 4px; opacity: 0.6; }
-    .actions button:hover { opacity: 1; }
-    .pointer { cursor: pointer; }
-</style>
