@@ -313,7 +313,7 @@ export class Utils extends BaseUtils {
         }
     }
 
-    static predicates(models: string[][]) {
+    static predicates(models: any[][]) {
         const res = new Set();
         models.forEach(model => {
             model.forEach(atom => {
@@ -372,7 +372,7 @@ export class Utils extends BaseUtils {
         return consts.HACK_MD_DOMAIN + new URL(url).pathname + '/download';
     }
 
-    static public_url_github(url, use_jsDelivr) {
+    static public_url_github(url, use_jsDelivr = false) {
         const the_url = new URL(url);
         const [_, user, repo, blob, version, file] = this.split_with_limit(the_url.pathname, '/', 6);
         if (!use_jsDelivr) {
@@ -1041,10 +1041,12 @@ end
     }
 
     static capture_log() {
-        // if already called, return immediately
-        if (console.uuid === originalConsole.uuid) {
+      // if already called, return immediately
+      // @ts-ignore
+			if (console.uuid === originalConsole.uuid) {
             return;
         }
+        // @ts-ignore
         console.uuid = originalConsole.uuid;
 
         window.onerror = function(message, source, lineno, colno, error) {
