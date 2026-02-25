@@ -18,6 +18,7 @@
 </script>
 
 <script>
+    import { onDestroy } from "svelte";
     import { Button, Input, InputGroup, InputGroupText, Progress, Collapse } from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import { Utils } from "$lib/utils";
@@ -36,11 +37,26 @@
     let messages = [];
     let userInput = "";
     let isGenerating = false;
+    let pendingClear = false; // Tracks if we need to cleanly wipe messages after stopping
     let chatContainer;
+    let isUserScrolling = false;
 
     // Editing State
     let editingIndex = -1;
     let editingContent = "";
+
+    // Lifecycle safeguards to stop the engine gracefully on component destroy or page reload
+    onDestroy(() => {
+        if (isGenerating && engine) {
+            engine.interruptGenerate();
+        }
+    });
+
+    function handleBeforeUnload() {
+        if (isGenerating && engine) {
+            engine.interruptGenerate();
+        }
+    }
 
     function edit() { Recipe.edit_operation(id, index, options); }
 
@@ -68,7 +84,6 @@
                 if (navigator.storage?.persist) await navigator.storage.persist();
             }
 
-            // If an engine already exists, Web-LLM handles the re-initialization natively
             engine = await CreateServiceWorkerMLCEngine(options.model, {
                 initProgressCallback: (p) => {
                     loadProgress = Math.round((p?.progress ?? 0) * 100);
@@ -94,6 +109,30 @@
         return { thinking, finalAnswer };
     }
 
+    function handle_scroll(e) {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        // If the user scrolls up more than 30px from the bottom, mark as user scrolling
+        isUserScrolling = scrollHeight - scrollTop - clientHeight > 30;
+    }
+
+    function scroll_to_bottom(force = false) {
+        if (force) isUserScrolling = false;
+        if (chatContainer && !isUserScrolling) {
+            requestAnimationFrame(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+        }
+    }
+
+    function clear_messages() {
+        if (isGenerating && engine) {
+            pendingClear = true; // Mark for clearing once the stream cleanly exits
+            engine.interruptGenerate();
+        } else {
+            messages = [];
+        }
+    }
+
     async function send_message() {
         if (!userInput.trim() || !isModelLoaded || isGenerating) return;
 
@@ -107,9 +146,10 @@
     async function generate_response() {
         if (!isModelLoaded || isGenerating) return;
         isGenerating = true;
+        pendingClear = false; // Reset clear flag
 
         messages = [...messages, { role: "assistant", content: "", showThinking: false }];
-        scroll_to_bottom();
+        scroll_to_bottom(true); // Force scroll on new message
 
         try {
             const response = await engine.chat.completions.create({
@@ -126,17 +166,17 @@
 
             for await (const chunk of response) {
                 const cur = chunk.choices[0]?.delta?.content;
-                if (cur) {
+                // Double-checking messages.length ensures no silent crashes
+                if (cur && messages.length > 0) {
                     messages[messages.length - 1].content += cur;
                     messages = messages;
-                    scroll_to_bottom();
+                    scroll_to_bottom(); // Only scrolls if isUserScrolling is false
                 }
             }
         } catch (e) {
             if (e.name !== "AbortError") {
                 console.error("Generation Error:", e);
                 Utils.snackbar(`Engine Error: ${e.message}`);
-                // If the worker crashes or WebGPU loses context, force a reload state
                 if (e.message.toLowerCase().includes("worker") || e.message.toLowerCase().includes("context")) {
                     isModelLoaded = false;
                     engine = null;
@@ -144,22 +184,23 @@
             }
         } finally {
             isGenerating = false;
+            // Wipe the array safely only AFTER the generation loop is fully closed
+            if (pendingClear) {
+                messages = [];
+                pendingClear = false;
+            }
         }
-    }
-
-    function scroll_to_bottom() {
-        setTimeout(() => { if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight; }, 50);
     }
 
     function save_edit(i) {
         messages[i].content = editingContent;
-        // Trim history back to the edited message
         messages = messages.slice(0, i + 1);
         editingIndex = -1;
         edit();
-        // We no longer call generate_response() automatically here!
     }
 </script>
+
+<svelte:window on:beforeunload={handleBeforeUnload} />
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
     <div class="p-2 border rounded bg-light shadow-sm">
@@ -169,6 +210,7 @@
                 <Input
                     type="text"
                     bind:value={options.model}
+                    on:input={handle_model_change}
                     disabled={isGenerating || isLoading}
                     list="model-options-{id}"
                     placeholder="Search or type model ID..."
@@ -221,12 +263,18 @@
         </InputGroup>
 
         {#if isLoading}
-            <Progress animated value={loadProgress} class="mb-2" />
+            <Progress
+                animated
+                striped={loadProgress === 0}
+                color={loadProgress === 0 ? "info" : "primary"}
+                value={loadProgress === 0 ? 100 : loadProgress}
+                class="mb-2"
+            />
             <div class="text-center x-small monospace mb-2">{loadText}</div>
         {/if}
 
         {#if isModelLoaded}
-            <div bind:this={chatContainer} class="chat-box mb-2" class:generating={isGenerating}>
+            <div bind:this={chatContainer} class="chat-box mb-2" class:generating={isGenerating} on:scroll={handle_scroll}>
                 {#each messages as msg, i}
                     {@const { thinking, finalAnswer } = parseMessage(msg.content)}
                     <div class="message {msg.role} mb-3">
@@ -277,7 +325,7 @@
                     {:else}
                         <Button color="primary" on:click={send_message} disabled={!userInput.trim()}>SEND</Button>
                     {/if}
-                    <Button color="link" size="sm" on:click={() => messages = []} class="text-decoration-none">Clear</Button>
+                    <Button color="link" size="sm" on:click={clear_messages} class="text-decoration-none">Clear</Button>
                 </div>
             </div>
         {/if}
