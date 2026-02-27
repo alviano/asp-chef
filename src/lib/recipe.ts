@@ -14,6 +14,7 @@ import {
 import {consts} from "$lib/consts";
 import {v4 as uuidv4} from 'uuid';
 import {Base64} from "js-base64";
+import { dump } from 'js-yaml';
 
 export interface Ingredient {
     id: string;
@@ -431,6 +432,30 @@ export class Recipe {
 
         const hash = username === consts.SHORT_LINKS_DEFAULT_USERNAME && repository === consts.SHORT_LINKS_DEFAULT_REPOSITORY ? "" : `#${username}/${repository}`;
         return `${consts.DOMAIN}/s/${path}${hash}`;
+    }
+
+		static ingredients_to_json_string(start: number, how_many = 0) {
+        return JSON.stringify(this.recipe.slice(start, how_many === 0 ? undefined : start + how_many));
+    }
+
+		static ingredients_to_yaml(start: number, how_many = 0) {
+				const map_fun = (ingredient: any) => {
+						const options = structuredClone(ingredient.options);
+						delete options['stop'];
+						delete options['apply'];
+						delete options['show'];
+						delete options['readonly'];
+						delete options['hide_header'];
+						return {
+								operation: ingredient.operation,
+								options,
+						};
+				};
+        return dump(this.recipe.slice(start, how_many === 0 ? undefined : start + how_many).map(map_fun), {
+					indent: 2,
+					lineWidth: -1, // Don't wrap lines
+					quotingType: '"'
+				});
     }
 
     static serialize_ingredients(start: number, how_many = 0) {

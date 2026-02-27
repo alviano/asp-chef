@@ -6,11 +6,33 @@
     const operation = "@preview/@LLMs/Local AI Assistant";
     const default_extra_options = {
         model: "Qwen3-1.7B-q4f16_1-MLC",
-        system_prompt: "You are a professional Sous-Chef assistant. Be concise.",
+        system_prompt: `
+You are the "ASP Chef Sous-Chef," a technical assistant for ASP Chef, a pipeline manager for Answer Set Programming.
+**ENVIRONMENT:**
+The user is building a "Recipe" composed of a list of "Operations." You will be provided with a YAML list representing these operations. Treat this YAML as the current state of the kitchen.
+**DATA STRUCTURE:**
+* \`operation\`: The functional name of the step (e.g., "Search Models", "Solve").
+* \`options\`: The parameters or logic rules for that step.
+
+
+**CONTEXT FORMAT:**
+The recipe is provided in YAML format.
+* Lines starting with \`|\` indicate a multi-line ASP code block. Interpret these as raw ASP logic.
+* Ignore metadata like \`id\` unless specifically asked.
+
+
+**YOUR MISSION:**
+1. **Contextual Awareness:** Use the provided YAML context to understand the user's current logic flow.
+2. **Technical Support:** Explain the ASP logic (the \`rules\` or \`predicates\`) found within the \`options\`.
+3. **Formatting:** When quoting rules, use Markdown code blocks. Clean up any literal \`\\n\` characters so the code is readable.
+4. **Guidance:** Suggest improvements or explain dependencies between operations (e.g., how a "Search" feeds into a "Solve").
+5. **Constraint:** Be technical and extremely concise. If context is missing, ask the user to provide their recipe.
+        `.trim(),
         temperature: 0.7,
         top_p: 0.95,
         max_tokens: 1024,
-        repetition_penalty: 1.1
+        repetition_penalty: 1.1,
+        context_ingredients: 0
     };
 
     const availableModels = prebuiltAppConfig.model_list.map(m => m.model_id);
@@ -55,8 +77,11 @@
     import Operation from "$lib/Operation.svelte";
     import { Utils } from "$lib/utils";
 
-    export let id; export let options; export let index;
-    export let add_to_recipe; export let keybinding;
+    export let id;
+    export let options;
+    export let index;
+    export let add_to_recipe;
+    export let keybinding;
 
     let isTuningOpen = false;
     let messages = [];
@@ -232,15 +257,18 @@
         mutateKitchen({ isBusy: true });
         pendingClear = false;
 
+        // --- PREPARE CONTEXT ---
+        const numIngredients = Math.min(options.context_ingredients || index, index);
+        const context_prompt = numIngredients > 0 ? Recipe.ingredients_to_yaml(index - numIngredients, numIngredients) : "";
+
         messages = [...messages, { role: "assistant", content: "", showThinking: false }];
 
         try {
             await ensureEngineConnected($kitchenState.activeModel);
-
             const response = await sharedEngine.chat.completions.create({
                 messages: [
                     { role: "system", content: options.system_prompt },
-                    ...messages.slice(0, -1).map(m => ({ role: m.role, content: m.content }))
+                    ...messages.slice(0, -1).map((m, i) => ({ role: m.role, content: context_prompt && i !== messages.length - 2 ? m.content : m.content +  `\n\n--- RECIPE CONTEXT (YAML) ---\n${context_prompt}\n---` }))
                 ],
                 temperature: options.temperature,
                 top_p: options.top_p,
@@ -462,14 +490,23 @@
                         </label>
                         <input type="range" class="form-range" min="1.0" max="2.0" step="0.01" bind:value={options.repetition_penalty} on:change={edit} />
                     </div>
+                    <div class="col-12 mt-2">
+                        <!-- svelte-ignore a11y_label_has_associated_control -->
+                        <label class="small fw-bold text-muted d-flex justify-content-between mb-1">
+                            <span>CONTEXT INGREDIENTS (steps above this one)</span>
+                            <span>{options.context_ingredients}</span>
+                        </label>
+                        <input type="range" class="form-range" min="0" max={index} step="1" bind:value={options.context_ingredients} on:change={edit} />
+                    </div>
+                    <div class="col-12 mt-2">
+                        <InputGroup size="sm" class="mb-3 shadow-sm rounded overflow-hidden">
+                            <InputGroupText class="bg-dark text-white border-0"><small class="fw-bold px-1">SYSTEM</small></InputGroupText>
+                            <Input type="textarea" bind:value={options.system_prompt} on:input={edit} rows={10} disabled={$kitchenState.isBusy} class="border-0 bg-light" style="resize: none;" />
+                        </InputGroup>
+                    </div>
                 </div>
             </div>
         </Collapse>
-
-        <InputGroup size="sm" class="mb-3 shadow-sm rounded overflow-hidden">
-            <InputGroupText class="bg-dark text-white border-0"><small class="fw-bold px-1">SYSTEM</small></InputGroupText>
-            <Input type="textarea" bind:value={options.system_prompt} on:input={edit} rows={1} disabled={$kitchenState.isBusy} class="border-0 bg-light" style="resize: none;" />
-        </InputGroup>
 
         {#if $kitchenState.isLoading}
             <div class="mb-3 px-1">
@@ -507,7 +544,7 @@
 
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="fw-bold text-uppercase text-muted" style="font-size: 0.65rem; letter-spacing: 1px;">
-                                    {msg.role === 'user' ? '👨‍🍳 Head Chef' : '🤖 Sous Chef'}
+                                    {msg.role === 'user' ? '👨‍🍳 Executive Chef' : '🤖 Sous Chef'}
                                 </div>
                                 <div class="message-actions position-absolute top-0 end-0 m-2 d-flex gap-1 border">
                                     <button class="btn btn-sm btn-link p-0 px-1 text-decoration-none" on:click={() => copyToClipboard(msg.content)} title="Copy">📋</button>
