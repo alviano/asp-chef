@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe.js";
 
     const operation = "Tabulator";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: "__tab__",
         multistage: false,
         echo: false,

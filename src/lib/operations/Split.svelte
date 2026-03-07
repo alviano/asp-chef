@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Split";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: '__model__',
     };
 

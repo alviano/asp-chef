@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Set Timeout";
-    const default_extra_options = {
+    export const default_extra_options = {
         seconds: 5,
     };
 

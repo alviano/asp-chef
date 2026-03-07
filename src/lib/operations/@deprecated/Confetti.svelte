@@ -3,7 +3,7 @@
     import {Base64} from "js-base64";
 
     const operation = "@deprecated/Confetti";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 200,
         config_predicate: '__confetti__',
         echo: false,

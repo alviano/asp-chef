@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "Table";
-    const default_extra_options = {
+    export const default_extra_options = {
         search: '',
         hide_search: false,
         hide_model_index: false,

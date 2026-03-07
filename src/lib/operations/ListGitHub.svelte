@@ -5,7 +5,7 @@
     import {consts} from "$lib/consts";
 
     const operation = "List GitHub";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: '__base64__',
         url: '',
         filter: '',

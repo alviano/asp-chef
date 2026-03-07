@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/Expand Templates";
-    const default_extra_options = {
+    export const default_extra_options = {
         program_predicate: '__program__',
 		custom_template_input_predicate: "",
     };

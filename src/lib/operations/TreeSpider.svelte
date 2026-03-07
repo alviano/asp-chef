@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "TreeSpider";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: "__tree__",
         multistage: false,
         echo: false,

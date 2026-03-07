@@ -22,10 +22,25 @@ export interface Ingredient {
     options: any;
 }
 
+export interface DefaultExtraOption {
+		default: any;
+		description: string;
+		type: string;
+}
+
+export function Option(default_value: any, description: string, type: string) {
+		return {
+			default: default_value,
+			description,
+			type,
+		} as DefaultExtraOption;
+}
+
 export class Recipe {
     private static _operation_types = new Map();
     private static _operation_components = new Map();
     private static _operation_keys = [];
+		private static _operation_default_extra_options = new Map();
     private static _operation_doc = new Map();
     private static uncachable_operations_types = new Set();
     private static _remote_javascript_operations = new Map();
@@ -85,6 +100,7 @@ export class Recipe {
             } else {
                 promises.push((value as any)().then(component => {
                     this._operation_components.set(the_key, component.default);
+										this._operation_default_extra_options.set(the_key, component.default_extra_options);
                     processed++;
                     feedback(processed, total, the_key, skip, null);
                 }));
@@ -148,10 +164,13 @@ export class Recipe {
         this._operation_doc.set(operation, this.markdown_doc(operation));
     }
 
-    static async operation_doc(operation: string, short = false, markdown = false) : Promise<string> {
+    static async operation_doc(operation: string, short = false, markdown = false, default_extra_options = false) : Promise<string> {
         const doc = await this._operation_doc.get(operation);
         const split = Utils.split_with_limit(doc, '§§§§', 2);
-        const res = short ? split[0] : split[0] + (split[1] ? '##### Details' + split[1] : '');
+        let res = short ? split[0] : split[0] + (split[1] ? '##### Details' + split[1] : '');
+				if (default_extra_options) {
+					  res += `\n\n##### Default Extra Options\n\n\`\`\`json\n${JSON.stringify(this._operation_default_extra_options.get(operation), null, 2)}\n\`\`\``;
+				}
         return markdown ? res : Utils.render_markdown(res);
     }
 

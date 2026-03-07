@@ -4,7 +4,7 @@
     import {consts} from "$lib/consts";
 
     const operation = "Decode Input";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: '__base64__',
         echo: false,
         include_others: false,

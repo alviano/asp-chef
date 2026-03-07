@@ -4,7 +4,7 @@
     import { writable } from "svelte/store";
 
     const operation = "@preview/@LLMs/Local AI Assistant";
-    const default_extra_options = {
+    export const default_extra_options = {
         model: "Qwen3-1.7B-q4f16_1-MLC",
         system_prompt: `
 You are the "ASP Chef Sous-Chef," a technical assistant for ASP Chef, a pipeline manager for Answer Set Programming.

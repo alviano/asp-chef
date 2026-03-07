@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Timer";
-    const default_extra_options = {
+    export const default_extra_options = {
         seconds: 5,
         output_predicate: "__timer__",
         active: true,

@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "Lua String @-terms";
-    const default_extra_options = {
+    export const default_extra_options = {
         encode_predicate: '__base64__',
         prefix: 'string_',
     };

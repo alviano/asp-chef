@@ -5,7 +5,7 @@
 
 
     const operation = "@LLMs/Unregister API Keys";
-    const default_extra_options = {
+    export const default_extra_options = {
     };
 
     const listeners = new Map();

@@ -4,7 +4,7 @@
 	import { Utils } from '$lib/utils';
 
 	const operation = '@LLMs/Config';
-	const default_extra_options = {
+	export const default_extra_options = {
 		server_type: LLMs.SERVER_TYPES()[0],
 		server: LLMs.DEFAULT_SERVER(),
 		endpoint: '/chat/completions',

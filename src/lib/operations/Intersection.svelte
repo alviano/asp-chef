@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "Intersection";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 200,
         rules: '',
         decode_predicate: '__base64__',

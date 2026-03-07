@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Set HTTP Cache Policy";
-    const default_extra_options = {
+    export const default_extra_options = {
         value: 'default',
     };
 

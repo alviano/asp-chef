@@ -4,7 +4,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Pack Program";
-    const default_extra_options = {
+    export const default_extra_options = {
         decode_predicate: '__base64__',
     };
 

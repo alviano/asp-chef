@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "Lua @-terms";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 200,
         content: '',
         encode_predicate: '__base64__',

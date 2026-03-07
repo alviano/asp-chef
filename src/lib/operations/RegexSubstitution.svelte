@@ -4,7 +4,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Regex Substitution";
-    const default_extra_options = {
+    export const default_extra_options = {
         decode_predicate: '__base64__',
         pattern: '',
         pattern_flags: '',

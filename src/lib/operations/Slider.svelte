@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Slider";
-    const default_extra_options = {
+    export const default_extra_options = {
         output_predicate: '__slider__',
         value: 1,
         min: 1,

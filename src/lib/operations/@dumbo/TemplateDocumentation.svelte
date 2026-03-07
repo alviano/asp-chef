@@ -5,7 +5,7 @@
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
 
     const operation = "@dumbo/Template Documentation";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 500,
         filter: "",
         show_rules: false,

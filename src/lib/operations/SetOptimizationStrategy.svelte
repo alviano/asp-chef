@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Set Optimization Strategy";
-    const default_extra_options = {
+    export const default_extra_options = {
         algorithm: 'usc,k',
         disjoint: true,
         succinct: false,

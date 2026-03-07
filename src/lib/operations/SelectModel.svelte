@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "Select Model";
-    const default_extra_options = {
+    export const default_extra_options = {
         model_index: 1,
     };
 

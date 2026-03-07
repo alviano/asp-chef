@@ -4,11 +4,12 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Documentation";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 500,
         filter: "",
         output_predicate: "",
         html: false,
+        show_schema: false,
     };
 
     const listeners = new Map();
@@ -24,7 +25,7 @@
 
         const new_atoms = [];
         for (let operation of Recipe.operations(options.filter)) {
-            const doc = await Recipe.operation_doc(operation, false, !options.html);
+            const doc = await Recipe.operation_doc(operation, false, !options.html, options.show_schema);
             const content = Base64.encode(
                 options.html ? `<h2>${operation}</h2>\n${doc}` : `## ${operation}\n\n${doc}`
             );
@@ -61,7 +62,7 @@
                 return;
             }
             const the_operations = Recipe.operations(options.filter);
-            docs = await Promise.all(the_operations.map(operation => Recipe.operation_doc(operation)));
+            docs = await Promise.all(the_operations.map(operation => Recipe.operation_doc(operation, false, false, options.show_schema)));
             operations = the_operations;
             await tick();
             Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
@@ -83,6 +84,7 @@
                style="max-width: 5em;"
                on:input={edit}
         />
+        <Button outline="{!options.show_schema}" on:click={() => { options.show_schema = !options.show_schema; edit(); }}>Shema</Button>
         <InputGroupText>Output predicate</InputGroupText>
         <Input type="text"
                bind:value="{options.output_predicate}"

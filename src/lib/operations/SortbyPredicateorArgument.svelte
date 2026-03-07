@@ -3,7 +3,7 @@
     import _ from 'lodash';
 
     const operation = "Sort by Predicate or Argument";
-    const default_extra_options = {
+    export const default_extra_options = {
         sort_index: 0,
         descending: false,
     };

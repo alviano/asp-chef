@@ -7,7 +7,7 @@
 	import { javascript } from '@codemirror/lang-javascript';
 
     const operation = "Encode";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 200,
         predicate: '__base64__',
         content: '',

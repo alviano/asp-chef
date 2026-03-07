@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "Unique";
-    const default_extra_options = {
+    export const default_extra_options = {
         ignored_predicates: [],
     };
 

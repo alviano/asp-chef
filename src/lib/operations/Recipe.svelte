@@ -4,7 +4,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Recipe";
-    const default_extra_options = {
+    export const default_extra_options = {
         name: '',
         url: '',
         locked: false,

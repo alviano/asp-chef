@@ -3,7 +3,7 @@
     import _ from 'lodash';
 
     const operation = "Sort Models Canonically";
-    const default_extra_options = {
+    export const default_extra_options = {
         ignored_predicates: [],
     };
 

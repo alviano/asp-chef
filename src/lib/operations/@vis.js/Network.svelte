@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "@vis.js/Network";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 500,
         predicate: "__vis__",
         multistage: false,

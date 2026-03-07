@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "Output Encoded Content";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 200,
         predicate: '__base64__',
         echo: false,

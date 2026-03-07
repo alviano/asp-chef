@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "@config/Register Javascript";
-    const default_extra_options = {
+    export const default_extra_options = {
         local: '__local__',
         url: '__url__',
         prefix: 'user',

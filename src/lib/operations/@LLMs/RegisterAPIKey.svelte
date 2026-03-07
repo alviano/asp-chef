@@ -3,7 +3,7 @@
     import {LLMs} from "$lib/operations/@LLMs/llms";
 
     const operation = "@LLMs/Register API Key";
-    const default_extra_options = {
+    export const default_extra_options = {
         server: LLMs.DEFAULT_SERVER(),
     };
 

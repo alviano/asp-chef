@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "@preview/SurveyJS";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: "__survey__",
         output_predicate: "__output__",
         // instance_index: 0,

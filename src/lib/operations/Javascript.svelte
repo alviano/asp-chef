@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Javascript";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 500,
         code: '',
         options: {},

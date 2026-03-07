@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "Unreify Program";
-    const default_extra_options = {
+    export const default_extra_options = {
         echo: false,
         include_show_directives: true,
         unconditional_show_directives_to_facts: false,

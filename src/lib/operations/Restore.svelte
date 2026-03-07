@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "Restore";
-    const default_extra_options = {
+    export const default_extra_options = {
         store: '',
         echo: false,
     };

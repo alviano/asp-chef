@@ -5,7 +5,7 @@
     
 
     const operation = "Extract Facts";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: '__base64__',
         echo: false,
         block_process: false,

@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "@vis.js/Graph3d";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: "__vis__",
         multistage: false,
         echo: false,

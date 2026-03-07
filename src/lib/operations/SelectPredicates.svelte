@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Select Predicates";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicates: [],
         other_predicates: [],
     };

@@ -6,7 +6,7 @@
     import {consts} from "$lib/consts";
 
     const operation = "Parse CSV";
-    const default_extra_options = {
+    export const default_extra_options = {
         decode_predicate: '__base64__',
         echo_encoded_content: false,
         separator: 'TAB',

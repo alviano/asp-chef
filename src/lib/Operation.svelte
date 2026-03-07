@@ -1,23 +1,22 @@
-<script>
-    import {Button, Card, CardBody, Icon} from "@sveltestrap/sveltestrap";
+<script lang="ts">
+    import {Button, Card, CardBody} from "@sveltestrap/sveltestrap";
     import IngredientHeader from "$lib/IngredientHeader.svelte";
-    import {Recipe} from "$lib/recipe";
+    import {type DefaultExtraOption, Recipe} from "$lib/recipe";
     import Popover from "$lib/Popover.svelte";
-    import {
-        errors_at_index,
-        readonly_ingredients,
-        show_ingredient_details,
-        show_ingredient_headers
-    } from "$lib/stores";
+    import {errors_at_index, readonly_ingredients, show_ingredient_details, show_ingredient_headers} from "$lib/stores";
 
     function default_options() {
         return {
             ...Recipe.common_default_options(),
-            ...default_extra_options,
+            ...Object.fromEntries(
+                Object.entries(default_extra_options).map(
+                    ([key, value]) => [key, value.default !== undefined ? value.default : value]
+                )
+            ),
         };
     }
 
-    export let default_extra_options;
+    export let default_extra_options : Record<string, DefaultExtraOption>;
 
     export let id;
     export let operation;

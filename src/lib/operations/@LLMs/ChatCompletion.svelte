@@ -5,7 +5,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "@LLMs/Chat Completion";
-    const default_extra_options = {
+    export const default_extra_options = {
         config: '__llms_config__',
         message: '__message__',
         system: '__system__',

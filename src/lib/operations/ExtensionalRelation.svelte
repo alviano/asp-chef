@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Extensional Relation";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 200,
         predicate: '__edb__',
         instances: '',

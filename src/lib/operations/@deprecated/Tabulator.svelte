@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "@deprecated/Tabulator";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: "__tab__",
         echo: false,
         show_model_index: false,

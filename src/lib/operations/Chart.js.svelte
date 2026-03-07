@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "Chart.js";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: "__chart__",
         multistage: false,
         echo: false,

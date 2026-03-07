@@ -5,7 +5,7 @@
 	import { LLMs } from '$lib/operations/@LLMs/llms';
 
 	const operation = '@DTDL/Debug';
-	const default_extra_options = {
+	export const default_extra_options = {
 		predicate: '__base64__',
 		prefix: ''
 	};

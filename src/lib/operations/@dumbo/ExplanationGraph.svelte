@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/Explanation Graph";
-    const default_extra_options = {
+    export const default_extra_options = {
         program_predicate: '__program__',
         answer_set_predicate: '__answer_set__',
         herbrand_base_predicate: '__herbrand_base__',

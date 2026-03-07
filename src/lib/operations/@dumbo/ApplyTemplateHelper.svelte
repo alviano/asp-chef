@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/Apply Template Helper";
-    const default_extra_options = {
+    export const default_extra_options = {
         template_name: '',
         predicate_mapping: [],
         output_predicate: '__program__',

@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "Markdown";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: '__base64__',
         multistage: false,
         echo: false,

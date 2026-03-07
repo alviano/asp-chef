@@ -7,7 +7,7 @@
     import {Utils} from "$lib/utils.js";
 
     const operation = "@dumbo/PyQASP";
-    const default_extra_options = {
+    export const default_extra_options = {
         program_predicate: '__program__',
         echo: false,
         enumerate: false,

@@ -4,7 +4,7 @@
     import {Utils} from "$lib/utils.js";
 
     const operation = "Confetti.js";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: "__confetti__",
         multistage: false,
         echo: false,

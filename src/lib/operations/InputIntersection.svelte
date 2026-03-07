@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Input Intersection";
-    const default_extra_options = {
+    export const default_extra_options = {
     };
 
     Recipe.register_operation_type(operation, async (input) => {

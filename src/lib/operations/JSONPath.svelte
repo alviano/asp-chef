@@ -5,7 +5,7 @@
     import {JSONPath} from "jsonpath-plus";
 
     const operation = "JSON Path";
-    const default_extra_options = {
+    export const default_extra_options = {
         decode_predicate: '__base64__',
         echo_encoded_content: false,
         query: '',

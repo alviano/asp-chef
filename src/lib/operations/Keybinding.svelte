@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Keybinding";
-    const default_extra_options = {
+    export const default_extra_options = {
         key: 'K',
         case_sensitive: false,
         output_predicate: "__key__",

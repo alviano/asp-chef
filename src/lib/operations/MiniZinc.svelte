@@ -5,7 +5,7 @@
     import { Model } from 'https://cdn.jsdelivr.net/npm/minizinc/dist/minizinc.mjs';
 
     const operation = "MiniZinc";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 200,
         model: '',
         number: 1,

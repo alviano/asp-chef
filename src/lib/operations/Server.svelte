@@ -4,7 +4,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Server";
-    const default_extra_options = {
+    export const default_extra_options = {
         url: '',
         options: '',
         decode_predicate: '__base64__',

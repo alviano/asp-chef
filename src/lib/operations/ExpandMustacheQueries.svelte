@@ -4,7 +4,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Expand Mustache Queries";
-    const default_extra_options = {
+    export const default_extra_options = {
         predicate: '__base64__',
         recursively: false,
     };

@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/Herbrand Base";
-    const default_extra_options = {
+    export const default_extra_options = {
         program_predicate: '__program__',
         echo_program: false,
         herbrand_base_predicate: '__herbrand_base__',

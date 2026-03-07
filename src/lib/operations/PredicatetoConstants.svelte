@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "Predicate to Constants";
-    const default_extra_options = {
+    export const default_extra_options = {
         constants_predicate: '__const__',
         output_predicate: '__base64__',
         echo: false,

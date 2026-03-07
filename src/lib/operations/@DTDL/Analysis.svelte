@@ -4,7 +4,7 @@
 	import { Utils } from '$lib/utils.js';
 
 	const operation = '@DTDL/Analysis';
-	const default_extra_options = {
+	export const default_extra_options = {
 		predicate: '__base64__',
 		prefix: ''
 	};

@@ -3,7 +3,7 @@
     import {Utils} from "$lib/utils";
 
     const operation = "Graph";
-    const default_extra_options = {
+    export const default_extra_options = {
         height: 500,
         node_radius: 20,
         predicate: '__graph__',

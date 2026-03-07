@@ -4,7 +4,7 @@
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/SDL";
-    const default_extra_options = {
+    export const default_extra_options = {
         program_predicate: '__program__',
     };
 

@@ -7,7 +7,7 @@
 	import { clingo_remote_uuid } from '$lib/stores.js';
 
 	const operation = '@opa/Opa Eval';
-	const default_extra_options = {
+	export const default_extra_options = {
 		policy: '__policy__',
 		json: '__json__',
 		policy_name: 'policy',

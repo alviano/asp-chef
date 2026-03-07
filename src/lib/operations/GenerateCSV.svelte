@@ -6,7 +6,7 @@
     import {consts} from "$lib/consts";
 
     const operation = "Generate CSV";
-    const default_extra_options = {
+    export const default_extra_options = {
         input_predicate: '__cell__',
         echo_input: false,
         separator: 'TAB',
