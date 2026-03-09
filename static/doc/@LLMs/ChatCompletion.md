@@ -26,3 +26,45 @@ Supported *Chat Completion* services:
   - Point to http://localhost:11434/api/chat (if you have a default local installation)
   - Set anything for the key
   - Set the environment variable `OLLAMA_ORIGINS='https://asp-chef.alviano.net'` before starting Ollama (unless you are running a local version of ASP Chef)
+
+§§§§
+
+This operation integrates Large Language Models directly into your logic pipeline, allowing for hybrid AI systems that combine symbolic reasoning (ASP) with neural generation (LLMs).
+
+#### Message Structure
+
+You can provide messages in two ways:
+
+1.  **Specialized Predicates**: Use predicates for each role (e.g., `system`, `user`, `assistant`). The terms must be Base64-encoded. This is recommended for complex prompts.
+    ```asp
+    __user__("V2hhdCBpcyAyICsgMiA/"). % Base64 for "What is 2 + 2 ?"
+    ```
+2.  **Unified Message Predicate**: Use a single predicate (default `__message__`) with a functional term:
+    ```asp
+    __message__(user("What is 2 + 2 ?")).
+    ```
+
+#### Template Expansion
+
+Messages support **Mustache directives** (similar to the **Markdown** operation). This allows you to inject data from the current model directly into your prompts:
+```asp
+% Facts in the model
+person(john). age(25).
+
+% Prompt using mustache
+__message__(user("The person {{= X : person(X) }} is {{= A : age(A) }} years old.")).
+```
+
+#### Multi-Model Processing
+
+If the input contains multiple models, the operation performs an independent LLM call for *each* model. This is powerful for:
+- Generating explanations for different stable models.
+- Summarizing different possible solutions found by the solver.
+
+#### Workflow Summary
+
+1.  **@LLMs/Config**: Set the server, model name, and temperature.
+2.  **@LLMs/Register API Key**: Securely provide your key.
+3.  **Encode**: Prepare your prompt (optionally with data injection).
+4.  **@LLMs/Chat Completion**: Execute the call and get the results in `__base64__`.
+
