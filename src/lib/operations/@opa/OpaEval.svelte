@@ -1,5 +1,5 @@
 <script context="module">
-	import { Recipe } from '$lib/recipe';
+	import { Option, Recipe } from '$lib/recipe';
 	import { Base64 } from 'js-base64';
 	import { get } from 'svelte/store';
 	import { Utils } from '$lib/utils';
@@ -8,13 +8,13 @@
 
 	const operation = '@opa/Opa Eval';
 	export const default_extra_options = {
-		policy: '__policy__',
-		json: '__json__',
-		policy_name: 'policy',
-		idx: 1,
-		key: 'data',
-		allow: false,
-		output_predicate: '__opa_eval__'
+		policy: Option('__policy__', "Predicate containing the Opa policy (a Base64-encoded string)", "predicate_name"),
+		json: Option('__json__', "Predicate containing the JSON input (a Base64-encoded string)", "predicate_name"),
+		policy_name: Option('policy', "Name of the policy to evaluate", "string"),
+		idx: Option(1, "Index of the term containing the JSON input", "number"),
+		key: Option('data', "Key to use for the JSON input in the Opa evaluation", "string"),
+		allow: Option(false, "Whether to only return the 'allow' result", "boolean"),
+		output_predicate: Option('__opa_eval__', "Predicate to use for the output", "predicate_name")
 	};
 
 	Recipe.register_operation_type(operation, async (input, options, index, id) => {

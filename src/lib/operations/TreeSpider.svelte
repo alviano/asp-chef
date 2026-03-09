@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "TreeSpider";
     export const default_extra_options = {
-        predicate: "__tree__",
-        multistage: false,
-        echo: false,
-        show_model_index: false,
+        predicate: Option("__tree__", "Predicate containing the TreeSpider configuration (a Base64-encoded JSON)", "predicate_name"),
+        multistage: Option(false, "Reiterated expansion of Mustache queries in configuration", "boolean"),
+        echo: Option(false, "Include configuration in output", "boolean"),
+        show_model_index: Option(false, "Show model index above chart", "boolean"),
     };
 
     const listeners = new Map();

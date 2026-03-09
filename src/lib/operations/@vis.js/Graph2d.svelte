@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "@vis.js/Graph2d";
     export const default_extra_options = {
-        predicate: "__vis__",
-        multistage: false,
-        echo: false,
-        show_model_index: false,
+        predicate: Option("__vis__", "Predicate containing the Graph2d configuration (a Base64-encoded JSON)", "predicate_name"),
+        multistage: Option(false, "Reiterated expansion of Mustache queries in configuration", "boolean"),
+        echo: Option(false, "Include configuration in output", "boolean"),
+        show_model_index: Option(false, "Show model index above graphics", "boolean"),
     };
 
     const listeners = new Map();

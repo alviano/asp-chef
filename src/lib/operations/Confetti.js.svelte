@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils.js";
 
     const operation = "Confetti.js";
     export const default_extra_options = {
-        predicate: "__confetti__",
-        multistage: false,
-        echo: false,
+        predicate: Option("__confetti__", "Predicate containing the confetti configuration (a Base64-encoded JSON)", "predicate_name"),
+        multistage: Option(false, "Reiterated expansion of Mustache queries in configuration", "boolean"),
+        echo: Option(false, "Include configuration in output", "boolean"),
     };
 
     let confetti = null;
