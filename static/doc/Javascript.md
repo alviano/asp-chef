@@ -28,3 +28,70 @@ A _term_ is an object with property `str` (the string representation of the term
 
 **Important!** The Javascript code is run in an isolated worker and cannot access any library imported by ASP Chef. Dynamic imports are permitted. For example, _lodash_ can be imported using  
 `const _ = (await import("https://esm.run/lodash")).default;`
+
+§§§§
+
+This operation is the ultimate "Swiss Army Knife" of ASP-chef. It allows you to perform any computation that is difficult in pure ASP using the full power of JavaScript.
+
+#### Input Structure
+
+The `input` is mapped to an array of models:
+```javascript
+[
+  [ // Model 1
+    { predicate: 'p', terms: [{ number: 1, str: '1' }], str: 'p(1)' },
+    { predicate: 'q', terms: [{ string: 'a', str: '"a"' }], str: 'q("a")' }
+  ],
+  [ // Model 2
+    { predicate: 'p', terms: [{ number: 2, str: '2' }], str: 'p(2)' }
+  ]
+]
+```
+
+#### Output Structure
+
+Your code **must** return an array of models, where each model is an array of atom objects (or objects with a `str` property):
+```javascript
+return [
+  [ { str: 'result(100)' }, { str: 'result(200)' } ], // Model 1
+  [ { str: 'result(300)' } ] // Model 2
+];
+```
+
+#### Example: Calculating a Sum
+
+To sum up all values of `val(X)` for each model:
+```javascript
+return input.map(model => {
+  const sum = model
+    .filter(atom => atom.predicate === 'val')
+    .reduce((acc, atom) => acc + atom.terms[0].number, 0);
+  return [{ str: `total(${sum})` }];
+});
+```
+
+#### Defining Custom Options
+
+You can define options that appear in the ingredient's UI. When `options` is `"DESCRIBE"`, return an object:
+```javascript
+if (options === "DESCRIBE") {
+  return {
+    name: "My Custom Operation",
+    options: ["Multiplier|number|multiplier|1"]
+  };
+}
+// Normal execution
+const mult = options.multiplier;
+// ...
+```
+The ingredient will show a number input for "Multiplier" with a default value of 1, whose value is stored in the `multiplier` option.
+
+#### Advanced Usage: External Libraries
+
+Since the code runs in a Web Worker, you can't use `require()`. Instead, use dynamic `import()`:
+```javascript
+const moment = (await import("https://esm.run/moment")).default;
+const now = moment().format('YYYY-MM-DD');
+return [[{ str: `date("${now}")` }]];
+```
+
