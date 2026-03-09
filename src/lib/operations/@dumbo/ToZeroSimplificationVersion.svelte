@@ -3,7 +3,7 @@
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/To Zero-Simplification version";
+    const operation = "@dumbo/To Zero Simplification Version";
     export const default_extra_options = {
         program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
         extra_atoms_predicate: Option('', "Predicate containing extra atoms to include", "predicate_name"),

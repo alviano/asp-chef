@@ -4,7 +4,7 @@
 	import { Utils } from '$lib/utils.js';
 	import { LLMs } from '$lib/operations/@LLMs/llms';
 
-	const operation = 'DTDL Debug';
+	const operation = '@DTDL/Debug';
 	export const default_extra_options = {
 		predicate: Option('__base64__', 'Predicate to wrap the debug info in (Base64)', 'predicate_name'),
 		prefix: Option('', 'Prefix for debug labels', 'string')

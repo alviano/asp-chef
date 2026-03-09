@@ -4,7 +4,7 @@
     import {Utils} from "$lib/utils";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
 
-    const operation = "@dumbo/Template documentation";
+    const operation = "@dumbo/Template Documentation";
     export const default_extra_options = {
         height: Option(500, "Height of the result container", "number"),
         filter: Option("", "Regex filter for template names", "string"),

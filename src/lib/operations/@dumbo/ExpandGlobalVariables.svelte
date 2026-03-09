@@ -3,7 +3,7 @@
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/Expand global variables";
+    const operation = "@dumbo/Expand Global Variables";
     export const default_extra_options = {
         program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
         herbrand_base_predicate: Option('', "Predicate containing the Herbrand Base (optional)", "predicate_name"),

@@ -3,7 +3,7 @@
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/Expand templates";
+    const operation = "@dumbo/Expand Templates";
     export const default_extra_options = {
         program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
         custom_template_input_predicate: Option("", "Custom predicate for template input (overrides default)", "predicate_name"),
