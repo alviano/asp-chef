@@ -6,7 +6,7 @@ If an output predicate is specified, the current time is added as a fact of the 
 
 **Attention!** Skipping a timer ingredient does not clear the installed interval. If you want to temporarily disable a timer, click the ACTIVE button **before** skipping the ingredient.
 
-Default value: `30 seconds`
+Default value: `5 seconds`
 
 §§§§
 
