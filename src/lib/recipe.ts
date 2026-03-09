@@ -115,7 +115,12 @@ export class Recipe {
                 if (new_key !== key) {
                     this._remote_javascript_operations.delete(key);
                 }
-                this._operation_default_extra_options.set(new_key, {}); // FIXME
+                const describe = await Utils.worker_run(value.code, [], 'DESCRIBE');
+                const options = describe.options.map(option => {
+                    const [label, type, name, value] = Utils.split_with_limit(option, '|', 4);
+                    return [name, Option(value, label, type)];
+                });
+                this._operation_default_extra_options.set(this.operation_type_filename(new_key), Object.fromEntries(options));
             } catch (error) {
                 await this._new_remote_javascript_operation(value.prefix, value.url, value.code);
                 err = `Oops! Cannot update ${key}... loaded latest fetched version.`;
@@ -246,9 +251,7 @@ export class Recipe {
     }
 
     static async new_remote_javascript_operation(prefix: string, url: string, update_store = true) {
-        const code = await fetch(url, {
-            cache: Utils.browser_cache_policy,
-        }).then(response => response.text());
+        const code = Base64.decode(await Utils.fetch_github_content(url, null, true));
 
         const operation = await this._new_remote_javascript_operation(prefix, url, code);
         if (update_store) {

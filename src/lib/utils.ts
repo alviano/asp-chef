@@ -372,6 +372,54 @@ export class Utils extends BaseUtils {
         return consts.HACK_MD_DOMAIN + new URL(url).pathname + '/download';
     }
 
+    private static async __fetch_github_content_internal(url, predicate, errors) {
+        const request_options = {
+            cache: Utils.browser_cache_policy,
+            headers: {
+                Accept: "application/vnd.github.raw+json",
+            }
+        };
+        const github_api_token = localStorage.getItem('github-api-token')
+        if (github_api_token) {
+            request_options.headers["Authorization"] = `Bearer ${github_api_token}`;
+        }
+        const response = await fetch(url, request_options);
+        if (response.status !== 200) {
+            const json = await response.json();
+            errors.push(json.message || json);
+            return;
+        }
+        const contentType = response.headers.get("content-type");
+        let content;
+        if (contentType.startsWith("application/json")) {
+            const json = await response.json();
+            content = json.content.replace(/[\n\r]/g, "");
+        } else {
+            const text = await response.text();
+            content = Base64.encode(text);
+        }
+        if (predicate) {
+            const encoded_content = `${predicate}("${content}")`;
+            return Utils.parse_atom(encoded_content);
+        } else {
+            return content;
+        }
+    }
+
+    static async fetch_github_content(url, predicate = null, url_is_public = false) {
+        const the_url = url_is_public ? url : Utils.public_url_github(url);
+        let errors = [];
+        let res = await this.__fetch_github_content_internal(the_url, predicate, errors);
+        if (res !== undefined) {
+            return res;
+        }
+        res = await this.__fetch_github_content_internal(the_url, predicate, errors);
+        if (res !== undefined) {
+            return res;
+        }
+        throw new Error(errors.join('\n'));
+    }
+
     static public_url_github(url, use_jsDelivr = false) {
         const the_url = new URL(url);
         const [_, user, repo, blob, version, file] = this.split_with_limit(the_url.pathname, '/', 6);

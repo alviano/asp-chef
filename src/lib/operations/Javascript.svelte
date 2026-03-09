@@ -90,8 +90,8 @@ week
                 default: type !== "bool" ? value : !!value
             };
         });
-
     }
+
     async function listener() {
         try {
             let describe = await Utils.worker_run(options.code, [], "DESCRIBE");
