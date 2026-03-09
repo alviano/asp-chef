@@ -8,7 +8,7 @@
         name: Option('', "The name of the remote recipe", "string"),
         url: Option('', "The URL of the remote recipe", "string"),
         locked: Option(false, "Whether the recipe is locked for editing", "boolean"),
-        predicate_mapping: Option([], "List of predicate mappings for the recipe", "predicate_mapping[]"),
+        predicate_mapping: Option([], "List of predicate mappings for the recipe", "[predicate_name, predicate_name][]"),
     };
 
     const listeners = new Map();

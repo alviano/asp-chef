@@ -109,7 +109,7 @@
         }
     }
 
-	async function call_server(server_type, server, api_key, endpoint, model, temperature, messages) {
+    async function call_server(server_type, server, api_key, endpoint, model, temperature, messages) {
         const props = {};
         if (temperature !== null) {
             LLMs.add_temperature(server_type, temperature, props);

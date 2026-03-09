@@ -23,24 +23,24 @@ export interface Ingredient {
 }
 
 export interface DefaultExtraOption {
-		default: any;
-		description: string;
-		type: string;
+    default: any;
+    description: string;
+    type: string;
 }
 
 export function Option(default_value: any, description: string, type: string) {
-		return {
-			default: default_value,
-			description,
-			type,
-		} as DefaultExtraOption;
+    return {
+        default: default_value,
+        description,
+        type,
+    } as DefaultExtraOption;
 }
 
 export class Recipe {
     private static _operation_types = new Map();
     private static _operation_components = new Map();
     private static _operation_keys = [];
-		private static _operation_default_extra_options = new Map();
+        private static _operation_default_extra_options = new Map();
     private static _operation_doc = new Map();
     private static uncachable_operations_types = new Set();
     private static _remote_javascript_operations = new Map();
@@ -100,7 +100,7 @@ export class Recipe {
             } else {
                 promises.push((value as any)().then(component => {
                     this._operation_components.set(the_key, component.default);
-										this._operation_default_extra_options.set(the_key, component.default_extra_options);
+                                        this._operation_default_extra_options.set(the_key, component.default_extra_options);
                     processed++;
                     feedback(processed, total, the_key, skip, null);
                 }));
@@ -115,6 +115,7 @@ export class Recipe {
                 if (new_key !== key) {
                     this._remote_javascript_operations.delete(key);
                 }
+                this._operation_default_extra_options.set(new_key, {}); // FIXME
             } catch (error) {
                 await this._new_remote_javascript_operation(value.prefix, value.url, value.code);
                 err = `Oops! Cannot update ${key}... loaded latest fetched version.`;
@@ -126,10 +127,23 @@ export class Recipe {
 
         for (const [key, value] of [...this._remote_recipe_operations.entries()]) {
             let err = null;
-            const new_key = await this.new_remote_recipe_operation(value.name, value.url, value.remappable_predicates, value.doc,false);
+            const new_key = await this.new_remote_recipe_operation(
+                value.name,
+                value.url,
+                value.remappable_predicates,
+                value.doc,
+                false
+            );
             if (new_key !== key) {
-                this._remote_recipe_operations.delete(key);
+              this._remote_recipe_operations.delete(key);
             }
+            this._operation_default_extra_options.set(this.operation_type_filename(new_key), {
+                predicate_mapping: Option(
+                    value.remappable_predicates.map((pred) => [pred, '']),
+                    'Mapping for remappable predicates',
+                    '[predicate_name, predicate_name][]'
+                )
+            });
             processed++;
             feedback(processed, total, key, false, err);
         }
@@ -168,9 +182,9 @@ export class Recipe {
         const doc = await this._operation_doc.get(operation);
         const split = Utils.split_with_limit(doc, '§§§§', 2);
         let res = short ? split[0] : split[0] + (split[1] ? '##### Details' + split[1] : '');
-				if (default_extra_options) {
-					  res += `\n\n##### Default Extra Options\n\n\`\`\`json\n${JSON.stringify(this._operation_default_extra_options.get(this.operation_type_filename(operation)), null, 2)}\n\`\`\``;
-				}
+                if (default_extra_options) {
+                      res += `\n\n##### Default Extra Options\n\n\`\`\`json\n${JSON.stringify(this._operation_default_extra_options.get(this.operation_type_filename(operation)), null, 2)}\n\`\`\``;
+                }
         return markdown ? res : Utils.render_markdown(res);
     }
 
@@ -432,14 +446,14 @@ export class Recipe {
             cache: "no-store",
         });
         const body = {
-					message: 'short link',
-					committer: {
-						name: 'ASP Chef',
-						email: 'asp-chef@example.com'
-					},
-					content: Base64.encode(recipe_url),
-					sha: response.status === 200 ? (await response.json()).sha : undefined,
-				};
+                    message: 'short link',
+                    committer: {
+                        name: 'ASP Chef',
+                        email: 'asp-chef@example.com'
+                    },
+                    content: Base64.encode(recipe_url),
+                    sha: response.status === 200 ? (await response.json()).sha : undefined,
+                };
         response = await fetch(url, {
             method: "PUT",
             headers,
@@ -453,28 +467,28 @@ export class Recipe {
         return `${consts.DOMAIN}/s/${path}${hash}`;
     }
 
-		static ingredients_to_json_string(start: number, how_many = 0) {
+        static ingredients_to_json_string(start: number, how_many = 0) {
         return JSON.stringify(this.recipe.slice(start, how_many === 0 ? undefined : start + how_many));
     }
 
-		static ingredients_to_yaml(start: number, how_many = 0) {
-				const map_fun = (ingredient: any) => {
-						const options = structuredClone(ingredient.options);
-						delete options['stop'];
-						delete options['apply'];
-						delete options['show'];
-						delete options['readonly'];
-						delete options['hide_header'];
-						return {
-								operation: ingredient.operation,
-								options,
-						};
-				};
+        static ingredients_to_yaml(start: number, how_many = 0) {
+                const map_fun = (ingredient: any) => {
+                        const options = structuredClone(ingredient.options);
+                        delete options['stop'];
+                        delete options['apply'];
+                        delete options['show'];
+                        delete options['readonly'];
+                        delete options['hide_header'];
+                        return {
+                                operation: ingredient.operation,
+                                options,
+                        };
+                };
         return dump(this.recipe.slice(start, how_many === 0 ? undefined : start + how_many).map(map_fun), {
-					indent: 2,
-					lineWidth: -1, // Don't wrap lines
-					quotingType: '"'
-				});
+                    indent: 2,
+                    lineWidth: -1, // Don't wrap lines
+                    quotingType: '"'
+                });
     }
 
     static serialize_ingredients(start: number, how_many = 0) {

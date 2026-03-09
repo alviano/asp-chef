@@ -2,13 +2,13 @@ import { test } from '@playwright/test';
 import { TestRecipe } from './utils.js';
 
 async function check(recipe, input, search, order, expected_output) {
-	await recipe.input(input);
+    await recipe.input(input);
     await recipe.table({
         input_one_atom_per_line: input,
         search,
         order,
     });
-	await recipe.output(expected_output);
+    await recipe.output(expected_output);
 }
 
 test.describe("Table", () => {

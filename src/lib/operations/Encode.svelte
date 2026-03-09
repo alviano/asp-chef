@@ -2,9 +2,9 @@
     import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
-	import { json } from '@codemirror/lang-json';
-	import { python } from '@codemirror/lang-python';
-	import { javascript } from '@codemirror/lang-javascript';
+    import { json } from '@codemirror/lang-json';
+    import { python } from '@codemirror/lang-python';
+    import { javascript } from '@codemirror/lang-javascript';
 
     const operation = "Encode";
     export const default_extra_options = {

@@ -546,7 +546,7 @@ export class Utils extends BaseUtils {
         }
 
         return `{{f"${raw_content}"}}`;
-	}
+    }
 
     static __build_asp_program(part, node, code_str) {
         const base = part.map(a => a.predicate || a.functor ? `${a.str}.` : `__const__(${a.str}).`).join('\n');
@@ -1043,7 +1043,7 @@ end
     static capture_log() {
       // if already called, return immediately
       // @ts-ignore
-			if (console.uuid === originalConsole.uuid) {
+            if (console.uuid === originalConsole.uuid) {
             return;
         }
         // @ts-ignore
@@ -1139,23 +1139,23 @@ end
 
 
     static download(obj, filename) {
-		let dataStr = '';
-		let type = filename.endsWith('.json') ? 'json' : 'yaml';
+        let dataStr = '';
+        let type = filename.endsWith('.json') ? 'json' : 'yaml';
 
-		if (type === 'json') {
-			dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj, null, 2));
-		} else {
-			const yamlData = yaml.dump(obj);
-			dataStr = 'data:text/yaml;charset=utf-8,' + encodeURIComponent(yamlData);
-		}
+        if (type === 'json') {
+            dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj, null, 2));
+        } else {
+            const yamlData = yaml.dump(obj);
+            dataStr = 'data:text/yaml;charset=utf-8,' + encodeURIComponent(yamlData);
+        }
 
-		const downloadAnchorNode = document.createElement('a');
-		downloadAnchorNode.setAttribute('href', dataStr);
-		downloadAnchorNode.setAttribute('download', filename);
-		document.body.appendChild(downloadAnchorNode);
-		downloadAnchorNode.click();
-		downloadAnchorNode.remove();
-	}
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute('href', dataStr);
+        downloadAnchorNode.setAttribute('download', filename);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
 }
 
 const GRAMMAR = `
