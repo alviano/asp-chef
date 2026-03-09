@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Table";
     export const default_extra_options = {
-        search: '',
-        hide_search: false,
-        hide_model_index: false,
-        hide_sort_buttons: false,
+        search: Option('', "Initial search query for the table", "string"),
+        hide_search: Option(false, "Whether to hide the search bar", "boolean"),
+        hide_model_index: Option(false, "Whether to hide the model index mapping", "boolean"),
+        hide_sort_buttons: Option(false, "Whether to hide the column sorting buttons", "boolean"),
     };
 
     const listeners = new Map();

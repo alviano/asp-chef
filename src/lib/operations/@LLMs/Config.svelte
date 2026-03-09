@@ -1,16 +1,16 @@
 <script context="module">
-	import { Recipe } from '$lib/recipe';
+	import { Option, Recipe } from '$lib/recipe';
 	import { LLMs } from '$lib/operations/@LLMs/llms';
 	import { Utils } from '$lib/utils';
 
 	const operation = '@LLMs/Config';
 	export const default_extra_options = {
-		server_type: LLMs.SERVER_TYPES()[0],
-		server: LLMs.DEFAULT_SERVER(),
-		endpoint: '/chat/completions',
-		model: 'llama-3.3-70b-versatile',
-		temperature: 20,
-		predicate: '__llms_config__'
+		server_type: Option(LLMs.SERVER_TYPES()[0], "The LLM server type", Object.keys(LLMs.SERVER_TYPES()).join('|')),
+		server: Option(LLMs.DEFAULT_SERVER(), "The LLM server URL", "string"),
+		endpoint: Option('/chat/completions', "The LLM server endpoint", "string"),
+		model: Option('openai/gpt-oss-120b', "The LLM model to use", "string"),
+		temperature: Option(20, "The temperature for the LLM (0-100)", "number"),
+		predicate: Option('__llms_config__', "The predicate to use for the configuration facts", "predicate_name")
 	};
 
 	Recipe.register_operation_type(operation, async (input, options, index, id) => {

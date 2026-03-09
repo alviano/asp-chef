@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Predicate to Constants";
     export const default_extra_options = {
-        constants_predicate: '__const__',
-        output_predicate: '__base64__',
-        echo: false,
+        constants_predicate: Option('__const__', "Predicate containing the constant definitions (name, value)", "predicate_name"),
+        output_predicate: Option('__base64__', "Predicate to wrap the modified content in", "predicate_name"),
+        echo: Option(false, "Include the original constants in the output", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

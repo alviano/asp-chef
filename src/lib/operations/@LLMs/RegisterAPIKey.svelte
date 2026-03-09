@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {LLMs} from "$lib/operations/@LLMs/llms";
 
     const operation = "@LLMs/Register API Key";
     export const default_extra_options = {
-        server: LLMs.DEFAULT_SERVER(),
+        server: Option(LLMs.DEFAULT_SERVER(), "The LLM server URL to register the key for", "string"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {

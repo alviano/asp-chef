@@ -1,15 +1,15 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {JSONPath} from "jsonpath-plus";
 
     const operation = "JSON Path Plus";
     export const default_extra_options = {
-        decode_predicate: '__base64__',
-        echo_encoded_content: false,
-        query: '',
-        output_predicate: '__json__'
+        decode_predicate: Option('__base64__', "Predicate to decode from Base64 before applying JSONPath Plus", "predicate_name"),
+        echo_encoded_content: Option(false, "Include the original encoded atom in the output", "boolean"),
+        query: Option('', "JSONPath Plus query to apply", "string"),
+        output_predicate: Option('__json__', "Predicate to wrap the query results in", "predicate_name")
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

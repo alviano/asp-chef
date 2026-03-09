@@ -1,15 +1,15 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Unreify Program";
     export const default_extra_options = {
-        echo: false,
-        include_show_directives: true,
-        unconditional_show_directives_to_facts: false,
-        encode_predicate: '__base64__',
-        atom_predicate: '__atom__',
+        echo: Option(false, "Include the original reified atoms in the output", "boolean"),
+        include_show_directives: Option(true, "Include #show directives in the unreified program", "boolean"),
+        unconditional_show_directives_to_facts: Option(false, "Transform unconditional #show directives into facts", "boolean"),
+        encode_predicate: Option('__base64__', "Predicate to wrap the unreified program in (Base64)", "predicate_name"),
+        atom_predicate: Option('__atom__', "Predicate to use for atoms that are not output via #show", "predicate_name"),
     };
 
     function unreify(part, options) {

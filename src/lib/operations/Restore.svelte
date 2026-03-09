@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Restore";
     export const default_extra_options = {
-        store: '',
-        echo: false,
+        store: Option('', "Name of the storage to restore models from", "string"),
+        echo: Option(false, "Include the current input models in the output (concatenated)", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

@@ -1,21 +1,21 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {LLMs} from "$lib/operations/@LLMs/llms";
     import {Utils} from "$lib/utils";
 
     const operation = "@LLMs/Chat Completion";
     export const default_extra_options = {
-        config: '__llms_config__',
-        message: '__message__',
-        system: '__system__',
-        user: '__user__',
-        assistant: '__assistant__',
-        echo_message: false,
-        echo_system: false,
-        echo_user: false,
-        echo_assistant: false,
-        output: '__base64__',
+        config: Option('__llms_config__', "Predicate containing the LLM configuration", "predicate_name"),
+        message: Option('__message__', "Predicate containing the messages for the conversation", "predicate_name"),
+        system: Option('__system__', "Predicate for system role text", "predicate_name"),
+        user: Option('__user__', "Predicate for user role text", "predicate_name"),
+        assistant: Option('__assistant__', "Predicate for assistant role text", "predicate_name"),
+        echo_message: Option(false, "Include messages in output", "boolean"),
+        echo_system: Option(false, "Include system messages in output", "boolean"),
+        echo_user: Option(false, "Include user messages in output", "boolean"),
+        echo_assistant: Option(false, "Include assistant messages in output", "boolean"),
+        output: Option('__base64__', "Predicate to wrap the completion result in (Base64)", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {

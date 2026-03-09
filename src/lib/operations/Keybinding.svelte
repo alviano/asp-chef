@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Keybinding";
     export const default_extra_options = {
-        key: 'K',
-        case_sensitive: false,
-        output_predicate: "__key__",
+        key: Option('K', "Key to listen for", "string"),
+        case_sensitive: Option(false, "Whether the key should be treated as case-sensitive", "boolean"),
+        output_predicate: Option("__key__", "Predicate to use for the output atom when the key is pressed", "predicate_name"),
     };
 
     const last_event = new Map();

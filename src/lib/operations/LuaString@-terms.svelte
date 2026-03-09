@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Lua String @-terms";
     export const default_extra_options = {
-        encode_predicate: '__base64__',
-        prefix: 'string_',
+        encode_predicate: Option('__base64__', "Predicate to wrap the generated strings in (Base64)", "predicate_name"),
+        prefix: Option('string_', "Prefix for the string labels", "string"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

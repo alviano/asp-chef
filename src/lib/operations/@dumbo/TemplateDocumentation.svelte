@@ -1,16 +1,16 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
 
-    const operation = "@dumbo/Template Documentation";
+    const operation = "@dumbo/Template documentation";
     export const default_extra_options = {
-        height: 500,
-        filter: "",
-        show_rules: false,
-        output_predicate: "",
-		custom_template_input_predicate: "",
+        height: Option(500, "Height of the result container", "number"),
+        filter: Option("", "Regex filter for template names", "string"),
+        show_rules: Option(false, "Whether to show template rules in the documentation", "boolean"),
+        output_predicate: Option("", "Predicate to wrap the generated documentation in", "predicate_name"),
+        custom_template_input_predicate: Option("", "Custom predicate for template input (overrides default)", "predicate_name"),
     };
 
     const listeners = new Map();

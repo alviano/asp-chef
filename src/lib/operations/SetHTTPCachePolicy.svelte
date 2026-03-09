@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
+
+    const values = Utils.browser_cache_policy_values;
 
     const operation = "Set HTTP Cache Policy";
     export const default_extra_options = {
-        value: 'default',
+        value: Option('default', "The browser cache policy for HTTP requests (e.g., default, no-store, reload)", Object.keys(values).join('|')),
     };
-
-    const values = Utils.browser_cache_policy_values;
 
     Recipe.register_operation_type(operation, async (input, options) => {
         Utils.browser_cache_policy = options.value;

@@ -9,7 +9,7 @@
     };
 
     const listeners = new Map();
-    
+
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         try {
             listeners.get(id)(input);

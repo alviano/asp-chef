@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils";
 
     const operation = "Pack Program";
     export const default_extra_options = {
-        decode_predicate: '__base64__',
+        decode_predicate: Option('__base64__', "Predicate to wrap the packed program in (Base64)", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

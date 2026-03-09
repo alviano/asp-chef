@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/Expand Templates";
+    const operation = "@dumbo/Expand templates";
     export const default_extra_options = {
-        program_predicate: '__program__',
-		custom_template_input_predicate: "",
+        program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
+        custom_template_input_predicate: Option("", "Custom predicate for template input (overrides default)", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

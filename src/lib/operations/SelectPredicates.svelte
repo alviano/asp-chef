@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Select Predicates";
     export const default_extra_options = {
-        predicates: [],
-        other_predicates: [],
+        predicates: Option([], "List of predicates to include in the output", "predicate_name[]"),
+        other_predicates: Option([], "List of other predicates seen in the input", "predicate_name[]"),
     };
 
     const listeners = new Map();

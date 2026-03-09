@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import _ from 'lodash';
 
     const operation = "Sort Models Canonically";
     export const default_extra_options = {
-        ignored_predicates: [],
+        ignored_predicates: Option([], "List of predicates to ignore when checking for consecutive uniqueness", "predicate_name[]"),
     };
 
     const listeners = new Map();

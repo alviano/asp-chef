@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Set Configuration";
     export const default_extra_options = {
-        value: 'auto',
+        value: Option('auto', "The Clingo configuration to use (e.g., auto, trendy, crafty)", "auto|frumpy|jumpy|tweety|handy|crafty|trendy|many"),
     };
 
     const values = {

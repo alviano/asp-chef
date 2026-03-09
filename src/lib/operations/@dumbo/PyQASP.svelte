@@ -1,5 +1,5 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
     import {get} from "svelte/store";
@@ -8,9 +8,9 @@
 
     const operation = "@dumbo/PyQASP";
     export const default_extra_options = {
-        program_predicate: '__program__',
-        echo: false,
-        enumerate: false,
+        program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
+        echo: Option(false, "Whether to include the original program in the output", "boolean"),
+        enumerate: Option(false, "Whether to enumerate multiple answer sets (if found)", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

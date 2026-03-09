@@ -1,14 +1,14 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
-    const operation = "@dumbo/To Zero Simplification Version";
+    const operation = "@dumbo/To Zero-Simplification version";
     export const default_extra_options = {
-        program_predicate: '__program__',
-        extra_atoms_predicate: '',
-        echo_extra_atoms_predicate: false,
-        extra_atoms: '',
+        program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
+        extra_atoms_predicate: Option('', "Predicate containing extra atoms to include", "predicate_name"),
+        echo_extra_atoms_predicate: Option(false, "Whether to include the extra atoms in the output", "boolean"),
+        extra_atoms: Option('', "Specific extra atoms to include (e.g., specific atoms from the Herbrand Base)", "string"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

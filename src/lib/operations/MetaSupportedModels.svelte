@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Meta Supported Models";
     export const default_extra_options = {
-        encode_predicate: '__base64__',
+        encode_predicate: Option('__base64__', "Predicate to wrap the meta program in (Base64-encoding)", "predicate_name"),
     };
 
     const content = Base64.encode(`

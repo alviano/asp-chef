@@ -1,9 +1,9 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Unique Consecutive";
     export const default_extra_options = {
-        ignored_predicates: [],
+        ignored_predicates: Option([], "List of predicates to ignore when checking for consecutive uniqueness", "predicate_name[]"),
     };
 
     const listeners = new Map();

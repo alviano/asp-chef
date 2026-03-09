@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Project Argument";
     export const default_extra_options = {
-        index: 1,
+        index: Option(1, "Index of the argument to project (remove) from each atom", "number"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

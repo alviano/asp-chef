@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
     const operation = "npm";
     export const default_extra_options = {
-        predicate: '__base64__',
-        url: '',
+        predicate: Option('__base64__', "Predicate to wrap the fetched npm content in (Base64)", "predicate_name"),
+        url: Option('', "URL of the npm package on jsDelivr", "string"),
     };
 
     const CDN_JSDELIVER_DOMAIN = consts.CDN_JSDELIVER_DOMAIN;

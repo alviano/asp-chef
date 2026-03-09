@@ -1,9 +1,9 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Select Model";
     export const default_extra_options = {
-        model_index: 1,
+        model_index: Option(1, "The index of the model to select (1-based)", "number"),
     };
 
     const listeners = new Map();

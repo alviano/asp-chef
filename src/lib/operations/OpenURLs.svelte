@@ -1,9 +1,9 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Open URLs";
     export const default_extra_options = {
-        predicate: '__url__',
+        predicate: Option('__url__', "Predicate containing the URLs to open", "predicate_name"),
     };
 
     const listeners = new Map();

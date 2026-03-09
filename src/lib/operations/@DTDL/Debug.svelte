@@ -1,13 +1,13 @@
 <script context="module">
-	import { Recipe } from '$lib/recipe';
+	import { Option, Recipe } from '$lib/recipe';
 	import { Base64 } from 'js-base64';
 	import { Utils } from '$lib/utils.js';
 	import { LLMs } from '$lib/operations/@LLMs/llms';
 
-	const operation = '@DTDL/Debug';
+	const operation = 'DTDL Debug';
 	export const default_extra_options = {
-		predicate: '__base64__',
-		prefix: ''
+		predicate: Option('__base64__', 'Predicate to wrap the debug info in (Base64)', 'predicate_name'),
+		prefix: Option('', 'Prefix for debug labels', 'string')
 	};
 	const listeners = new Map();
 

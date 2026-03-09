@@ -1,14 +1,14 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
     const operation = "List npm";
     export const default_extra_options = {
-        predicate: '__base64__',
-        url: '',
-        filter: '',
+        predicate: Option('__base64__', "Predicate to wrap each fetched npm file path in", "predicate_name"),
+        url: Option('', "URL of the npm package on jsDelivr to list files from", "string"),
+        filter: Option('', "Regex filter for the file paths", "string"),
     };
 
     const CDN_JSDELIVER_DOMAIN = consts.CDN_JSDELIVER_DOMAIN;

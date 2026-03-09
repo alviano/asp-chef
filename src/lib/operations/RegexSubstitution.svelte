@@ -1,14 +1,14 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils";
 
     const operation = "Regex Substitution";
     export const default_extra_options = {
-        decode_predicate: '__base64__',
-        pattern: '',
-        pattern_flags: '',
-        replacement: '',
+        decode_predicate: Option('__base64__', "Predicate to decode from Base64 before applying substitution", "predicate_name"),
+        pattern: Option('', "Regex pattern to search for", "string"),
+        pattern_flags: Option('', "Regex flags (e.g., 'g', 'i', 'm')", "string"),
+        replacement: Option('', "Replacement string", "string"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

@@ -1,14 +1,14 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Union";
     export const default_extra_options = {
-        height: 200,
-        rules: '',
-        decode_predicate: '__base64__',
-        echo_encoded_content: false,
+        height: Option(200, "Height of the rules editor", "number"),
+        rules: Option('', "ASP rules to use for computing the union", "string"),
+        decode_predicate: Option('__base64__', "Predicate to decode (Base64) from input before adding to the program", "predicate_name"),
+        echo_encoded_content: Option(false, "Whether to include the original encoded atom in the output", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

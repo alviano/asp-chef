@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Javascript";
     export const default_extra_options = {
-        height: 500,
-        code: '',
+        height: Option(500, "Height of the editor", "number"),
+        code: Option('', "Javascript code to execute", "string"),
         options: {},
     };
 

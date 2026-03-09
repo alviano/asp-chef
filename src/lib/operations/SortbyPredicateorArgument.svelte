@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import _ from 'lodash';
 
     const operation = "Sort by Predicate or Argument";
     export const default_extra_options = {
-        sort_index: 0,
-        descending: false,
+        sort_index: Option(0, "The index of the argument to sort by (0 for predicate)", "number"),
+        descending: Option(false, "Whether to sort in descending order", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options) => {

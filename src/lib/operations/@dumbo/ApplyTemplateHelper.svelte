@@ -1,14 +1,14 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/Apply Template Helper";
     export const default_extra_options = {
-        template_name: '',
-        predicate_mapping: [],
-        output_predicate: '__program__',
-		custom_template_input_predicate: "",
+        template_name: Option('', "The name of the template to apply", "string"),
+        predicate_mapping: Option([], "List of predicate mappings for the template (list of pairs of predicate names)", "[predicate_name, predicate_name][]"),
+        output_predicate: Option('__program__', "Predicate to wrap the generated program in (Base64)", "predicate_name"),
+        custom_template_input_predicate: Option("", "Predicate providing custom templates", "predicate_name"),
     };
 
     const listeners = new Map();

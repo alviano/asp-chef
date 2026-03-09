@@ -1,11 +1,6 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
-
-    const operation = "Set Transformation of Extended Rules";
-    export const default_extra_options = {
-        value: 'all',
-    };
 
     const values = {
         "all" : "Transform all extended rules to basic rules",
@@ -16,6 +11,11 @@
         "integ" : "Transform cardinality integrity constraints",
         "dynamic" : "Transform \"simple\" extended rules, but keep more complex ones",
         "no": "Disable"
+    };
+
+    const operation = "Set Transformation of Extended Rules";
+    export const default_extra_options = {
+        value: Option('all', "How to transform extended rules in Clingo (e.g., all, none, body)", Object.keys(values).join('|')),
     };
 
     Recipe.register_operation_type(operation, async (input, options) => {

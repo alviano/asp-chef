@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Set Timeout";
     export const default_extra_options = {
-        seconds: 5,
+        seconds: Option(30, "The maximum time in seconds for a Clingo execution", "number"),
     };
 
     Recipe.register_operation_type(operation, async (input, options) => {

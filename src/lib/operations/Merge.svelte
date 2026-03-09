@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Merge";
     export const default_extra_options = {
-        predicate: '__model__',
+        predicate: Option('__model__', "Predicate to wrap merged atoms in, identifying the model index", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
