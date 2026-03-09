@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils";
 
     const operation = "Expand Mustache Queries";
     export const default_extra_options = {
-        predicate: '__base64__',
-        recursively: false,
+        predicate: Option('__base64__', "Predicate containing the Base64-encoded string to expand", "predicate_name"),
+        recursively: Option(false, "Reiterated expansion of Mustache queries", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {

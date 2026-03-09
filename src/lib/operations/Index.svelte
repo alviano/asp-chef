@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Index";
     export const default_extra_options = {
-        predicate: '__index__',
+        predicate: Option('__index__', "Predicate to wrap each atom with its index", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

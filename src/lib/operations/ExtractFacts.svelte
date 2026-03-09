@@ -1,15 +1,15 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import { Base64 } from "js-base64";
     import {Utils} from "$lib/utils";
     
 
     const operation = "Extract Facts";
     export const default_extra_options = {
-        predicate: '__base64__',
-        echo: false,
-        block_process: false,
-        raise_error: false,
+        predicate: Option('__base64__', "Predicate containing the Base64-encoded string to extract facts from", "predicate_name"),
+        echo: Option(false, "Include the original atom in the output", "boolean"),
+        block_process: Option(false, "Stop processing if an error occurs", "boolean"),
+        raise_error: Option(false, "Report errors during extraction", "boolean"),
     };
 
     const regex = /\b[_']*[a-z][A-Za-z0-9'_]*\s*\([^)]*\)/g;

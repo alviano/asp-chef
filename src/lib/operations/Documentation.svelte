@@ -1,15 +1,15 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils";
 
     const operation = "Documentation";
     export const default_extra_options = {
-        height: 500,
-        filter: "",
-        output_predicate: "",
-        html: false,
-        show_schema: false,
+        height: Option(500, "Height of the container", "number"),
+        filter: Option("", "Regex filter for predicates", "string"),
+        output_predicate: Option("", "Predicate to wrap the documentation in (optional)", "predicate_name"),
+        html: Option(false, "Interpret documentation as HTML", "boolean"),
+        show_schema: Option(false, "Show schema documentation", "boolean"),
     };
 
     const listeners = new Map();

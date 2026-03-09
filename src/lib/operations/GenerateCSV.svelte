@@ -1,5 +1,5 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import XLSX from "xlsx";
     import {Base64} from "js-base64";
@@ -7,10 +7,10 @@
 
     const operation = "Generate CSV";
     export const default_extra_options = {
-        input_predicate: '__cell__',
-        echo_input: false,
-        separator: 'TAB',
-        encode_predicate: '__base64__',
+        input_predicate: Option('__cell__', "Predicate containing the cell facts (row, col, value)", "predicate_name"),
+        echo_input: Option(false, "Include the original input in the output", "boolean"),
+        separator: Option('TAB', "Separator for the CSV content (TAB, SPACE, or custom)", "string"),
+        encode_predicate: Option('__base64__', "Predicate to wrap the generated CSV content in", "predicate_name"),
     };
 
     function facts2csv(aoa, options) {

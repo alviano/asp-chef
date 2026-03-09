@@ -1,9 +1,9 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Filter";
     export const default_extra_options = {
-        pattern: '',
+        pattern: Option('', "Regex pattern to filter atoms (case-insensitive)", "string"),
     };
 
     Recipe.register_operation_type(operation, async (input, options) => {

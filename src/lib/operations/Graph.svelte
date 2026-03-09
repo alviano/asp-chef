@@ -1,16 +1,16 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Graph";
     export const default_extra_options = {
-        height: 500,
-        node_radius: 20,
-        predicate: '__graph__',
-        echo: false,
-        search: '',
-        search_color: 'yellow',
-        search_text_color: 'red',
+        height: Option(500, "Height of the graph canvas", "number"),
+        node_radius: Option(20, "Radius of the graph nodes", "number"),
+        predicate: Option('__graph__', "Predicate containing the graph definition", "predicate_name"),
+        echo: Option(false, "Include the graph definition in the output", "boolean"),
+        search: Option('', "Search term to highlight nodes", "string"),
+        search_color: Option('yellow', "Background color for highlighted nodes", "string"),
+        search_text_color: Option('red', "Text color for highlighted nodes", "string"),
     };
 
     const listeners = new Map();
