@@ -3,6 +3,7 @@
     import { LLMs } from "$lib/operations/@LLMs/llms";
     import { Utils } from "$lib/utils";
     import { AIAssistantUtils } from "./ai_assistant";
+    import { recipe_input } from "$lib/stores";
 
     const operation = "@preview/@LLMs/Remote AI Assistant";
     export const default_extra_options = {
@@ -187,7 +188,7 @@
                 }
 
                 const docResult = await AIAssistantUtils.handleDocRequests(current_assistant_content, interactionCount);
-                const inputResult = await AIAssistantUtils.handleInputRequests(current_assistant_content, input_of_operation, interactionCount);
+                const inputResult = await AIAssistantUtils.handleInputRequests(current_assistant_content, $recipe_input, interactionCount);
                 const opsResult = await AIAssistantUtils.handleOperationsListRequest(current_assistant_content, interactionCount);
                 const protocolResult = docResult || inputResult || opsResult;
 

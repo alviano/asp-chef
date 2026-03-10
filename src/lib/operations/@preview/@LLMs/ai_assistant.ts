@@ -6,24 +6,35 @@ export const AIAssistantUtils = {
 You are the "ASP Chef Sous-Chef," a technical assistant for ASP Chef.
 Your goal is to assist users in building, debugging, and optimizing their ASP pipelines (Recipes).
 
+Recipes are made of ingredients performing several kind of operations.
+Every operation manipulates sets of facts, and arbitrary content is Base64-encoded.
+For example, Search Models is used to solve combinatorial problems (full ASP) or to transform atoms (Datalog).
+
+A portion of the recipe is provided in the user message.
+The input of the recipe is not provided automatically, but can be fetched.
+
 ### ROLE & MISSION
 You are a Pipeline Architect and Debugger. You analyze the recipe context and input data to:
 1. Explain the logic of current operations.
 2. Identify errors or mismatches in data flow between steps.
-3. Suggest improvements or new operations to achieve specific goals. For example, use of Search Models to solve combinatorial problems (full ASP) or mapping atoms (Datalog).
+3. Suggest improvements or new operations to achieve specific goals.
 
 ### OPERATIONAL PROTOCOL
-1. **Tools:**
+1. Tools:
+   - Read input: \`SYSTEM: INPUT: <start>-<end>\` (Fetch a snippet of input).
    - Catalog: \`SYSTEM: OPERATIONS: LIST\` (Get a list of available operations).
    - Specs: \`SYSTEM: DOC: <OpName1>, <OpName2>\` (Fetch technical documentation).
-   - Rule: NEVER guess parameters. If an operation is unknown or complex, fetch its documentation.
-   - Read input: \`SYSTEM: INPUT: <start>-<end>\` (Fetch a snippet of input).
 
-2. **Guidelines:**
+2. Guidelines:
+   - NEVER guess parameters. If an operation is unknown or complex, fetch its documentation.
+   - If you need the Input of the recipe, use the appropriate tool.
    - Be technical and precise.
-   - Use Markdown code snippets for code fragments.
    - When suggesting new steps, use the exact name from the operation list.
-   - If you need information from the system, output ONLY the system command first.
+   - Use Markdown code snippets for code fragments.
+   
+### OUTPUT DISCIPLINE (STRICT)
+   - Tool-First: If you decide to call a 'SYSTEM:' command, that MUST be the ONLY content of your response. Do not add conversational text, explanations, or "Here is the documentation" prefixes.
+   - Stop Sequence: Your message is complete the moment the 'SYSTEM:' command is written. Don't write additional content.
     `.trim(),
 
     parseMessage(content: string) {
@@ -151,7 +162,12 @@ You are a Pipeline Architect and Debugger. You analyze the recipe context and in
     },
 
     async fetchDocumentation(operationNames: string) {
-        const names = operationNames.split(',').map((n) => n.trim().replace(/^`|`$/g, ''));
+        const names = operationNames
+            .split(',')
+            .map((n) => n.trim())
+            .filter((n) => n.length > 0)
+            .map((n) => n.replace(/^[`"']|[`"']$/g, '').replace(/[^\w@\/].*$/, ''));
+
         return await Promise.all(
             names.map(async (name) => {
                 try {
@@ -165,9 +181,10 @@ You are a Pipeline Architect and Debugger. You analyze the recipe context and in
     },
 
     async handleDocRequests(content: string, interactionCount: number) {
+        const cleanedContent = content.replace(/<think>[\s\S]*?<\/think>/gi, '');
         const docMatches = [
-            ...content.matchAll(
-                /(?:SYSTEM:\s*)?DOC:\s*((?:`?[^`\n,]+`?(?:\s*,\s*`?[^`\n,]+`?)*))/gi
+            ...cleanedContent.matchAll(
+                /(?:SYSTEM:\s*)?DOC:\s*([@\/\w\s\.\-,\+]+?)(?=\s*(?:SYSTEM:|$|\n|---))/gi
             )
         ];
         if (docMatches.length === 0) return null;
@@ -207,8 +224,9 @@ You are a Pipeline Architect and Debugger. You analyze the recipe context and in
         };
     },
 
-    async handleInputRequests(content: string, input: any[], interactionCount: number) {
-        const inputMatches = [...content.matchAll(/(?:SYSTEM:\s*)?INPUT:\s*(\d+)-(\d+)/gi)];
+    async handleInputRequests(content: string, input: string, interactionCount: number) {
+        const cleanedContent = content.replace(/<think>[\s\S]*?<\/think>/gi, '');
+        const inputMatches = [...cleanedContent.matchAll(/(?:SYSTEM:\s*)?INPUT:\s*(\d+)-(\d+)/gi)];
         if (inputMatches.length === 0) return null;
 
         const newInteractionCount = interactionCount + 1;
@@ -228,14 +246,9 @@ You are a Pipeline Architect and Debugger. You analyze the recipe context and in
             const start = Math.max(0, parseInt(match[1]) - 1);
             const end = parseInt(match[2]);
 
-            // Flatten models into atoms if it's an array of models
-            const allAtoms = input.flat();
-            const snippet = allAtoms
-                .slice(start, end)
-                .map((atom) => atom.str || JSON.stringify(atom))
-                .join('\n');
-
-            systemContent += `SYSTEM: Input atoms ${start + 1} to ${Math.min(end, allAtoms.length)}:\n\n${snippet}\n\n`;
+            const lines = input.split('\n');
+            const to = Math.min(end, lines.length);
+            systemContent += `SYSTEM: Input lines ${start + 1} to ${to}:\n\n${lines.slice(start, to).join('\n')}\n\n`;
         }
 
         return {
@@ -249,7 +262,8 @@ You are a Pipeline Architect and Debugger. You analyze the recipe context and in
     },
 
     async handleOperationsListRequest(content: string, interactionCount: number) {
-        if (!content.match(/(?:SYSTEM:\s*)?OPERATIONS:\s*LIST/gi)) return null;
+        const cleanedContent = content.replace(/<think>[\s\S]*?<\/think>/gi, '');
+        if (!cleanedContent.match(/(?:SYSTEM:\s*)?OPERATIONS:\s*LIST/gi)) return null;
 
         const newInteractionCount = interactionCount + 1;
         if (newInteractionCount > 3) {

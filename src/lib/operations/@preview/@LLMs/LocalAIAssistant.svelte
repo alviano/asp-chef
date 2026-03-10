@@ -3,6 +3,8 @@
     import { CreateServiceWorkerMLCEngine, prebuiltAppConfig } from "@mlc-ai/web-llm";
     import { writable } from "svelte/store";
     import { AIAssistantUtils } from "./ai_assistant";
+    import { recipe_input } from "$lib/stores";
+
     const operation = "@preview/@LLMs/Local AI Assistant";
     export const default_extra_options = {
         model: Option("Qwen3-1.7B-q4f16_1-MLC", "The model ID to use", "string"),
@@ -233,7 +235,7 @@
                 if (pendingClear) break;
 
                 const docResult = await AIAssistantUtils.handleDocRequests(current_assistant_content, interactionCount);
-                const inputResult = await AIAssistantUtils.handleInputRequests(current_assistant_content, input_of_operation, interactionCount);
+                const inputResult = await AIAssistantUtils.handleInputRequests(current_assistant_content, $recipe_input, interactionCount);
                 const opsResult = await AIAssistantUtils.handleOperationsListRequest(current_assistant_content, interactionCount);
                 const protocolResult = docResult || inputResult || opsResult;
 
