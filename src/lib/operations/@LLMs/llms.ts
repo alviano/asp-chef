@@ -64,7 +64,7 @@ export class LLMs {
                         }
                     });
                 } else {
-                    reject(`No API key found for this server: ${server}`);
+                    reject(`No API key found for this server: ${server}.\n\nPlease add it using @LLMs/Register API Key.`);
                 }
             }
         });
@@ -83,7 +83,7 @@ export class LLMs {
             Groq: 2.0,
             Ollama: 1.0,
             OpenAI: 1.0,
-            OpenRouter: 2.0 // float - min 0.0 max 2.0
+            OpenRouter: 2.0,
         };
         const value = (max[server_type] * Math.max(0, Math.min(100, Number(temperature)))) / 100;
         if (server_type === 'Groq' || server_type === 'OpenAI' || server_type === 'OpenRouter') {
