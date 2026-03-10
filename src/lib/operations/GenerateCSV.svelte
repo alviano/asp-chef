@@ -9,7 +9,7 @@
     export const default_extra_options = {
         input_predicate: Option('__cell__', "Predicate containing the cell facts (row, col, value)", "predicate_name"),
         echo_input: Option(false, "Include the original input in the output", "boolean"),
-        separator: Option('TAB', "Separator for the CSV content (TAB, SPACE, or custom)", "string"),
+        separator: Option('TAB', "Separator for the CSV content (TAB, COMMA, SPACE, or custom)", "string"),
         encode_predicate: Option('__base64__', "Predicate to wrap the generated CSV content in", "predicate_name"),
     };
 
@@ -19,6 +19,8 @@
             separator = '\t';
         } else if (separator === 'SPACE') {
             separator = ' ';
+        } else if (separator === 'COMMA') {
+            separator = ',';
         } else if (separator === '') {
             separator = consts.SYMBOLS.MODELS_SEPARATOR;
         }

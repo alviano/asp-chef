@@ -19,6 +19,8 @@
             separator = '\t';
         } else if (separator === 'SPACE') {
             separator = ' ';
+        } else if (separator === 'COMMA') {
+            separator = ',';
         } else if (separator === '') {
             separator = consts.SYMBOLS.MODELS_SEPARATOR;
             content = content.split('\n').map(line => line.split('').join(separator)).join('\n');
