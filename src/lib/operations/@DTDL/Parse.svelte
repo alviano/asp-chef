@@ -1,13 +1,13 @@
 <script context="module">
-    import {Option, Recipe} from "$lib/recipe";
+    import {Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {DTDL} from "$lib/operations/@DTDL/dtdl.js";
     import {Utils} from "$lib/utils.js";
 
     const operation = "@DTDL/Parse";
-    export const default_extra_options = {
-        predicate: Option('__base64__', "Predicate to wrap the parsed DTDL in (Base64)", "predicate_name"),
-        prefix: Option('', "Prefix for parsed labels", "string"),
+    const default_extra_options = {
+        predicate: '__base64__',
+        prefix: '',
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

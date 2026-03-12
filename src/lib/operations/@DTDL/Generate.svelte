@@ -3,10 +3,12 @@
 	import { Base64 } from 'js-base64';
 	import { Utils } from '$lib/utils.js';
 
-	const operation = '@DTDL/Analysis';
+	const operation = '@DTDL/Generate';
 	const default_extra_options = {
 		predicate: '__base64__',
-		prefix: ''
+		predicate_config: '__llms_config__',
+		mode: 'llm', // 'llm', 'template', 'schema'
+		echo: false
 	};
 	const listeners = new Map();
 
@@ -16,16 +18,15 @@
 		} catch (error) {
 			/* component not mounted, possibly because of headless mode */
 		}
-		return options.echo
-			? input
-			: input.map((model) => model.filter((atom) => atom.predicate !== options.predicate));
+		// L'output viene gestito dal componente GenerateView quando l'utente genera
+		return input;
 	});
 </script>
 
 <script>
 	import Operation from '$lib/Operation.svelte';
 	import { onMount, onDestroy } from 'svelte';
-	import AnalysisView from './+Analysis.svelte';
+	import GenerateView from './+Generate.svelte';
 
 	export let id;
 	export let options;
@@ -49,7 +50,7 @@
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
 	<div slot="output">
 		{#key inputData}
-			<AnalysisView {id} {inputData} {options} {index} />
+			<GenerateView {id} {inputData} {options} {index} />
 		{/key}
 	</div>
 </Operation>
