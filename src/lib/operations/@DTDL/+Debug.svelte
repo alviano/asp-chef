@@ -61,13 +61,13 @@
 
     async function tryToFixWithLLM(i) {
         if (!debugData || !debugData.errors || !debugData.errors[i]) {
-            Utils.snackbar('No error information available for this item.');
+            Utils.snackbar('[DTDL/Debug] No error information available for this item.');
             return;
         }
 
         if (!actual_config.api_key || !actual_config.api_key.startsWith('sk-')) {
             Utils.snackbar(
-                'Please enter your OperRouter API key to get suggestions for fixing the error.\nGet it for free at https://openrouter.ai/'
+                '[DTDL/Debug] Please enter your OperRouter API key to get suggestions for fixing the error.\nGet it for free at https://openrouter.ai/'
             );
             return;
         }
@@ -155,7 +155,7 @@
         }
 
         if (config_atoms.length === 0) {
-            Utils.snackbar(`No LLM configuration found. Using default configuration.`);
+            Utils.snackbar(`[DTDL/Debug] No LLM configuration found. Using default configuration.`);
             actual_config = { ...default_config };
         }
 
@@ -171,14 +171,14 @@
             } else if (atom.terms[0].functor === 'temperature') {
                 actual_config.temperature = LLMs.decode_string(atom.terms[1].string);
             } else {
-                //Utils.snackbar(
-                //    `@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`
-                //);
+                Utils.snackbar(
+                    `[DTDL/Debug] Cannot interpret configuration atom ${atom.str}`
+                );
             }
         }
         if (!actual_config.server) {
             Utils.snackbar(
-                `No server specified in configuration. Using default server ${default_config.baseURL}`
+                `[DTDL/Debug] No server specified in configuration. Using default server ${default_config.baseURL}`
             );
             actual_config.server = default_config.baseURL;
         }
@@ -186,7 +186,7 @@
             actual_config.api_key = await LLMs.access_api_key(actual_config.server);
         } catch (error) {
             Utils.snackbar(
-                `Failed to access API key for server ${actual_config.server}. Please make sure you have set it up correctly.`
+                `[DTDL/Debug] Failed to access API key for server ${actual_config.server}. Please make sure you have set it up correctly.`
             );
         }
 

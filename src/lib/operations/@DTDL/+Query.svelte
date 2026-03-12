@@ -62,12 +62,12 @@
 
 	async function executeQuery() {
 		if (!naturalLanguageQuery.trim()) {
-			Utils.snackbar('Please enter a query in natural language.');
+			Utils.snackbar('[DTDL/Query] Please enter a query in natural language.');
 			return;
 		}
 
 		if (!inputData || inputData.length === 0) {
-			Utils.snackbar('No DTDL data available. Make sure to connect @DTDL/Parse output.');
+			Utils.snackbar('[DTDL/Query] No DTDL data available. Make sure to connect @DTDL/Parse output.');
 			return;
 		}
 
@@ -86,7 +86,7 @@
 		// Step 3: Generate natural language answer from results
 		await generateNaturalLanguageAnswer();
 		// } catch (error) {
-		// 	Utils.snackbar(`Query error: ${error.message}`);
+		// 	Utils.snackbar(`[DTDL/Query] Query error: ${error.message}`);
 		// 	console.error(error);
 		// } finally {
 		// 	isProcessing = false;
@@ -96,7 +96,7 @@
 	async function generateASPQuery() {
 		if (!actual_config.api_key || !actual_config.api_key.startsWith('sk-')) {
 			Utils.snackbar(
-				'Please enter your OpenRouter API key. Get it for free at https://openrouter.ai/'
+				'[DTDL/Query] Please enter your OpenRouter API key. Get it for free at https://openrouter.ai/'
 			);
 			return;
 		}
@@ -177,7 +177,7 @@ Now translate this query:`;
 	async function runASPQuery() {
 		if (!inputData || inputData.length === 0) {
 			Utils.snackbar(
-				'No DTDL data available to run the query. Make sure to connect @DTDL/Parse output.'
+				'[DTDL/Query] No DTDL data available to run the query. Make sure to connect @DTDL/Parse output.'
 			);
 			return;
 		}
@@ -221,7 +221,7 @@ Now translate this query:`;
 			!actual_config.api_key.startsWith('sk-')
 		) {
 			Utils.snackbar(
-				'Please enter your OpenRouter API key to generate natural language answers. Get it for free at https://openrouter.ai/'
+				'[DTDL/Query] Please enter your OpenRouter API key to generate natural language answers. Get it for free at https://openrouter.ai/'
 			);
 
 			return;
@@ -275,12 +275,12 @@ Now translate this query:`;
 			} else if (atom.terms[0].functor === 'temperature') {
 				actual_config.temperature = LLMs.decode_string(atom.terms[1].string);
 			} else {
-				// Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`);
+				Utils.snackbar(`[DTDL/Query] Cannot interpret configuration atom ${atom.str}`);
 			}
 		}
 		if (!actual_config.server) {
 			Utils.snackbar(
-				`No server specified in configuration. Using default server ${default_config.baseURL}`
+				`[DTDL/Query] No server specified in configuration. Using default server ${default_config.baseURL}`
 			);
 			actual_config.server = default_config.baseURL;
 		}
@@ -288,7 +288,7 @@ Now translate this query:`;
 			actual_config.api_key = await LLMs.access_api_key(actual_config.server);
 		} catch (error) {
 			Utils.snackbar(
-				`Failed to access API key for server ${actual_config.server}. Please make sure you have set it up correctly.`
+				`[DTDL/Query] Failed to access API key for server ${actual_config.server}. Please make sure you have set it up correctly.`
 			);
 		}
 	}

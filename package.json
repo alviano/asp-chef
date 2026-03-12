@@ -50,6 +50,7 @@
         "@codemirror/lang-python": "^6.2.1",
         "@langchain/core": "^1.1.22",
         "@langchain/openai": "^1.2.7",
+        "@langchain/openrouter": "^0.1.6",
         "@mlc-ai/web-llm": "^0.2.81",
         "@sveltejs/vite-plugin-svelte": "^6.2.4",
         "@sveltestrap/sveltestrap": "^7.1.0",
