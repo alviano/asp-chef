@@ -13,6 +13,7 @@
         processing_index,
         readonly_ingredients,
         recipe,
+        recipe_input,
         show_help,
         show_ingredient_details,
         show_ingredient_headers
@@ -25,7 +26,6 @@
     import {v4 as uuidv4} from 'uuid';
     import {consts} from "$lib/consts";
 
-    let input_value = '';
     let encode_input = false;
     let output_value = [];
     let decode_output = false;
@@ -33,12 +33,12 @@
     let process_timeout = null;
     let processing = false;
 
-    async function update_url(input_value, encode_input, decode_output) {
+    async function update_url(recipe_input, encode_input, decode_output) {
         if (recipe_unsubscribe === null) {
             return;
         }
         await Utils.delay(consts.UPDATE_URL_DELAY)
-        location.hash = Recipe.serialize(input_value, {
+        location.hash = Recipe.serialize(recipe_input, {
             encode_input,
             decode_output,
             show_help: $show_help,
@@ -53,7 +53,7 @@
 
     const lock = new AsyncLock();
     let delayed_process_counter = 0;
-    async function delayed_process(input_value, encode_input, decode_output, pause_baking) {
+    async function delayed_process(recipe_input, encode_input, decode_output, pause_baking) {
         if (recipe_unsubscribe === null) {
             return;
         }
@@ -90,7 +90,7 @@
                 return;
             }
             processing = true;
-            output_value = await Recipe.process(input_value, encode_input);
+            output_value = await Recipe.process(recipe_input, encode_input);
             process_timeout = null;
             processing = false;
         }, $baking_delay);
@@ -107,17 +107,17 @@
 
     Utils.capture_log();
 
-    $: input_value, encode_input, Recipe.invalidate_cached_output(0);
-    $: delayed_process(input_value, encode_input, decode_output, $pause_baking);
+    $: $recipe_input, encode_input, Recipe.invalidate_cached_output(0);
+    $: delayed_process($recipe_input, encode_input, decode_output, $pause_baking);
     $: $show_help, show_operations, show_io_panel,
         $show_ingredient_details, $readonly_ingredients, $show_ingredient_headers, $pause_baking,
-        update_url(input_value, encode_input, decode_output);
+        update_url($recipe_input, encode_input, decode_output);
 
     function reload_recipe() {
         if (location.hash.length > 1) {
             const data = Recipe.deserialize(location.hash.slice(1));
             if (data !== null) {
-                input_value = data.input;
+                $recipe_input = data.input;
                 encode_input = data.encode_input;
                 decode_output = data.decode_output;
                 $show_help = data.show_help;
@@ -134,7 +134,7 @@
 
     function rerun_recipe() {
         Recipe.invalidate_cached_output(0);
-        delayed_process(input_value, encode_input, decode_output, $pause_baking);
+        delayed_process($recipe_input, encode_input, decode_output, $pause_baking);
     }
 
     onMount(() => {
@@ -195,8 +195,8 @@
 
         reload_recipe();
         recipe_unsubscribe = recipe.subscribe(async () => {
-            await update_url(input_value, encode_input, decode_output);
-            await delayed_process(input_value, encode_input, decode_output, $pause_baking);
+            await update_url($recipe_input, encode_input, decode_output);
+            await delayed_process($recipe_input, encode_input, decode_output, $pause_baking);
         });
     }
 
@@ -229,7 +229,7 @@
         {#if show_io_panel}
             <Col class="p-0 vh-100" style="min-width: {$io_panel_width}%; max-width: {$io_panel_width}%; overflow: hidden;">
                 <div bind:this={input_panel_div} style="height: {$input_height}vh; overflow-x: hidden; overflow-y: scroll;">
-                    <InputPanel bind:value={input_value} bind:encode={encode_input} />
+                    <InputPanel bind:value={$recipe_input} bind:encode={encode_input} />
                 </div>
                 <div bind:this={progress_panel_div} data-testid="AspChef-baking-bar">
                     <span class="d-test">{processing ? "Baking..." : "Ready!"}</span>
@@ -243,7 +243,7 @@
                     </Progress>
                 </div>
                 <div bind:this={output_panel_div} style="height: {100 - $input_height}vh; padding-bottom: 1em; overflow-x: hidden; overflow-y: scroll;">
-                    <OutputPanel value={output_value} bind:decode={decode_output} change_input={(value) => input_value = value} />
+                    <OutputPanel value={output_value} bind:decode={decode_output} change_input={(value) => $recipe_input = value} />
                 </div>
             </Col>
         {/if}

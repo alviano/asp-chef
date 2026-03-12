@@ -1,17 +1,17 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Introspection Terms";
-    const default_extra_options = {
-        encode_predicate: '__base64__',
+    export const default_extra_options = {
+        encode_predicate: Option('__at_term__', "Predicate to wrap the generated introspection atoms in", "predicate_name"),
         at_terms: {
-            argument: "argument",
-            arity: "arity",
-            error: "error",
-            error_message: "error_message",
-            functor: "functor",
+            argument: Option("argument", "Functor for the argument property", "function_name"),
+            arity: Option("arity", "Functor for the arity property", "function_name"),
+            error: Option("error", "Functor for the error property", "function_name"),
+            error_message: Option("error_message", "Functor for the error message property", "function_name"),
+            functor: Option("functor", "Functor for the functor property", "function_name"),
         }
     };
 

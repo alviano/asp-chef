@@ -1,60 +1,16 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
     const operation = "GitHub";
-    const default_extra_options = {
-        predicate: '__base64__',
-        url: '',
+    export const default_extra_options = {
+        predicate: Option('__base64__', "Predicate to wrap the fetched GitHub content in", "predicate_name"),
+        url: Option('', "URL of the GitHub file to fetch content from", "string"),
     };
 
     const GITHUB_DOMAIN = consts.GITHUB_DOMAIN;
-
-    async function fetch_content_internal(url, predicate, errors) {
-        const request_options = {
-            cache: Utils.browser_cache_policy,
-            headers: {
-                Accept: "application/vnd.github.raw+json",
-            }
-        };
-        const github_api_token = localStorage.getItem('github-api-token')
-        if (github_api_token) {
-            request_options.headers["Authorization"] = `Bearer ${github_api_token}`;
-        }
-        const response = await fetch(url, request_options);
-        if (response.status !== 200) {
-            const json = await response.json();
-            errors.push(json.message || json);
-            return;
-        }
-        const contentType = response.headers.get("content-type");
-        let content;
-        if (contentType.startsWith("application/json")) {
-            const json = await response.json();
-            content = json.content.replace(/[\n\r]/g, "");
-        } else {
-            const text = await response.text();
-            content = Base64.encode(text);
-        }
-        const encoded_content = `${predicate}("${content}")`;
-        return Utils.parse_atom(encoded_content);
-    }
-
-    async function fetch_content(url, predicate) {
-        let errors = [];
-        let res = await fetch_content_internal(Utils.public_url_github(url), predicate, errors);
-        if (res !== undefined) {
-            return res;
-        }
-        res = await fetch_content_internal(Utils.public_url_github(url, true), predicate, errors);
-        if (res !== undefined) {
-            return res;
-        }
-        throw new Error(errors.join('\n'));
-    }
-
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
         if (options.url === '') {
@@ -78,7 +34,7 @@
                                 url = Utils.public_url_github_from_jsDelivr(url);
                             }
                             if (url.startsWith(`${GITHUB_DOMAIN}/`)) {
-                                new_part.push(await fetch_content(url, options.predicate));
+                                new_part.push(await Utils.fetch_github_content(url, options.predicate));
                             } else {
                                 Recipe.set_errors_at_index(index, `Error: invalid URL, must point to ${GITHUB_DOMAIN}. Forward input.`);
                                 return input;
@@ -89,7 +45,7 @@
                     }
                 }
             } else {
-                const atom = await fetch_content(options.url, options.predicate);
+                const atom = await Utils.fetch_github_content(options.url, options.predicate);
                 res = input.map(part => [...part, atom]);
             }
         } catch (error) {

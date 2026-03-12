@@ -1,7 +1,7 @@
 <script>
     import {TabulatorFull as Tabulator} from 'tabulator-tables';
     import {onMount} from 'svelte';
-    import {Utils} from "$lib/utils.js";
+    import {Utils} from "$lib/utils";
 
     export let model;
 

@@ -9,7 +9,7 @@
         while (window.clingo === undefined) {
             await Utils.delay(100);
         }
-		await window.clingo.init(`${window.location.origin}/dist/clingo.wasm`);
+        await window.clingo.init(`${window.location.origin}/dist/clingo.wasm`);
     }
 
     async function process() {

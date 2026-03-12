@@ -1,14 +1,14 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Intersection";
-    const default_extra_options = {
-        height: 200,
-        rules: '',
-        decode_predicate: '__base64__',
-        echo_encoded_content: false,
+    export const default_extra_options = {
+        height: Option(200, "Height of the rules editor", "number"),
+        rules: Option('', "Rules to use for computing the intersection", "string"),
+        decode_predicate: Option('__base64__', "Predicate to decode (Base64) before adding it to the program", "predicate_name"),
+        echo_encoded_content: Option(false, "Include the original encoded atom in the program", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

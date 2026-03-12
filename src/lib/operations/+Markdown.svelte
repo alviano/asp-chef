@@ -1,13 +1,10 @@
 <script>
-    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
-    import Operation from "$lib/Operation.svelte";
-    import {onDestroy, onMount, tick} from "svelte";
+    import {mount, onMount, tick} from "svelte";
     import {consts} from "$lib/consts";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils";
     import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
     import QrCode from "svelte-qrcode";
-    import { mount } from 'svelte';
 
     export let part;
     export let index;

@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Show";
-    const default_extra_options = {
-        height: 200,
-        rules: '',
+    export const default_extra_options = {
+        height: Option(200, "Height of the rules editor", "number"),
+        rules: Option('', "ASP rules to filter or modify the output (e.g., #show p/1)", "string"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

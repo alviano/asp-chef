@@ -1,17 +1,17 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "@preview/SurveyJS";
-    const default_extra_options = {
-        predicate: "__survey__",
-        output_predicate: "__output__",
+    export const default_extra_options = {
+        predicate: Option("__survey__", "Predicate containing the Survey.js configuration", "predicate_name"),
+        output_predicate: Option("__output__", "Predicate to wrap the survey answers in", "predicate_name"),
         // instance_index: 0,
-        multistage: false,
-        echo: false,
-        show_model_index: false,
-        data: [],
+        multistage: Option(false, "Reiterated expansion of Mustache queries in survey configuration", "boolean"),
+        echo: Option(false, "Include survey configuration in output", "boolean"),
+        show_model_index: Option(false, "Show model index above survey", "boolean"),
+        data: Option([], "Survey answers data", "json"),
     };
 
     const listeners = new Map();

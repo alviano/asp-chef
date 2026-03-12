@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Markdown";
-    const default_extra_options = {
-        predicate: '__base64__',
-        multistage: false,
-        echo: false,
-        show_model_index: false,
+    export const default_extra_options = {
+        predicate: Option("__base64__", "Predicate containing the Markdown content (a Base64-encoded string)", "predicate_name"),
+        multistage: Option(false, "Reiterated expansion of Mustache queries in content", "boolean"),
+        echo: Option(false, "Include content in output", "boolean"),
+        show_model_index: Option(false, "Show model index above content", "boolean"),
     };
 
     const listeners = new Map();

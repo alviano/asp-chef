@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "Nop";
-    const default_extra_options = {
+    export const default_extra_options = {
     };
 
     Recipe.register_operation_type(operation, async (input) => {

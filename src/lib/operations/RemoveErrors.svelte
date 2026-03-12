@@ -1,9 +1,9 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Remove Errors";
-    const default_extra_options = {
-        filter: "",
+    export const default_extra_options = {
+        filter: Option("", "Regex pattern to filter error messages (if matched, error is NOT removed)", "string"),
     };
 
     Recipe.register_operation_type(operation, async (input, options) => {

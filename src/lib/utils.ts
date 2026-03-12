@@ -1,26 +1,28 @@
-import {default as peg} from 'pegjs';
-import {consts} from '$lib/consts';
-import {DOMPurifyConfig, Utils as BaseUtils} from "dumbo-svelte";
+import { default as peg } from 'pegjs';
+import { consts } from '$lib/consts';
+import { DOMPurifyConfig, Utils as BaseUtils } from 'dumbo-svelte';
 import _ from 'lodash';
-import AsyncLock from "async-lock";
+import AsyncLock from 'async-lock';
 // import {run} from 'clingo-wasm'
 import ClingoWorker from '$lib/clingo.worker?worker';
 import JavascriptWorker from '$lib/javascript.worker?worker';
-import {clingo_remote_on, clingo_remote_uuid, processing_index, server_url} from "$lib/stores";
-import {get} from "svelte/store";
-import {Base64} from "js-base64";
-import {v4 as uuidv4} from 'uuid';
-import { toJson } from 'really-relaxed-json';
-import { JSONPath } from "jsonpath-plus";
+import { clingo_remote_on, clingo_remote_uuid, processing_index, server_url } from '$lib/stores';
+import { get } from 'svelte/store';
+import { Base64 } from 'js-base64';
+import { v4 as uuidv4 } from 'uuid';
+import really_relaxed_json from 'really-relaxed-json';
+import { JSONPath } from 'jsonpath-plus';
 import yaml from 'js-yaml';
 
 const dom_purify_config = new DOMPurifyConfig(consts);
+
+const { toJson } = really_relaxed_json;
 
 const originalConsole = {
     uuid: 'a9162e31-3e85-4736-a548-98f38b7bb25e',
     log: console.log,
     warn: console.warn,
-    error: console.error,
+    error: console.error
 };
 
 export class Utils extends BaseUtils {
@@ -29,20 +31,20 @@ export class Utils extends BaseUtils {
     private static _clingo_lock = new AsyncLock();
     private static _clingo_options = new Map();
     private static _clingo_worker = null;
-    private static _browser_cache_policy: RequestCache = "default";
+    private static _browser_cache_policy: RequestCache = 'default';
     private static _worker = null;
 
     private static _BROWSER_CACHE_POLICY_VALUES = {
-        "default" : "Use cache if fresh, otherwise ask for changes",
-        "no-store" : "Don't use or update cache",
-        "reload" : "Don't use cache, but update it",
-        "no-cache" : "Ask for changes",
-        "force-cache" : "Use cache if available",
-        "only-if-cached" : "Use cache if available, otherwise error",
+        default: 'Use cache if fresh, otherwise ask for changes',
+        'no-store': "Don't use or update cache",
+        reload: "Don't use cache, but update it",
+        'no-cache': 'Ask for changes',
+        'force-cache': 'Use cache if available',
+        'only-if-cached': 'Use cache if available, otherwise error'
     };
 
     static get browser_cache_policy_values() {
-        return {...this._BROWSER_CACHE_POLICY_VALUES}
+        return { ...this._BROWSER_CACHE_POLICY_VALUES };
     }
 
     static get browser_cache_policy() {
@@ -51,7 +53,7 @@ export class Utils extends BaseUtils {
 
     static set browser_cache_policy(value: RequestCache) {
         if (!(value in this._BROWSER_CACHE_POLICY_VALUES)) {
-            throw new Error("Invalid value for browser cache policy");
+            throw new Error('Invalid value for browser cache policy');
         }
         this._browser_cache_policy = value;
     }
@@ -70,11 +72,11 @@ export class Utils extends BaseUtils {
 
     static add_copy_button(pre) {
         BaseUtils.add_copy_button(pre);
-        pre.addEventListener("scroll", _ => {
+        pre.addEventListener('scroll', (_) => {
             if (pre.scrollLeft === 0) {
-                pre.classList.remove("scroll");
+                pre.classList.remove('scroll');
             } else {
-                pre.classList.add("scroll");
+                pre.classList.add('scroll');
             }
         });
     }
@@ -96,17 +98,17 @@ export class Utils extends BaseUtils {
             res = event.data.res;
             err = event.data.err;
             this.worker_terminate();
-        }
+        };
         this._worker.onerror = (event) => {
             res = input;
             err = event.message;
             this.worker_terminate();
-        }
+        };
 
         this._worker.postMessage({
             code,
             input,
-            options,
+            options
         });
 
         while (this._worker !== null) {
@@ -114,13 +116,15 @@ export class Utils extends BaseUtils {
         }
 
         if (res === undefined) {
-            err = "Terminated";
+            err = 'Terminated';
         }
 
         if (err) {
             throw new Error(err);
         }
-        return options !== "DESCRIBE" ? res.map(part => part.map(atom => Utils.parse_atom(atom.str))) : res;
+        return options !== 'DESCRIBE'
+            ? res.map((part) => part.map((atom) => Utils.parse_atom(atom.str)))
+            : res;
     }
 
     static get clingo_timeout() {
@@ -164,28 +168,28 @@ export class Utils extends BaseUtils {
 
     static async __remote_clingo(endpoint, data = {}) {
         return fetch(`${get(server_url)}/clingo/${endpoint}/`, {
-            method: "POST",
-            mode: "cors",
+            method: 'POST',
+            mode: 'cors',
             cache: Utils.browser_cache_policy,
-            credentials: "same-origin",
-            headers: new Headers([["Content-Type", "application/json"]]),
+            credentials: 'same-origin',
+            headers: new Headers([['Content-Type', 'application/json']]),
             body: JSON.stringify({
                 uuid: get(clingo_remote_uuid),
-                ...data,
-            }),
+                ...data
+            })
         });
     }
 
     static async __remote_clingo_terminate() {
-        await this.__remote_clingo("terminate");
+        await this.__remote_clingo('terminate');
     }
 
     static async __remote_clingo_run(program: string, number: number, options, timeout: number) {
-        const response = await this.__remote_clingo("run", {
+        const response = await this.__remote_clingo('run', {
             program,
             number,
             options,
-            timeout,
+            timeout
         });
         return await response.json();
     }
@@ -199,25 +203,30 @@ export class Utils extends BaseUtils {
             return new Promise((resolve, reject) => {
                 this._clingo_reject = reject;
                 const timeout = setTimeout(async () => {
-                    await this.clingo_terminate(`Error: TIMEOUT ${the_timeout} seconds (it can be increased with a Set Timeout ingredient)`);
+                    await this.clingo_terminate(
+                        `Error: TIMEOUT ${the_timeout} seconds (it can be increased with a Set Timeout ingredient)`
+                    );
                 }, the_timeout * 1000);
                 const the_options = [
                     ...options,
-                    ...Array.from(this._clingo_options, ([key, value]) => `${key}${value}`),
+                    ...Array.from(this._clingo_options, ([key, value]) => `${key}${value}`)
                 ];
                 if (get(clingo_remote_on)) {
-                    this.__remote_clingo_run(program, number, the_options, the_timeout).then(data => {
-                        clearTimeout(timeout);
-                        delete data.Input;
-                        resolve(data);
-                    });
+                    this.__remote_clingo_run(program, number, the_options, the_timeout).then(
+                        (data) => {
+                            clearTimeout(timeout);
+                            delete data.Input;
+                            resolve(data);
+                        }
+                    );
                 } else {
-                    this._clingo_worker.onmessage = ({data}) => {
+                    this._clingo_worker.onmessage = ({ data }) => {
                         clearTimeout(timeout);
                         resolve(data);
-                    }
+                    };
                     this._clingo_worker.postMessage({
-                        type: 'run', args: [program, number, the_options]
+                        type: 'run',
+                        args: [program, number, the_options]
                     });
                 }
             });
@@ -235,34 +244,49 @@ export class Utils extends BaseUtils {
         }
     }
 
-    static async search_models(program: string, number: number, raises: boolean, include_lua_chef_lib = false) {
-        const result = await this.clingo_run(include_lua_chef_lib ? `${Utils.lua_lib()}\n${program}`: program, number);
+    static async search_models(
+        program: string,
+        number: number,
+        raises: boolean,
+        include_lua_chef_lib = false
+    ) {
+        const result = await this.clingo_run(
+            include_lua_chef_lib ? `${Utils.lua_lib()}\n${program}` : program,
+            number
+        );
         if (result.Result === 'ERROR') {
             throw new Error(result.Error);
         } else if (raises && result.Models.Number !== number) {
             throw new Error(`Expecting ${number} models, found ${result.Models.Number}`);
         } else if (result.Call[0].Witnesses) {
-            return result.Call[0].Witnesses.map(witness => witness.Value);
+            return result.Call[0].Witnesses.map((witness) => witness.Value);
         } else {
             return [];
         }
     }
 
-    static async search_optimal_models(program: string, number: number, raises: boolean, cost_predicate = '') {
-        const result = await this.clingo_run(program, number, [
-            '--opt-mode=optN',
-        ]);
+    static async search_optimal_models(
+        program: string,
+        number: number,
+        raises: boolean,
+        cost_predicate = ''
+    ) {
+        const result = await this.clingo_run(program, number, ['--opt-mode=optN']);
         if (result.Result === 'ERROR') {
             throw new Error(result.Error);
         }
-        const actual_number = result.Models.Optimal !== undefined ? result.Models.Optimal : result.Models.Number;
+        const actual_number =
+            result.Models.Optimal !== undefined ? result.Models.Optimal : result.Models.Number;
         if (raises) {
             if (actual_number !== number) {
-                throw new Error(`Expecting ${number} optimal models, found ${result.Models.Optimal}`);
+                throw new Error(
+                    `Expecting ${number} optimal models, found ${result.Models.Optimal}`
+                );
             }
         }
-        const res = result.Call[0].Witnesses.slice(result.Call[0].Witnesses.length - actual_number)
-            .map(witness => witness.Value);
+        const res = result.Call[0].Witnesses.slice(
+            result.Call[0].Witnesses.length - actual_number
+        ).map((witness) => witness.Value);
         if (number !== 0) {
             while (res.length > number) {
                 res.shift();
@@ -270,17 +294,15 @@ export class Utils extends BaseUtils {
         }
         if (cost_predicate && result.Models.Costs) {
             const costs = result.Models.Costs.join(',');
-            const end = result.Models.Costs.length <= 1 ? "," : "";
+            const end = result.Models.Costs.length <= 1 ? ',' : '';
             const cost_atom = `${cost_predicate}((${costs}${end}))`;
-            res.forEach(model => model.push(cost_atom));
+            res.forEach((model) => model.push(cost_atom));
         }
         return res;
     }
 
     static async cautious_consequences(program: string) {
-        const result = await this.clingo_run(program, 0, [
-            '--enum-mode=cautious'
-        ]);
+        const result = await this.clingo_run(program, 0, ['--enum-mode=cautious']);
         if (result.Result === 'ERROR') {
             throw new Error(result.Error);
         } else if (result.Result === 'UNSATISFIABLE') {
@@ -291,9 +313,7 @@ export class Utils extends BaseUtils {
     }
 
     static async brave_consequences(program: string) {
-        const result = await this.clingo_run(program, 0, [
-            '--enum-mode=brave'
-        ]);
+        const result = await this.clingo_run(program, 0, ['--enum-mode=brave']);
         if (result.Result === 'ERROR') {
             throw new Error(result.Error);
         } else if (result.Result === 'UNSATISFIABLE') {
@@ -308,14 +328,14 @@ export class Utils extends BaseUtils {
         if (result.Result === 'ERROR') {
             throw new Error(result.Error);
         } else {
-            return result.atoms.map(atom => atom.slice(0, -1));
+            return result.atoms.map((atom) => atom.slice(0, -1));
         }
     }
 
-    static predicates(models: string[][]) {
+    static predicates(models: any[][]) {
         const res = new Set();
-        models.forEach(model => {
-            model.forEach(atom => {
+        models.forEach((model) => {
+            model.forEach((atom) => {
                 res.add(atom.predicate || 'CONSTANTS');
             });
         });
@@ -323,7 +343,7 @@ export class Utils extends BaseUtils {
     }
 
     static rename_predicate(atom, predicate: string) {
-        return Utils.parse_atom(atom.str.replace(atom.predicate, predicate))
+        return Utils.parse_atom(atom.str.replace(atom.predicate, predicate));
     }
 
     static is_valid_predicate(pred: string) {
@@ -340,7 +360,7 @@ export class Utils extends BaseUtils {
     }
 
     static parse_atoms(atoms: string[]) {
-        return atoms.map(atom => this.parse_atom(atom));
+        return atoms.map((atom) => this.parse_atom(atom));
     }
 
     static async parse_answer_set(atoms: string) {
@@ -348,16 +368,17 @@ export class Utils extends BaseUtils {
     }
 
     static flatten_output(output_value, empty_model = 'EMPTY MODEL') {
-        return output_value.map(atoms =>
-            atoms.length === 0 ? empty_model :
-                atoms.map(atom => atom.str + '.')
-                .join('\n')).join('\n' + consts.SYMBOLS.MODELS_SEPARATOR +'\n');
+        return output_value
+            .map((atoms) =>
+                atoms.length === 0 ? empty_model : atoms.map((atom) => atom.str + '.').join('\n')
+            )
+            .join('\n' + consts.SYMBOLS.MODELS_SEPARATOR + '\n');
     }
 
     static keep_occurrences(input_string, regex) {
         const res = [];
         let last_index = 0;
-        [...input_string.matchAll(regex)].map(match => {
+        [...input_string.matchAll(regex)].map((match) => {
             const index = match.index || 0;
             res.push(consts.SYMBOLS.MODELS_SEPARATOR.repeat(index - last_index));
             res.push(match[0]);
@@ -371,9 +392,61 @@ export class Utils extends BaseUtils {
         return consts.HACK_MD_DOMAIN + new URL(url).pathname + '/download';
     }
 
-    static public_url_github(url, use_jsDelivr) {
+    private static async __fetch_github_content_internal(url, predicate, errors) {
+        const request_options = {
+            cache: Utils.browser_cache_policy,
+            headers: {
+                Accept: 'application/vnd.github.raw+json'
+            }
+        };
+        const github_api_token = localStorage.getItem('github-api-token');
+        if (github_api_token) {
+            request_options.headers['Authorization'] = `Bearer ${github_api_token}`;
+        }
+        const response = await fetch(url, request_options);
+        if (response.status !== 200) {
+            const json = await response.json();
+            errors.push(json.message || json);
+            return;
+        }
+        const contentType = response.headers.get('content-type');
+        let content;
+        if (contentType.startsWith('application/json')) {
+            const json = await response.json();
+            content = json.content.replace(/[\n\r]/g, '');
+        } else {
+            const text = await response.text();
+            content = Base64.encode(text);
+        }
+        if (predicate) {
+            const encoded_content = `${predicate}("${content}")`;
+            return Utils.parse_atom(encoded_content);
+        } else {
+            return content;
+        }
+    }
+
+    static async fetch_github_content(url, predicate = null, url_is_public = false) {
+        const the_url = url_is_public ? url : Utils.public_url_github(url);
+        let errors = [];
+        let res = await this.__fetch_github_content_internal(the_url, predicate, errors);
+        if (res !== undefined) {
+            return res;
+        }
+        res = await this.__fetch_github_content_internal(the_url, predicate, errors);
+        if (res !== undefined) {
+            return res;
+        }
+        throw new Error(errors.join('\n'));
+    }
+
+    static public_url_github(url, use_jsDelivr = false) {
         const the_url = new URL(url);
-        const [_, user, repo, blob, version, file] = this.split_with_limit(the_url.pathname, '/', 6);
+        const [_, user, repo, blob, version, file] = this.split_with_limit(
+            the_url.pathname,
+            '/',
+            6
+        );
         if (!use_jsDelivr) {
             return `${consts.GITHUB_API_DOMAIN}/repos/${user}/${repo}/contents/${file || ''}`;
         } else if (blob === undefined) {
@@ -396,7 +469,7 @@ export class Utils extends BaseUtils {
         } else if (url.startsWith(consts.GITHUB_DOMAIN)) {
             return this.public_url_github(url);
         }
-        throw new Error("Unknown domain: " + url);
+        throw new Error('Unknown domain: ' + url);
     }
 
     static split_with_limit(str: string, sep: string, limit: number) {
@@ -411,11 +484,11 @@ export class Utils extends BaseUtils {
 
     static check_one_term_string(atom, index) {
         if (!atom.terms || atom.terms.length !== 1) {
-            Utils.snackbar(`Wrong number of terms in #${index}: ${atom.str}`)
+            Utils.snackbar(`Wrong number of terms in #${index}: ${atom.str}`);
             return false;
         } else if (atom.terms[0].string === undefined) {
-            Utils.snackbar(`Wrong argument in #${index}: ${atom.str}`)
-            return false
+            Utils.snackbar(`Wrong argument in #${index}: ${atom.str}`);
+            return false;
         } else {
             return true;
         }
@@ -424,19 +497,20 @@ export class Utils extends BaseUtils {
     static compare_jsons(a, b) {
         if (a === b) return true;
         if (typeof a !== typeof b) return false;
-        if (typeof a !== "object" || a === null || b === null) return false;
+        if (typeof a !== 'object' || a === null || b === null) return false;
 
         const keysA = Object.keys(a);
         const keysB = Object.keys(b);
         if (keysA.length !== keysB.length) return false;
 
-        return keysA.every(key => this.compare_jsons(a[key], b[key]));
+        return keysA.every((key) => this.compare_jsons(a[key], b[key]));
     }
 
     static async expand_mustache_queries(part, message, index, multistage = false) {
         if (!multistage) return this.__process_mustache(part, message, index);
 
-        let current = message, previous;
+        let current = message,
+            previous;
         do {
             previous = current;
             current = await this.__process_mustache(part, current, index);
@@ -456,12 +530,12 @@ export class Utils extends BaseUtils {
         const persistent_atoms = [];
 
         for (const node of ast.body) {
-            if (["Text", "Literal", "MultilineString", "FString"].includes(node.type)) {
+            if (['Text', 'Literal', 'MultilineString', 'FString'].includes(node.type)) {
                 buffer.push(this.__node_to_string(node));
                 continue;
             }
 
-            if (node.type === "Reset") {
+            if (node.type === 'Reset') {
                 persistent_atoms.length = 0;
                 continue;
             }
@@ -470,39 +544,38 @@ export class Utils extends BaseUtils {
             const program = this.__build_asp_program(part, node, code);
             const models = await Utils.search_models(program, 1, true, true);
 
-            if (models.length !== 1) throw Error(`#${index}. Expected 1 model, found ${models.length}`);
+            if (models.length !== 1)
+                throw Error(`#${index}. Expected 1 model, found ${models.length}`);
 
-            if (node.type === "Persistent") {
+            if (node.type === 'Persistent') {
                 persistent_atoms.push(...models[0]);
             } else {
                 const context = [...persistent_atoms, ...models[0]];
                 buffer.push(Utils.markdown_process_match(part, context, index));
             }
         }
-        return buffer.join("");
+        return buffer.join('');
     }
 
     static __node_to_string(node) {
-        if (node.type === "FString") return this.__process_fstring(node);
-        if (node.type === "MultilineString") return `"${this.__escape_string(node.value)}"`;
-        if (node.type === 'Expression') return this.__reconstruct_code(node.terms).replaceAll('"','');
+        if (node.type === 'FString') return this.__process_fstring(node);
+        if (node.type === 'MultilineString') return `"${this.__escape_string(node.value)}"`;
+        if (node.type === 'Expression')
+            return this.__reconstruct_code(node.terms).replaceAll('"', '');
         return node.value;
     }
 
     static __reconstruct_code(parts) {
-        if (!parts) return "";
-        return parts.map(p => this.__node_to_string(p)).join("");
+        if (!parts) return '';
+        return parts.map((p) => this.__node_to_string(p)).join('');
     }
 
     static __escape_string(str) {
-        return str
-            .replaceAll('\\', '\\\\')
-            .replaceAll('"', '\\"')
-            .replaceAll('\n', '\\n');
+        return str.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n');
     }
 
     static __process_fstring(node) {
-        let format_string = "";
+        let format_string = '';
         const args = [];
 
         for (const part of node.parts) {
@@ -531,39 +604,42 @@ export class Utils extends BaseUtils {
     }
 
     static __reconstruct_fstring(node) {
-        let raw_content = "";
+        let raw_content = '';
 
         for (const p of node.parts) {
-            if (p.type === "Literal") {
+            if (p.type === 'Literal') {
                 raw_content += p.value;
-            } else if (p.type === "Variable") {
-                const fmt = p.format === "%s" ? "" : p.format;
+            } else if (p.type === 'Variable') {
+                const fmt = p.format === '%s' ? '' : p.format;
                 raw_content += `\${${p.name}${fmt}}`;
-            } else if (p.type === "FString") {
+            } else if (p.type === 'FString') {
                 raw_content += this.__reconstruct_fstring(p);
             }
         }
 
         return `{{f"${raw_content}"}}`;
-	}
+    }
 
     static __build_asp_program(part, node, code_str) {
-        const base = part.map(a => a.predicate || a.functor ? `${a.str}.` : `__const__(${a.str}).`).join('\n');
-        let logic = "", show = "";
+        const base = part
+            .map((a) => (a.predicate || a.functor ? `${a.str}.` : `__const__(${a.str}).`))
+            .join('\n');
+        let logic = '',
+            show = '';
 
         switch (node.type) {
-            case "Expression":
+            case 'Expression':
                 const terms = this.__reconstruct_code(node.terms).trim();
 
                 if (node.code && node.code.length > 0) {
-                        const body = this.__reconstruct_code(node.code).trim();
-                        show = `#show ${terms} : ${body}.`;
+                    const body = this.__reconstruct_code(node.code).trim();
+                    show = `#show ${terms} : ${body}.`;
                 } else {
-                        show = `#show ${terms}.`;
+                    show = `#show ${terms}.`;
                 }
                 break;
 
-            case "Persistent":
+            case 'Persistent':
                 show = `#show ${code_str.trim()}.`;
                 break;
 
@@ -576,7 +652,18 @@ export class Utils extends BaseUtils {
 
     static markdown_process_match(part, query_answer, index) {
         const output_predicates = [
-            'base64', 'qrcode', 'png', 'gif', 'jpeg', 'th', 'tr', 'ol', 'ul', 'matrix', 'tree', 'json'
+            'base64',
+            'qrcode',
+            'png',
+            'gif',
+            'jpeg',
+            'th',
+            'tr',
+            'ol',
+            'ul',
+            'matrix',
+            'tree',
+            'json'
         ];
 
         let matrix = null;
@@ -588,12 +675,16 @@ export class Utils extends BaseUtils {
 
         const replacement = [];
         let output_atoms = [];
-        Utils.parse_atoms(query_answer).forEach(atom => {
+        Utils.parse_atoms(query_answer).forEach((atom) => {
             if (atom.functor === undefined && atom.predicate === undefined) {
                 atom.functor = '';
                 atom.terms = [atom];
             }
-            if (atom.functor === '' || atom.predicate === 'show' || output_predicates.includes(atom.predicate)) {
+            if (
+                atom.functor === '' ||
+                atom.predicate === 'show' ||
+                output_predicates.includes(atom.predicate)
+            ) {
                 output_atoms.push(atom);
             } else if (atom.predicate === 'prefix') {
                 if (this.check_one_term_string(atom, index)) {
@@ -614,18 +705,23 @@ export class Utils extends BaseUtils {
             } else if (atom.predicate === 'sort') {
                 if (atom.terms.length === 0) {
                     Utils.snackbar(`Wrong number of terms in \#${index}: ${atom.str}`);
-                } else if (atom.terms.filter(term => term.number === undefined || term.number === 0).length > 0) {
+                } else if (
+                    atom.terms.filter((term) => term.number === undefined || term.number === 0)
+                        .length > 0
+                ) {
                     Utils.snackbar(`Wrong term in \#${index}. Markdown: ${atom.str}`);
                 } else {
-                    sort.push(atom.terms.map(term => term.number));
+                    sort.push(atom.terms.map((term) => term.number));
                 }
             } else {
-                Utils.snackbar(`Unknown predicate in \#${index}: ${atom.predicate} - Should you try (TERM,)?`);
+                Utils.snackbar(
+                    `Unknown predicate in \#${index}: ${atom.predicate} - Should you try (TERM,)?`
+                );
             }
         });
-        sort.forEach(terms => {
-            const comparator = terms.map(sort_index => {
-                return atom => {
+        sort.forEach((terms) => {
+            const comparator = terms.map((sort_index) => {
+                return (atom) => {
                     if (!atom.terms) {
                         return undefined;
                     }
@@ -637,13 +733,17 @@ export class Utils extends BaseUtils {
                     } else {
                         return term.str;
                     }
-                }
+                };
             });
-            output_atoms = _.orderBy(output_atoms, comparator, terms.map(sort_index => sort_index > 0 ? "asc" : "desc"));
+            output_atoms = _.orderBy(
+                output_atoms,
+                comparator,
+                terms.map((sort_index) => (sort_index > 0 ? 'asc' : 'desc'))
+            );
         });
 
         // handle show atoms
-        output_atoms = output_atoms.map(atom => {
+        output_atoms = output_atoms.map((atom) => {
             if (atom.predicate !== 'show') {
                 return atom;
             }
@@ -664,7 +764,7 @@ export class Utils extends BaseUtils {
 
         // handle tree atoms
         const trees = new Map();
-        output_atoms = output_atoms.filter(atom => {
+        output_atoms = output_atoms.filter((atom) => {
             if (atom.predicate !== 'tree') {
                 return true;
             }
@@ -679,8 +779,8 @@ export class Utils extends BaseUtils {
                     nodes: {},
                     links: {},
                     root: null,
-                    children_on: "{CHILDREN}",
-                    separator: ", ",
+                    children_on: '{CHILDREN}',
+                    separator: ', '
                 });
             }
             if (atom.terms.length === 1) {
@@ -717,7 +817,7 @@ export class Utils extends BaseUtils {
         });
 
         // handle json atoms
-        output_atoms = output_atoms.filter(atom => {
+        output_atoms = output_atoms.filter((atom) => {
             if (atom.predicate !== 'json') {
                 return true;
             }
@@ -725,33 +825,41 @@ export class Utils extends BaseUtils {
                 Utils.snackbar(`Invalid atom in \#${index}: ${atom.str}`);
                 return false;
             }
-            
+
             return true;
         });
 
         // sort atoms
-        output_atoms = _.orderBy(output_atoms, [atom => {
-            if (atom.predicate === 'th') {
-                return 0;
-            } else if (atom.predicate === 'tr') {
-                return 1;
+        output_atoms = _.orderBy(output_atoms, [
+            (atom) => {
+                if (atom.predicate === 'th') {
+                    return 0;
+                } else if (atom.predicate === 'tr') {
+                    return 1;
+                }
             }
-        }]);
+        ]);
 
-        output_atoms.forEach(atom => {
-            const terms = atom.terms.map(term => term.string !== undefined ? this.replace_escaped_chars(term.string) : term.str);
+        output_atoms.forEach((atom) => {
+            const terms = atom.terms.map((term) =>
+                term.string !== undefined ? this.replace_escaped_chars(term.string) : term.str
+            );
             if (atom.functor === '') {
                 replacement.push(prefix + terms.join(term_separator) + suffix);
             } else if (atom.predicate === 'base64') {
-                replacement.push(`${prefix}${terms.map(term => Base64.decode(term)).join(term_separator)}${suffix}`);
+                replacement.push(
+                    `${prefix}${terms.map((term) => Base64.decode(term)).join(term_separator)}${suffix}`
+                );
             } else if (atom.predicate === 'tree') {
                 if (atom.terms.length >= 2 && atom.terms[1].functor === 'root') {
                     const tree = trees.get(atom.terms[0].str);
 
                     function tree_string(node: string) {
                         const res = tree.nodes[node];
-                        const replacement = !tree.links[node] || tree.links[node].length === 0 ? '' :
-                            tree.links[node].map(tree_string).join(tree.separator);
+                        const replacement =
+                            !tree.links[node] || tree.links[node].length === 0
+                                ? ''
+                                : tree.links[node].map(tree_string).join(tree.separator);
                         return res.replace(tree.children_on, replacement);
                     }
 
@@ -769,34 +877,67 @@ export class Utils extends BaseUtils {
                 } else {
                     try {
                         const json_objects = JSON.parse(Base64.decode(atom.terms[0].string));
-                        const result = JSONPath({ path: atom.terms[1].string, json: json_objects })[0];
-                        const mapper = atom.terms.length === 2 ? res => `${res}` :
-                                res => `${atom.terms[2].str}(${/^\p{Lu}/u.test(res) ? '"' + res.replaceAll('"', '\\"') + '"' : res}).`;
+                        const result = JSONPath({
+                            path: atom.terms[1].string,
+                            json: json_objects
+                        })[0];
+                        const mapper =
+                            atom.terms.length === 2
+                                ? (res) => `${res}`
+                                : (res) =>
+                                      `${atom.terms[2].str}(${/^\p{Lu}/u.test(res) ? '"' + res.replaceAll('"', '\\"') + '"' : res}).`;
                         if (Array.isArray(result)) {
-                            result.forEach(res => replacement.push(mapper(res)));
+                            result.forEach((res) => replacement.push(mapper(res)));
                         } else {
                             replacement.push(mapper(result));
                         }
                     } catch (error) {
-                        Utils.snackbar(`Wrong terms in #${index}. (Markdown?): ${atom.str}\n${error}`);
+                        Utils.snackbar(
+                            `Wrong terms in #${index}. (Markdown?): ${atom.str}\n${error}`
+                        );
                     }
                 }
-            } else if (atom.predicate === 'png' || atom.predicate === 'gif' || atom.predicate === 'jpeg') {
+            } else if (
+                atom.predicate === 'png' ||
+                atom.predicate === 'gif' ||
+                atom.predicate === 'jpeg'
+            ) {
                 if (atom.terms.length !== 1) {
                     Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
                 } else {
-                    replacement.push(`${prefix}![](data:image/${atom.predicate};base64,${terms.join(term_separator)})${suffix}`);
+                    replacement.push(
+                        `${prefix}![](data:image/${atom.predicate};base64,${terms.join(term_separator)})${suffix}`
+                    );
                 }
             } else if (atom.predicate === 'th') {
-                replacement.push('|' + atom.terms.map((term, index) =>
-                    term.terms === undefined ? terms[index] :
-                        term.terms[0].string !== undefined ? term.terms[0].string : term.terms[0].str
-                ).join('|') + '|');
-                replacement.push('|' + atom.terms.map((term) =>
-                    term.terms === undefined ? ":-" :
-                        term.functor === 'center' ? ":-:" :
-                            term.functor === 'right' ? "-:" : "-"
-                ).join('|') + '|');
+                replacement.push(
+                    '|' +
+                        atom.terms
+                            .map((term, index) =>
+                                term.terms === undefined
+                                    ? terms[index]
+                                    : term.terms[0].string !== undefined
+                                      ? term.terms[0].string
+                                      : term.terms[0].str
+                            )
+                            .join('|') +
+                        '|'
+                );
+                replacement.push(
+                    '|' +
+                        atom.terms
+                            .map((term) =>
+                                term.terms === undefined
+                                    ? ':-'
+                                    : term.functor === 'center'
+                                      ? ':-:'
+                                      : term.functor === 'right'
+                                        ? '-:'
+                                        : '-'
+                            )
+                            .join('|') +
+                        '|'
+                );
             } else if (atom.predicate === 'tr') {
                 replacement.push(`|${terms.join('|')}|`);
             } else if (atom.predicate === 'ul') {
@@ -808,7 +949,7 @@ export class Utils extends BaseUtils {
                     matrix = [];
                 }
                 if (atom.terms.length < 3) {
-                    Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`)
+                    Utils.snackbar(`Wrong number of terms in #${index}. Markdown: ${atom.str}`);
                 } else {
                     const row = atom.terms[0].number;
                     const col = atom.terms[1].number;
@@ -818,30 +959,39 @@ export class Utils extends BaseUtils {
                         matrix.push([]);
                     }
                     while (matrix[row].length < col) {
-                        matrix[row].push("");
+                        matrix[row].push('');
                     }
                     while (matrix[0].length < col) {
-                        matrix[0].push("");
+                        matrix[0].push('');
                     }
 
-                    matrix[row][col-1] = value;
+                    matrix[row][col - 1] = value;
                 }
             }
         });
         if (matrix !== null) {
-            replacement.push(matrix.map((row, index) => {
-                let res = "|" + row.join("|") + "|";
-                if (index === 0) {
-                    res += "\n|" + row.map(() => "-").join("|") + "|";
-                }
-                return res;
-            }).join("\n"));
+            replacement.push(
+                matrix
+                    .map((row, index) => {
+                        let res = '|' + row.join('|') + '|';
+                        if (index === 0) {
+                            res += '\n|' + row.map(() => '-').join('|') + '|';
+                        }
+                        return res;
+                    })
+                    .join('\n')
+            );
         }
         return replacement.join(separator);
     }
 
     static replace_escaped_chars(str: string) {
-        return str.replaceAll("\\n", "\n").replaceAll("\\r", "\t").replaceAll("\\t", "\t").replaceAll("\\\"", "\"").replaceAll("\\\\", "\\");
+        return str
+            .replaceAll('\\n', '\n')
+            .replaceAll('\\r', '\t')
+            .replaceAll('\\t', '\t')
+            .replaceAll('\\"', '"')
+            .replaceAll('\\\\', '\\');
     }
 
     static uuid() {
@@ -853,13 +1003,10 @@ export class Utils extends BaseUtils {
     }
 
     static lua_lib() {
-        return [
-            this.lua_lib_string(),
-            this.lua_lib_expression(),
-        ].join('\n\n');
+        return [this.lua_lib_string(), this.lua_lib_expression()].join('\n\n');
     }
 
-    static lua_lib_string(prefix = "string_") {
+    static lua_lib_string(prefix = 'string_') {
         return `
 #script (lua)
 
@@ -966,7 +1113,7 @@ end
         `.trim();
     }
 
-    static lua_lib_expression(prefix = "expr") {
+    static lua_lib_expression(prefix = 'expr') {
         return `
 #script (lua)
 
@@ -1041,21 +1188,29 @@ end
 
     static capture_log() {
         // if already called, return immediately
+        // @ts-ignore
         if (console.uuid === originalConsole.uuid) {
             return;
         }
+        // @ts-ignore
         console.uuid = originalConsole.uuid;
 
-        window.onerror = function(message, source, lineno, colno, error) {
-            console.error(`Global Error Caught: ${message}`, {message, source, lineno, colno, error});
+        window.onerror = function (message, source, lineno, colno, error) {
+            console.error(`Global Error Caught: ${message}`, {
+                message,
+                source,
+                lineno,
+                colno,
+                error
+            });
             return true;
         };
-        window.onunhandledrejection = function(event) {
-            console.error("Unhandled Promise Rejection:", event.reason);
+        window.onunhandledrejection = function (event) {
+            console.error('Unhandled Promise Rejection:', event.reason);
         };
 
         let log_where = -1;
-        processing_index.subscribe((value) => log_where = value + 1);
+        processing_index.subscribe((value) => (log_where = value + 1));
 
         function formatArgs(args) {
             if (args.length === 0) return [];
@@ -1065,22 +1220,36 @@ end
             let mainString = args[0]; // Base string
             let argIndex = 1; // Track argument position
 
-            if (typeof mainString !== "string") {
-                return args.map(arg => ({ text: JSON.stringify(arg, null, 2), style: "" }));
+            if (typeof mainString !== 'string') {
+                return args.map((arg) => ({ text: JSON.stringify(arg, null, 2), style: '' }));
             }
 
-            let formattedString = mainString.replace(/%([sdfoOc])/sg, (match, specifier) => {
+            let formattedString = mainString.replace(/%([sdfoOc])/gs, (match, specifier) => {
                 if (argIndex >= args.length) return match; // No corresponding argument
 
                 let replacement;
                 switch (specifier) {
-                    case "s": replacement = String(args[argIndex]); break;
-                    case "d": replacement = parseInt(args[argIndex]); break;
-                    case "f": replacement = parseFloat(args[argIndex]).toFixed(2); break;
-                    case "o": replacement = args[argIndex].outerHTML || "[DOM Element]"; break;
-                    case "O": replacement = JSON.stringify(args[argIndex], null, 2); break;
-                    case "c": styles.push(args[argIndex]); argIndex++; return "%c";
-                    default: replacement = args[argIndex];
+                    case 's':
+                        replacement = String(args[argIndex]);
+                        break;
+                    case 'd':
+                        replacement = parseInt(args[argIndex]);
+                        break;
+                    case 'f':
+                        replacement = parseFloat(args[argIndex]).toFixed(2);
+                        break;
+                    case 'o':
+                        replacement = args[argIndex].outerHTML || '[DOM Element]';
+                        break;
+                    case 'O':
+                        replacement = JSON.stringify(args[argIndex], null, 2);
+                        break;
+                    case 'c':
+                        styles.push(args[argIndex]);
+                        argIndex++;
+                        return '%c';
+                    default:
+                        replacement = args[argIndex];
                 }
                 argIndex++;
                 return replacement;
@@ -1089,8 +1258,8 @@ end
             let parts = formattedString.split('%c');
             let styleIndex = 0;
 
-            parts.forEach(part => {
-                output.push({ text: part, style: styles[styleIndex++] || "" });
+            parts.forEach((part) => {
+                output.push({ text: part, style: styles[styleIndex++] || '' });
             });
 
             return output;
@@ -1098,9 +1267,9 @@ end
 
         function logToPage(type, ...args) {
             const formattedMessages = formatArgs(args);
-            const logEntry = document.createElement("div");
+            const logEntry = document.createElement('div');
             formattedMessages.forEach(({ text, style }) => {
-                const span = document.createElement("span");
+                const span = document.createElement('span');
                 span.textContent = text;
                 if (style) span.style = style;
                 logEntry.appendChild(span);
@@ -1109,50 +1278,48 @@ end
             Utils.snackbar(`${type.toUpperCase()} - #${log_where}`, {
                 body: logEntry.outerHTML,
                 html_body: true,
-                position: "is-bottom-left",
-                color: type === "warn" ? "warning" :
-                    type === "error" ? "danger" : "info",
+                position: 'is-bottom-left',
+                color: type === 'warn' ? 'warning' : type === 'error' ? 'danger' : 'info'
             });
         }
 
         // Override console methods
         console.log = (...args) => {
             originalConsole.log(...args);
-            logToPage("log", ...args);
-            originalConsole.log(Error().stack)
+            logToPage('log', ...args);
+            originalConsole.log(Error().stack);
         };
 
         console.warn = (...args) => {
             originalConsole.warn(...args);
-            logToPage("warn", ...args);
+            logToPage('warn', ...args);
         };
 
         console.error = (...args) => {
             originalConsole.error(...args);
-            logToPage("error", ...args);
+            logToPage('error', ...args);
         };
     }
 
-
-
     static download(obj, filename) {
-		let dataStr = '';
-		let type = filename.endsWith('.json') ? 'json' : 'yaml';
+        let dataStr = '';
+        let type = filename.endsWith('.json') ? 'json' : 'yaml';
 
-		if (type === 'json') {
-			dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj, null, 2));
-		} else {
-			const yamlData = yaml.dump(obj);
-			dataStr = 'data:text/yaml;charset=utf-8,' + encodeURIComponent(yamlData);
-		}
+        if (type === 'json') {
+            dataStr =
+                'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj, null, 2));
+        } else {
+            const yamlData = yaml.dump(obj);
+            dataStr = 'data:text/yaml;charset=utf-8,' + encodeURIComponent(yamlData);
+        }
 
-		const downloadAnchorNode = document.createElement('a');
-		downloadAnchorNode.setAttribute('href', dataStr);
-		downloadAnchorNode.setAttribute('download', filename);
-		document.body.appendChild(downloadAnchorNode);
-		downloadAnchorNode.click();
-		downloadAnchorNode.remove();
-	}
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute('href', dataStr);
+        downloadAnchorNode.setAttribute('download', filename);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
 }
 
 const GRAMMAR = `
@@ -1267,4 +1434,3 @@ LiteralContent
 `;
 
 const MUSTACHE_PARSER = peg.generate(MUSTACHE_GRAMMAR);
-

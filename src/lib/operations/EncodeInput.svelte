@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
     const operation = "Encode Input";
-    const default_extra_options = {
-        predicate: '__base64__',
-        echo_input: false,
+    export const default_extra_options = {
+        predicate: Option('__base64__', "Predicate to wrap the encoded input in", "predicate_name"),
+        echo_input: Option(false, "Include the original input in the output", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

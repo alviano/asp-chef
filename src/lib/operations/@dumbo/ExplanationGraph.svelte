@@ -1,17 +1,17 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/Explanation Graph";
-    const default_extra_options = {
-        program_predicate: '__program__',
-        answer_set_predicate: '__answer_set__',
-        herbrand_base_predicate: '__herbrand_base__',
-        query_predicate: '__query__',
-        pus_predicate: '',
-        as_forest: false,
-        url_predicate: '__url__',
+    export const default_extra_options = {
+        program_predicate: Option('__program__', "Predicate containing the program (Base64 JSON)", "predicate_name"),
+        answer_set_predicate: Option('__answer_set__', "Predicate containing the answer set atoms", "predicate_name"),
+        herbrand_base_predicate: Option('__herbrand_base__', "Predicate containing the Herbrand Base", "predicate_name"),
+        query_predicate: Option('__query__', "Predicate containing the query atom", "predicate_name"),
+        pus_predicate: Option('', "Predicate containing the PUS atoms (optional)", "predicate_name"),
+        as_forest: Option(false, "Generate graph as a forest (multiple trees)", "boolean"),
+        url_predicate: Option('__url__', "Predicate to wrap the generated graph URL in", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

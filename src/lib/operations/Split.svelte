@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Split";
-    const default_extra_options = {
-        predicate: '__model__',
+    export const default_extra_options = {
+        predicate: Option('__model__', "Predicate to split models by (models will be grouped by its second term)", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

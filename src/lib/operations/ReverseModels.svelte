@@ -3,7 +3,7 @@
     import _ from 'lodash';
 
     const operation = "Reverse Models";
-    const default_extra_options = {
+    export const default_extra_options = {
     };
 
     const listeners = new Map();

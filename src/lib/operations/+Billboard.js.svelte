@@ -1,6 +1,6 @@
 <script>
-	import "billboard.js/dist/billboard.css";
-	import bb from 'billboard.js/dist/billboard.pkgd';
+    import "billboard.js/dist/billboard.css";
+    import bb from "billboard.js/dist/billboard.pkgd";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {onMount} from "svelte";
@@ -15,12 +15,12 @@
     onMount(async () => {
         let atom = configuration_atom;
         if (atom.terms.length !== 1) {
-            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. billboard.js`);
+            Utils.snackbar(`Unexpected predicate ${atom.predicate}/${atom.terms.length} in #${index + 1}. Billboard.js`);
             return;
         }
         atom = atom.terms[0];
         if (atom.string === undefined) {
-            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. billboard.js`);
+            Utils.snackbar(`Unexpected non-string argument in #${index + 1}. Billboard.js`);
             return;
         }
 
@@ -33,7 +33,7 @@
                 bindto: chart,
             });
         } catch (err) {
-            Utils.snackbar(`#${index + 1}. billboard.js: ${err}`);
+            Utils.snackbar(`#${index + 1}. Billboard.js: ${err}`);
         }
     });
 </script>

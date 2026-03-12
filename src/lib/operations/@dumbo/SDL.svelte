@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/SDL";
-    const default_extra_options = {
-        program_predicate: '__program__',
+    export const default_extra_options = {
+        program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

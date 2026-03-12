@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
     const operation = "HackMD";
-    const default_extra_options = {
-        predicate: '__base64__',
-        url: '',
+    export const default_extra_options = {
+        predicate: Option('__base64__', "Predicate to wrap the fetched HackMD content in", "predicate_name"),
+        url: Option('', "URL of the HackMD note to fetch content from", "string"),
     };
 
     const HACK_MD_DOMAIN = consts.HACK_MD_DOMAIN;

@@ -5,11 +5,11 @@
 
 
     const operation = "@LLMs/Unregister API Keys";
-    const default_extra_options = {
+    export const default_extra_options = {
     };
 
     const listeners = new Map();
-    
+
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
         try {
             listeners.get(id)(input);

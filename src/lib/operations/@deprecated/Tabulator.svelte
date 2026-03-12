@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe.js";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "@deprecated/Tabulator";
-    const default_extra_options = {
-        predicate: "__tab__",
-        echo: false,
-        show_model_index: false,
+    export const default_extra_options = {
+        predicate: Option("__tab__", "Predicate containing the table configuration (Base64 JSON)", "predicate_name"),
+        echo: Option(false, "Include table configuration in output", "boolean"),
+        show_model_index: Option(false, "Show model index above table", "boolean"),
     };
 
     const listeners = new Map();

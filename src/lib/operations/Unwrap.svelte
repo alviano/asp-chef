@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Unwrap";
-    const default_extra_options = {
-        predicate: '__atom__',
+    export const default_extra_options = {
+        predicate: Option('__atom__', "The predicate to unwrap (the first term will be extracted)", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

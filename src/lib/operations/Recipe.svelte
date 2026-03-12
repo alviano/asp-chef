@@ -1,14 +1,14 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {consts} from "$lib/consts";
     import {Utils} from "$lib/utils";
 
     const operation = "Recipe";
-    const default_extra_options = {
-        name: '',
-        url: '',
-        locked: false,
-        predicate_mapping: [],
+    export const default_extra_options = {
+        name: Option('', "The name of the remote recipe", "string"),
+        url: Option('', "The URL of the remote recipe", "string"),
+        locked: Option(false, "Whether the recipe is locked for editing", "boolean"),
+        predicate_mapping: Option([], "List of predicate mappings for the recipe", "[predicate_name, predicate_name][]"),
     };
 
     const listeners = new Map();

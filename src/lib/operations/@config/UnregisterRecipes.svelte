@@ -2,7 +2,7 @@
     import {Recipe} from "$lib/recipe";
 
     const operation = "@config/Unregister Recipes";
-    const default_extra_options = {
+    export const default_extra_options = {
     };
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {

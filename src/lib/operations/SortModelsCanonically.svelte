@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import _ from 'lodash';
 
     const operation = "Sort Models Canonically";
-    const default_extra_options = {
-        ignored_predicates: [],
+    export const default_extra_options = {
+        ignored_predicates: Option([], "List of predicates to ignore when checking for consecutive uniqueness", "predicate_name[]"),
     };
 
     const listeners = new Map();
@@ -64,7 +64,7 @@
     <div class="m-3">
         <Label>Excluded predicates</Label>
         {#each input_predicates as predicate}
-            <div on:click={() => toggle_predicate(predicate)} on:keydown={() => {}}>
+            <div role="button" tabindex="0" on:click={() => toggle_predicate(predicate)} on:keydown={() => {}}>
                 <InputGroup>
                     <Input type="switch" checked="{options.ignored_predicates.includes(predicate)}"/>
                     <Label>{predicate}</Label>

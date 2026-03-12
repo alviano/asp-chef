@@ -1,16 +1,16 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import XLSX from "xlsx";
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
     const operation = "Parse CSV";
-    const default_extra_options = {
-        decode_predicate: '__base64__',
-        echo_encoded_content: false,
-        separator: 'TAB',
-        output_predicate: '__cell__',
+    export const default_extra_options = {
+        decode_predicate: Option('__base64__', "Predicate containing the Base64-encoded CSV content to parse", "predicate_name"),
+        echo_encoded_content: Option(false, "Include the original encoded atom in the output", "boolean"),
+        separator: Option('TAB', "Separator for the CSV content (TAB, SPACE, or custom)", "string"),
+        output_predicate: Option('__cell__', "Predicate to use for the generated cell facts", "predicate_name"),
     };
 
     function csv2facts(content, options) {
@@ -19,6 +19,8 @@
             separator = '\t';
         } else if (separator === 'SPACE') {
             separator = ' ';
+        } else if (separator === 'COMMA') {
+            separator = ',';
         } else if (separator === '') {
             separator = consts.SYMBOLS.MODELS_SEPARATOR;
             content = content.split('\n').map(line => line.split('').join(separator)).join('\n');

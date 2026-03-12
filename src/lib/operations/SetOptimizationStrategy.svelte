@@ -1,17 +1,7 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
-    const operation = "Set Optimization Strategy";
-    const default_extra_options = {
-        algorithm: 'usc,k',
-        disjoint: true,
-        succinct: false,
-        stratify: true,
-        k_parameter: 0,
-        shrink_algorithm: 'rgs',
-        shrink_limit: 0,
-    };
 
     const algorithms = {
         "bb,lin" : "Model-guided optimization with Basic lexicographical descent",
@@ -37,6 +27,17 @@
         "rgs" : "Repeated geometric sequence until unsat",
         "exp" : "Exponential search until unsat",
         "min" : "Linear search for subset minimal core",
+    };
+
+    const operation = "Set Optimization Strategy";
+    export const default_extra_options = {
+        algorithm: Option('usc,k', "The optimization algorithm to use", Object.keys(algorithms).join('|')),
+        disjoint: Option(true, "Enable disjoint-core preprocessing", "boolean"),
+        succinct: Option(false, "Avoid redundant (symmetry) constraints", "boolean"),
+        stratify: Option(true, "Use stratification heuristic for handling weights", "boolean"),
+        k_parameter: Option(0, "The k parameter for the usc,k algorithm", "number"),
+        shrink_algorithm: Option('rgs', "The algorithm to use for core shrinking", Object.keys(shrink_algorithms).join('|')),
+        shrink_limit: Option(0, "The maximum number of conflicts for core shrinking", "number"),
     };
 
     Recipe.register_operation_type(operation, async (input, options) => {

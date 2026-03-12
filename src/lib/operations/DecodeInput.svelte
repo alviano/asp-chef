@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {consts} from "$lib/consts";
 
     const operation = "Decode Input";
-    const default_extra_options = {
-        predicate: '__base64__',
-        echo: false,
-        include_others: false,
+    export const default_extra_options = {
+        predicate: Option('__base64__', "Predicate containing the Base64-encoded input to decode", "predicate_name"),
+        echo: Option(false, "Include the original atom in the output", "boolean"),
+        include_others: Option(false, "Include other atoms (not matching the predicate) in the output", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

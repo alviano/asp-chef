@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Symmetric Closure";
-    const default_extra_options = {
-        input_predicate: 'input_predicate',
-        closure_predicate: 'closure_predicate',
-        encode_predicate: '__base64__',
+    export const default_extra_options = {
+        input_predicate: Option('input_predicate', "Predicate representing the input relation", "predicate_name"),
+        closure_predicate: Option('closure_predicate', "Predicate representing the symmetric closure relation", "predicate_name"),
+        encode_predicate: Option('__base64__', "Predicate to wrap the generated ASP program in", "predicate_name"),
     };
 
     const listeners = new Map();

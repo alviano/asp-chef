@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe.js";
+    import {Option, Recipe} from "$lib/recipe.js";
 
     const operation = "Tabulator";
-    const default_extra_options = {
-        predicate: "__tab__",
-        multistage: false,
-        echo: false,
-        show_model_index: false,
+    export const default_extra_options = {
+        predicate: Option("__tab__", "Predicate containing the Tabulator configuration (a Base64-encoded JSON)", "predicate_name"),
+        multistage: Option(false, "Reiterated expansion of Mustache queries in configuration", "boolean"),
+        echo: Option(false, "Include configuration in output", "boolean"),
+        show_model_index: Option(false, "Show model index above table", "boolean"),
     };
 
     const listeners = new Map();

@@ -1,10 +1,10 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "@config/Register Recipes";
-    const default_extra_options = {
-        predicate: '__base64__',
-        prefix: 'user',
+    export const default_extra_options = {
+        predicate: Option('__base64__', "Predicate containing the recipes list (Base64)", "predicate_name"),
+        prefix: Option('user', "Prefix for the remote operations names", "string"),
     };
 
     const listeners = new Map();

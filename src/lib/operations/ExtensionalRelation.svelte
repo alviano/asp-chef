@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Extensional Relation";
-    const default_extra_options = {
-        height: 200,
-        predicate: '__edb__',
-        instances: '',
+    export const default_extra_options = {
+        height: Option(200, "Height of the editor", "number"),
+        predicate: Option('__edb__', "Predicate for the extensional relation", "predicate_name"),
+        instances: Option('', "Instances of the extensional relation (one per line)", "string"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

@@ -1,9 +1,9 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "Output";
-    const default_extra_options = {
-        height: 200,
+    export const default_extra_options = {
+        height: Option(200, "Height of the output container", "number"),
     };
 
     const listeners = new Map();

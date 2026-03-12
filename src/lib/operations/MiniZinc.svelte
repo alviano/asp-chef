@@ -1,19 +1,19 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
     import { Model } from 'https://cdn.jsdelivr.net/npm/minizinc/dist/minizinc.mjs';
 
     const operation = "MiniZinc";
-    const default_extra_options = {
-        height: 200,
-        model: '',
-        number: 1,
-        raises: true,
-        decode_predicate: '__base64__',
-        input_predicate: '__input__',
-        output_predicate: '__output__',
-        echo: false,
+    export const default_extra_options = {
+        height: Option(200, "Height of the result container", "number"),
+        model: Option('', "MiniZinc model code", "string"),
+        number: Option(1, "Number of models to search for", "number"),
+        raises: Option(true, "Whether to report errors", "boolean"),
+        decode_predicate: Option('__base64__', "Predicate to decode from Base64 before adding it to the MiniZinc data", "predicate_name"),
+        input_predicate: Option('__input__', "Predicate containing input data for MiniZinc", "predicate_name"),
+        output_predicate: Option('__output__', "Predicate to use for output values from MiniZinc", "predicate_name"),
+        echo: Option(false, "Include the input data in the output", "boolean"),
     };
 
     function process_output_value(value) {

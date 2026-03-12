@@ -1,13 +1,13 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
 
     const operation = "Lua @-terms";
-    const default_extra_options = {
-        height: 200,
-        content: '',
-        encode_predicate: '__base64__',
+    export const default_extra_options = {
+        height: Option(200, "Height of the result container", "number"),
+        content: Option('', "Lua @-terms definitions", "string"),
+        encode_predicate: Option('__base64__', "Predicate to wrap the definitions in (Base64)", "predicate_name"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {

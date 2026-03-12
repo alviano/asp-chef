@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
-    const operation = "C Three.js";
-    const default_extra_options = {
-        predicate: "__chart__",
-        multistage: false,
-        echo: false,
-        show_model_index: false,
+    const operation = "@deprecated/CThree.js";
+    export const default_extra_options = {
+        predicate: Option("__chart__", "Predicate containing the chart configuration (Base64 JSON)", "predicate_name"),
+        multistage: Option(false, "Reiterated expansion of Mustache queries in chart configuration", "boolean"),
+        echo: Option(false, "Include chart configuration in output", "boolean"),
+        show_model_index: Option(false, "Show model index above chart", "boolean"),
     };
 
     const listeners = new Map();
@@ -23,7 +23,7 @@
     import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
-    import C3JS from "./+CThree.js.svelte";
+    import BillboardJs from "../+Billboard.js.svelte";
 
     export let id;
     export let options;
@@ -64,7 +64,7 @@
                 {/if}
                 {#key model}
                     {#each model.filter(atom => atom.predicate === options.predicate) as configuration}
-                        <C3JS part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
+                        <BillboardJs part="{model}" index="{index}" configuration_atom="{configuration}" multistage="{options.multistage}" />
                     {/each}
                 {/key}
             {/each}

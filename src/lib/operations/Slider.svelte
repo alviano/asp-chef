@@ -1,14 +1,14 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Slider";
-    const default_extra_options = {
-        output_predicate: '__slider__',
-        value: 1,
-        min: 1,
-        max: 10,
-        label: "",
+    export const default_extra_options = {
+        output_predicate: Option('__slider__', "Predicate to wrap the slider value in", "predicate_name"),
+        value: Option(1, "The current value of the slider", "number"),
+        min: Option(1, "The minimum value of the slider. If a predicate name is provided, its first term is used.", "number|predicate_name"),
+        max: Option(10, "The maximum value of the slider. If a predicate name is provided, its first term is used.", "number|predicate_name"),
+        label: Option("", "The label to display for the slider", "string"),
     };
 
     const listeners = new Map();

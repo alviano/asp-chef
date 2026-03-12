@@ -1,11 +1,11 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
 
     const operation = "@config/Register Javascript";
-    const default_extra_options = {
-        local: '__local__',
-        url: '__url__',
-        prefix: 'user',
+    export const default_extra_options = {
+        local: Option('__local__', "Predicate containing the local Javascript code (Base64)", "predicate_name"),
+        url: Option('__url__', "Predicate or URL(s) of the Javascript operation to register", "string"),
+        prefix: Option('user', "Prefix for the remote operation name", "string"),
     };
 
     const listeners = new Map();
@@ -20,7 +20,7 @@
 </script>
 
 <script>
-    import {Badge, Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
     import Operation from "$lib/Operation.svelte";
     import {onDestroy, onMount} from "svelte";
     import {Utils} from "$lib/utils";

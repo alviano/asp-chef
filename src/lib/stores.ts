@@ -34,6 +34,7 @@ export const github_api_token = writable((browser ? localStorage.getItem('github
 export const github_username = writable((browser ? localStorage.getItem('github-username') : '') || '');
 export const github_repository = writable((browser ? localStorage.getItem('github-repository') : '') || '');
 export const github_path = writable((browser ? localStorage.getItem('github-slug') : '') || '');
+export const recipe_input = writable('');
 
 privacy_policy.subscribe(value => {
   if (value) {

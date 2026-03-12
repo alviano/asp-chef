@@ -1,12 +1,12 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
 
     const operation = "Timer";
-    const default_extra_options = {
-        seconds: 5,
-        output_predicate: "__timer__",
-        active: true,
+    export const default_extra_options = {
+        seconds: Option(5, "The interval in seconds for the timer", "number"),
+        output_predicate: Option("__timer__", "Predicate to wrap the timer value in", "predicate_name"),
+        active: Option(true, "Whether the timer is currently active", "boolean"),
     };
 
     const intervals = new Map();

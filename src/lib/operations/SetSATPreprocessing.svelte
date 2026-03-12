@@ -1,17 +1,17 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
-
-    const operation = "Set SAT Preprocessing";
-    const default_extra_options = {
-        value: '2',
-    };
 
     const values = {
         "1" : "Variable elimination with subsumption (VE)",
         "2" : "VE with limited blocked clause elimination (BCE)",
         "3" : "Full BCE followed by VE",
         "no": "Disable"
+    };
+
+    const operation = "Set SAT Preprocessing";
+    export const default_extra_options = {
+        value: Option('2', "The level of SAT preprocessing to apply in Clingo", Object.keys(values).join('|')),
     };
 
     Recipe.register_operation_type(operation, async (input, options) => {

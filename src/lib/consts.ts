@@ -7,7 +7,7 @@ export const consts = {
     'http',  // allow any HTTP link
   ],
   PURIFY_ALLOWED_TAGS: 'a blockquote body br code em h1 h2 h3 h4 h5 h6 hr img li ol p pre span strong table tbody td th thead tr ul #text'.split(' '),
-  PURIFY_ALLOWED_ATTR: 'alt class href src style title'.split(' '),
+  PURIFY_ALLOWED_ATTR: 'alt class href src start style title'.split(' '),
   OPERATIONS_PANEL_MIN_VALUE: 10,
   OPERATIONS_PANEL_MAX_VALUE: 33,
   OPERATIONS_PANEL_DEFAULT_VALUE: 15,

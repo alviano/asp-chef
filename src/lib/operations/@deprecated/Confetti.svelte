@@ -1,17 +1,17 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe.js";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
 
     const operation = "@deprecated/Confetti";
-    const default_extra_options = {
-        height: 200,
-        config_predicate: '__confetti__',
-        echo: false,
-        config: `{
+    export const default_extra_options = {
+        height: Option(200, "Height of the configuration editor", "number"),
+        config_predicate: Option('__confetti__', "Predicate to trigger confetti with (JSON terms)", "predicate_name"),
+        echo: Option(false, "Include the original atom in the output", "boolean"),
+        config: Option(`{
   "particleCount": 100,
   "spread": 70,
   "origin": { "y": 0.6 }
-}`,
+}`, "Default confetti configuration (JSON)", "string"),
     };
 
     let confetti = null;

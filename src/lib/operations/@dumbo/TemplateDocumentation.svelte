@@ -1,16 +1,16 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Base64} from "js-base64";
     import {Utils} from "$lib/utils";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
 
     const operation = "@dumbo/Template Documentation";
-    const default_extra_options = {
-        height: 500,
-        filter: "",
-        show_rules: false,
-        output_predicate: "",
-		custom_template_input_predicate: "",
+    export const default_extra_options = {
+        height: Option(500, "Height of the result container", "number"),
+        filter: Option("", "Regex filter for template names", "string"),
+        show_rules: Option(false, "Whether to show template rules in the documentation", "boolean"),
+        output_predicate: Option("", "Predicate to wrap the generated documentation in", "predicate_name"),
+        custom_template_input_predicate: Option("", "Custom predicate for template input (overrides default)", "predicate_name"),
     };
 
     const listeners = new Map();
@@ -54,7 +54,7 @@
     let output_div;
 
     let templates = [];
-	let localCustomTemplates = new Map();
+    let localCustomTemplates = new Map();
 
     function edit() {
         Recipe.edit_operation(id, index, options);
@@ -69,26 +69,26 @@
             if (!output_div) {
                 return;
             }
-			const program = options.custom_template_input_predicate ?
-				input.flatMap(part =>
-					part.filter(atom => atom.predicate === options.custom_template_input_predicate))
-						.map(atom => Base64.decode(atom.terms[0].str)
-					) : [];
-			try {
-				localCustomTemplates = new Map();
-				if (program.length > 0) {
-					const response = await Dumbo.fetch('template/parse-custom-template/', { program: program.join('\n') });
-					for (const [name, template] of Object.entries(response)) {
-						const predicates = template.predicates.map(pred => `\`${pred}\``).join(', ');
-						template.documentation = `__Predicates:__ ${predicates}\n\n` + template.documentation.replaceAll('\n', '\n\n').replaceAll('\\n', '\n');
-						localCustomTemplates.set(name, template);
-					}
-					localCustomTemplates = new Map(localCustomTemplates);
-				}
-			}
-			catch (error) {
-				Recipe.set_errors_at_index(index, error);
-			}
+            const program = options.custom_template_input_predicate ?
+                input.flatMap(part =>
+                    part.filter(atom => atom.predicate === options.custom_template_input_predicate))
+                        .map(atom => Base64.decode(atom.terms[0].str)
+                    ) : [];
+            try {
+                localCustomTemplates = new Map();
+                if (program.length > 0) {
+                    const response = await Dumbo.fetch('template/parse-custom-template/', { program: program.join('\n') });
+                    for (const [name, template] of Object.entries(response)) {
+                        const predicates = template.predicates.map(pred => `\`${pred}\``).join(', ');
+                        template.documentation = `__Predicates:__ ${predicates}\n\n` + template.documentation.replaceAll('\n', '\n\n').replaceAll('\\n', '\n');
+                        localCustomTemplates.set(name, template);
+                    }
+                    localCustomTemplates = new Map(localCustomTemplates);
+                }
+            }
+            catch (error) {
+                Recipe.set_errors_at_index(index, error);
+            }
             await tick();
             Array.from(output_div.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
         });
@@ -100,23 +100,23 @@
 </script>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-	<InputGroup>
-		<InputGroupText style="width: 10em;">Templates Library</InputGroupText>
-		<Input type="text"
-			   bind:value="{options.custom_template_input_predicate}"
-			   placeholder="predicate"
-			   on:input={edit}
-		/>
-		<InputGroupText>Height</InputGroupText>
-		<Input type="number"
-			   bind:value={options.height}
-			   min="20"
-			   step="20"
-			   style="max-width: 5em;"
-			   on:input={edit}
-		/>
-		<Button outline="{!options.show_rules}" on:click={() => { options.show_rules = !options.show_rules; edit(); }}>Show Rules</Button>
-	</InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 10em;">Templates Library</InputGroupText>
+        <Input type="text"
+               bind:value="{options.custom_template_input_predicate}"
+               placeholder="predicate"
+               on:input={edit}
+        />
+        <InputGroupText>Height</InputGroupText>
+        <Input type="number"
+               bind:value={options.height}
+               min="20"
+               step="20"
+               style="max-width: 5em;"
+               on:input={edit}
+        />
+        <Button outline="{!options.show_rules}" on:click={() => { options.show_rules = !options.show_rules; edit(); }}>Show Rules</Button>
+    </InputGroup>
     <InputGroup>
         <InputGroupText style="width: 10em;">Output predicate</InputGroupText>
         <Input type="text"
@@ -146,19 +146,19 @@
             </div>
             <hr />
         {/each}
-		{#if localCustomTemplates.size > 0}
-			<h1>Custom Templates</h1>
-			{#each Array.from(localCustomTemplates.entries()) as [key, template]}
-				<div style="margin: 0.5em">
-					<h3>{key}</h3>
-					{@html Utils.render_markdown(template.documentation)}
-					{#if options.show_rules}
-						<h4>Template Rules</h4>
-						{@html Utils.render_markdown('```asp\n' + template.program + '\n```')}
-					{/if}
-				</div>
-				<hr />
-			{/each}
-		{/if}
+        {#if localCustomTemplates.size > 0}
+            <h1>Custom Templates</h1>
+            {#each Array.from(localCustomTemplates.entries()) as [key, template]}
+                <div style="margin: 0.5em">
+                    <h3>{key}</h3>
+                    {@html Utils.render_markdown(template.documentation)}
+                    {#if options.show_rules}
+                        <h4>Template Rules</h4>
+                        {@html Utils.render_markdown('```asp\n' + template.program + '\n```')}
+                    {/if}
+                </div>
+                <hr />
+            {/each}
+        {/if}
     </div>
 </Operation>

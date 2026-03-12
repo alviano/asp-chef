@@ -1,17 +1,17 @@
 <script context="module">
-    import {Recipe} from "$lib/recipe";
+    import {Option, Recipe} from "$lib/recipe";
     import {Utils} from "$lib/utils";
     import {Base64} from "js-base64";
-	import { json } from '@codemirror/lang-json';
-	import { python } from '@codemirror/lang-python';
-	import { javascript } from '@codemirror/lang-javascript';
+    import { json } from '@codemirror/lang-json';
+    import { python } from '@codemirror/lang-python';
+    import { javascript } from '@codemirror/lang-javascript';
 
     const operation = "Encode";
-    const default_extra_options = {
-        height: 200,
-        predicate: '__base64__',
-        content: '',
-        language: '',
+    export const default_extra_options = {
+        height: Option(200, "Height of the editor", "number"),
+        predicate: Option('__base64__', "Predicate to wrap the encoded content in", "predicate_name"),
+        content: Option('', "Content to encode", "string"),
+        language: Option('', "Language of the content (for syntax highlighting)", "string"),
     };
 
     const languages = new Map();
