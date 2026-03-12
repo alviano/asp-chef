@@ -171,9 +171,9 @@
             } else if (atom.terms[0].functor === 'temperature') {
                 actual_config.temperature = LLMs.decode_string(atom.terms[1].string);
             } else {
-                Utils.snackbar(
-                    `@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`
-                );
+                //Utils.snackbar(
+                //    `@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`
+                //);
             }
         }
         if (!actual_config.server) {

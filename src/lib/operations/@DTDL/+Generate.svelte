@@ -115,7 +115,7 @@
 				} else if (atom.terms[0].functor === 'temperature') {
 					actual_config.temperature = LLMs.decode_string(atom.terms[1].string);
 				} else {
-					Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`);
+					// Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`);
 				}
 			}
 		}
@@ -877,16 +877,6 @@ completeness_score(Score) :-
 	{#if activeTab === 'llm'}
 		<!-- LLM Generation Tab -->
 		<div class="pt-3">
-			<Alert color="info" fade={false} class="mb-3">
-				<strong>Recommended models:</strong> This feature works best with <strong>chat/instruct models</strong> like:
-				<ul class="mb-0 mt-1" style="font-size: 0.875rem;">
-					<li><code>meta-llama/llama-3.1-8b-instruct</code> (fast, good quality)</li>
-					<li><code>google/gemini-2.0-flash-exp:free</code> (free, very capable)</li>
-					<li><code>qwen/qwq-32b-preview</code> (best reasoning)</li>
-				</ul>
-				Avoid code completion models (like <code>qwen/qwen2.5-coder-7b-instruct</code>) as they may produce malformed output.
-			</Alert>
-
 			<div class="mb-3">
 				<Label>Describe your DTDL model in natural language:</Label>
 				<Input
@@ -971,9 +961,9 @@ completeness_score(Score) :-
 						<hr style="margin: 0.5rem 0;" />
 						<small>
 							<strong>Possible causes:</strong><br />
-							• Using a code completion model instead of a chat model<br />
-							• Model returned malformed output with special tokens<br />
-							• Check the "Raw LLM Output" section to see what was returned
+							- Using a code completion model instead of a chat model<br />
+							- Model returned malformed output with special tokens<br />
+							- Check the "Raw LLM Output" section to see what was returned
 						</small>
 					</Alert>
 				{/if}
@@ -1124,7 +1114,7 @@ completeness_score(Score) :-
 				<Card class="mb-3">
 					<CardBody>
 						<div class="d-flex justify-content-between align-items-center mb-2">
-							<CardTitle class="mb-0">🔧 Properties</CardTitle>
+							<CardTitle class="mb-0">Properties</CardTitle>
 							<Button size="sm" color="success" on:click={addProperty} disabled={isProcessing}>
 								Add
 							</Button>
@@ -1189,7 +1179,7 @@ completeness_score(Score) :-
 				<Card class="mb-3">
 					<CardBody>
 						<div class="d-flex justify-content-between align-items-center mb-2">
-							<CardTitle class="mb-0">⚡ Commands</CardTitle>
+							<CardTitle class="mb-0">Commands</CardTitle>
 							<Button size="sm" color="success" on:click={addCommand} disabled={isProcessing}>
 								Add
 							</Button>

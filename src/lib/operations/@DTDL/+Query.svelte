@@ -275,7 +275,7 @@ Now translate this query:`;
 			} else if (atom.terms[0].functor === 'temperature') {
 				actual_config.temperature = LLMs.decode_string(atom.terms[1].string);
 			} else {
-				Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`);
+				// Utils.snackbar(`@LLMs/Chat Completion: Cannot interpret configuration atom ${atom.str}`);
 			}
 		}
 		if (!actual_config.server) {
@@ -324,14 +324,7 @@ Now translate this query:`;
 </script>
 
 <div class="container-fluid my-3">
-	<div class="card">
-		<div class="card-header bg-primary text-white">
-			<h5 class="mb-0">
-				<i class="bi bi-search"></i>
-				DTDL Query - Natural Language to ASP
-			</h5>
-		</div>
-		<div class="card-body">
+		<div>
 			<!-- API Key Configuration -->
 			<Alert color="info" class="mb-3">
 				<strong>Configuration:</strong> Make sure to add an
@@ -420,7 +413,6 @@ Now translate this query:`;
 				<Alert color="warning">No results found for this query.</Alert>
 			{/if}
 		</div>
-	</div>
 </div>
 
 <style>
