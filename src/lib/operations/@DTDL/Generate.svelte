@@ -1,14 +1,14 @@
 <script context="module">
-    import { Recipe } from '$lib/recipe';
+    import { Option, Recipe } from '$lib/recipe';
     import { Base64 } from 'js-base64';
     import { Utils } from '$lib/utils.js';
 
     const operation = '@DTDL/Generate';
     const default_extra_options = {
-        predicate: '__base64__',
-        predicate_config: '__llms_config__',
-        mode: 'llm', // 'llm', 'template', 'schema'
-        echo: false
+        mode: Option("llm", "", "string"), // 'llm', 'template', 'schema'
+        predicate: Option("__base64__", "Predicate containing the natural language query (a Base64-encoded string)", "predicate_name"),
+		predicate_config: Option("__llms_config__", "Predicate containing the LLMs configuration (a Base64-encoded string)", "predicate_name"),
+		echo: Option(false, "Whether to keep the query atoms in the output", "boolean")
     };
     const listeners = new Map();
 

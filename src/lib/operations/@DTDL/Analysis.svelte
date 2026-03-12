@@ -2,11 +2,11 @@
     import { Recipe } from '$lib/recipe';
     import { Base64 } from 'js-base64';
     import { Utils } from '$lib/utils.js';
-
+    import {Option} from "$lib/recipe";
     const operation = '@DTDL/Analysis';
-    const default_extra_options = {
-        predicate: '__base64__',
-        prefix: ''
+    export const default_extra_options = {
+        predicate: Option("__base64__", "Predicate containing the Markdown content (a Base64-encoded string)", "predicate_name"),
+        prefix: Option('', "Prefix to add to all output lines (e.g., for better formatting in the console)", "string"),
     };
     const listeners = new Map();
 

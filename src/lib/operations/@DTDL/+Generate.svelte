@@ -1,27 +1,25 @@
 <script>
-	import {
-		Button,
-		ButtonGroup,
-		Input,
-		Spinner,
-		Alert,
-		Card,
-		CardBody,
-		CardTitle,
-		Nav,
-		NavItem,
-		NavLink,
-		Label,
-		FormGroup
-	} from '@sveltestrap/sveltestrap';
-	import { onMount } from 'svelte';
-	import { Base64 } from 'js-base64';
-	import { Utils } from '$lib/utils.js';
-	import { Recipe } from '$lib/recipe';
-	import { LLMs } from '$lib/operations/@LLMs/llms';
-	import { ChatOpenAI } from '@langchain/openai';
-	import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 	import { DTDL } from '$lib/operations/@DTDL/dtdl.js';
+	import { LLMs } from '$lib/operations/@LLMs/llms';
+	import { Utils } from '$lib/utils.js';
+	import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+	import { ChatOpenAI } from '@langchain/openai';
+	import {
+	    Alert,
+	    Button,
+	    ButtonGroup,
+	    Card,
+	    CardBody,
+	    CardTitle,
+	    Input,
+	    Label,
+	    Nav,
+	    NavItem,
+	    NavLink,
+	    Spinner
+	} from '@sveltestrap/sveltestrap';
+	import { Base64 } from 'js-base64';
+	import { onMount } from 'svelte';
 	export let id;
 	export let inputData;
 	export let options;
@@ -321,7 +319,7 @@ Extract only what is explicitly mentioned. Do not add extra features.`;
 		const aspProgram = generateConstraintProgram(extracted);
 
 		try {
-			const result = await Recipe.run_clingo(aspProgram, ['0']);
+			const result = await Utils.search_model(aspProgram);
 
 			if (!result.Result || result.Result === 'UNSATISFIABLE') {
 				throw new Error('Generated structure violates DTDL constraints');
@@ -404,10 +402,10 @@ dtmi_id(I, ID) :-
 					return `Consider adding telemetry: ${atom}`;
 				}
 				if (atom.startsWith('needs_unit')) {
-					return `⚠️ Missing unit annotation: ${atom}`;
+					return `Missing unit annotation: ${atom}`;
 				}
 				if (atom.startsWith('dtmi_id')) {
-					return `🔖 Generated ID: ${atom}`;
+					return `Generated ID: ${atom}`;
 				}
 				return atom;
 			})
@@ -483,9 +481,9 @@ ${constraints}`;
 		console.log('LLM Response:', response.content);
 
 		// Store raw output for debugging
-		rawLLMOutput = response.content;
+		rawLLMOutput = typeof response.content === 'string' ? response.content : JSON.stringify(response.content);
 
-		const jsonString = extractJSON(response.content);
+		const jsonString = extractJSON(typeof response.content === 'string' ? response.content : JSON.stringify(response.content));
 
 		if (!jsonString) {
 			console.error('Could not extract JSON from LLM response');
@@ -584,7 +582,7 @@ completeness_score(Score) :-
 #show completeness_score/1.
 `;
 
-			const result = await Recipe.run_clingo(qualityProgram, ['0']);
+			const result = await Utils.search_models(qualityProgram, 1, false);
 			const atoms = result.Call?.[0]?.Witnesses?.[0]?.Value || [];
 
 			const scoreAtom = atoms.find((a) => a.startsWith('completeness_score'));
@@ -621,7 +619,7 @@ completeness_score(Score) :-
 			const atom = Utils.parse_atom(`${options.predicate}("${encoded}")`);
 
 			// Update recipe output at this operation's index
-			Recipe.set_output_at_index(index, [[atom]]);
+			Utils.to_index_map(atom, [['atom']],  index);
 
 			Utils.snackbar('DTDL sent to pipeline!', 'success');
 		} catch (error) {
@@ -746,13 +744,9 @@ completeness_score(Score) :-
 						name: propName,
 						schema: dtdlSchema,
 						...(propDef.description && { description: propDef.description }),
-						...(propDef.title && { displayName: propDef.title })
+						...(propDef.title && { displayName: propDef.title }),
+						...(contentType === 'Property' && { writable: !isRequired })
 					};
-
-					// Add writable for properties
-					if (contentType === 'Property') {
-						content.writable = !isRequired;
-					}
 
 					contents.push(content);
 				}
@@ -865,17 +859,17 @@ completeness_score(Score) :-
 	<Nav tabs>
 		<NavItem>
 			<NavLink active={activeTab === 'llm'} on:click={() => (activeTab = 'llm')}>
-				🤖 LLM Generation
+				LLM Generation
 			</NavLink>
 		</NavItem>
 		<NavItem>
 			<NavLink active={activeTab === 'template'} on:click={() => (activeTab = 'template')}>
-				📋 Template
+				Template
 			</NavLink>
 		</NavItem>
 		<NavItem>
 			<NavLink active={activeTab === 'schema'} on:click={() => (activeTab = 'schema')}>
-				🔄 JSON Schema
+				JSON Schema
 			</NavLink>
 		</NavItem>
 	</Nav>
@@ -884,7 +878,7 @@ completeness_score(Score) :-
 		<!-- LLM Generation Tab -->
 		<div class="pt-3">
 			<Alert color="info" fade={false} class="mb-3">
-				<strong>💡 Recommended models:</strong> This feature works best with <strong>chat/instruct models</strong> like:
+				<strong>Recommended models:</strong> This feature works best with <strong>chat/instruct models</strong> like:
 				<ul class="mb-0 mt-1" style="font-size: 0.875rem;">
 					<li><code>meta-llama/llama-3.1-8b-instruct</code> (fast, good quality)</li>
 					<li><code>google/gemini-2.0-flash-exp:free</code> (free, very capable)</li>
@@ -897,7 +891,7 @@ completeness_score(Score) :-
 				<Label>Describe your DTDL model in natural language:</Label>
 				<Input
 					type="textarea"
-					rows="4"
+					rows={4}
 					bind:value={textualDescription}
 					placeholder="Example: Create a temperature sensor with humidity and pressure telemetry, plus a calibration command..."
 					disabled={isProcessing}
@@ -909,7 +903,7 @@ completeness_score(Score) :-
 				<div class="d-flex flex-wrap gap-2 mt-1">
 					{#each exampleDescriptions as example}
 						<Button
-							bsSize="sm"
+							size="sm"
 							color="secondary"
 							outline
 							on:click={() => useExampleDescription(example)}
@@ -929,9 +923,9 @@ completeness_score(Score) :-
 					disabled={isProcessing || !textualDescription.trim()}
 				>
 					{#if isProcessing}
-						<Spinner bsSize="sm" /> Generating...
+						<Spinner size="sm" /> Generating...
 					{:else}
-						✨ Generate DTDL
+						Generate DTDL
 					{/if}
 				</Button>
 			</div>
@@ -939,7 +933,7 @@ completeness_score(Score) :-
 			{#if rawLLMOutput && (validationResult?.error || !generatedDTDL)}
 				<Card class="mb-3 border-warning">
 					<CardBody>
-						<CardTitle>🔍 Raw LLM Output</CardTitle>
+						<CardTitle>Raw LLM Output</CardTitle>
 						<details>
 							<summary style="cursor: pointer; user-select: none;">
 								<small class="text-muted">Click to expand and see what the LLM actually returned</small>
@@ -960,19 +954,19 @@ completeness_score(Score) :-
 			{#if validationResult}
 				{#if validationResult.valid}
 					<Alert color="success" fade={false}>
-						✅ DTDL is valid!
+						DTDL is valid!
 						{#if qualityScore !== null}
 							<br />Quality Score: {qualityScore}%
 						{/if}
 					</Alert>
 				{:else if validationResult.warning}
 					<Alert color="warning" fade={false}>
-						⚠️ {validationResult.warning}
+						{validationResult.warning}
 						<br /><small>{validationResult.error}</small>
 					</Alert>
 				{:else}
 					<Alert color="danger" fade={false}>
-						<strong>❌ Generation failed</strong><br />
+						<strong>Generation failed</strong><br />
 						{validationResult.error}
 						<hr style="margin: 0.5rem 0;" />
 						<small>
@@ -991,9 +985,9 @@ completeness_score(Score) :-
 						<CardTitle>Generated DTDL:</CardTitle>
 						<pre class="code-preview">{generatedDTDL}</pre>
 						<ButtonGroup>
-							<Button color="success" bsSize="sm" on:click={downloadDTDL}>⬇ Download JSON</Button>
-							<Button color="primary" bsSize="sm" on:click={sendToPipeline}>
-								➜ Send to Pipeline
+							<Button color="success" size="sm" on:click={downloadDTDL}>Download JSON</Button>
+							<Button color="primary" size="sm" on:click={sendToPipeline}>
+								Send to Pipeline
 							</Button>
 						</ButtonGroup>
 					</CardBody>
@@ -1057,7 +1051,7 @@ completeness_score(Score) :-
 					<Label>Description</Label>
 					<Input
 						type="textarea"
-						rows="2"
+						rows={2}
 						bind:value={templateParams.description}
 						placeholder="Interface description"
 						disabled={isProcessing}
@@ -1068,9 +1062,9 @@ completeness_score(Score) :-
 				<Card class="mb-3">
 					<CardBody>
 						<div class="d-flex justify-content-between align-items-center mb-2">
-							<CardTitle class="mb-0">📡 Telemetries</CardTitle>
-							<Button bsSize="sm" color="success" on:click={addTelemetry} disabled={isProcessing}>
-								+ Add
+							<CardTitle class="mb-0">Telemetries</CardTitle>
+							<Button size="sm" color="success" on:click={addTelemetry} disabled={isProcessing}>
+								Add
 							</Button>
 						</div>
 						{#each templateParams.telemetries as tel, i}
@@ -1113,12 +1107,12 @@ completeness_score(Score) :-
 								</div>
 								<div class="col-md-1">
 									<Button
-										bsSize="sm"
+										size="sm"
 										color="danger"
 										on:click={() => removeTelemetry(i)}
 										disabled={isProcessing}
 									>
-										×
+										X
 									</Button>
 								</div>
 							</div>
@@ -1131,8 +1125,8 @@ completeness_score(Score) :-
 					<CardBody>
 						<div class="d-flex justify-content-between align-items-center mb-2">
 							<CardTitle class="mb-0">🔧 Properties</CardTitle>
-							<Button bsSize="sm" color="success" on:click={addProperty} disabled={isProcessing}>
-								+ Add
+							<Button size="sm" color="success" on:click={addProperty} disabled={isProcessing}>
+								Add
 							</Button>
 						</div>
 						{#each templateParams.properties as prop, i}
@@ -1169,20 +1163,21 @@ completeness_score(Score) :-
 										<input
 											type="checkbox"
 											class="form-check-input"
+											id="writable-{i}"
 											bind:checked={prop.writable}
 											disabled={isProcessing}
 										/>
-										<label class="form-check-label" style="font-size: 0.875rem;"> Writable </label>
+										<label class="form-check-label" for="writable-{i}" style="font-size: 0.875rem;"> Writable </label>
 									</div>
 								</div>
 								<div class="col-md-1">
 									<Button
-										bsSize="sm"
+										size="sm"
 										color="danger"
 										on:click={() => removeProperty(i)}
 										disabled={isProcessing}
 									>
-										×
+										X
 									</Button>
 								</div>
 							</div>
@@ -1195,8 +1190,8 @@ completeness_score(Score) :-
 					<CardBody>
 						<div class="d-flex justify-content-between align-items-center mb-2">
 							<CardTitle class="mb-0">⚡ Commands</CardTitle>
-							<Button bsSize="sm" color="success" on:click={addCommand} disabled={isProcessing}>
-								+ Add
+							<Button size="sm" color="success" on:click={addCommand} disabled={isProcessing}>
+								Add
 							</Button>
 						</div>
 						{#each templateParams.commands as cmd, i}
@@ -1221,12 +1216,12 @@ completeness_score(Score) :-
 								</div>
 								<div class="col-md-1">
 									<Button
-										bsSize="sm"
+										size="sm"
 										color="danger"
 										on:click={() => removeCommand(i)}
 										disabled={isProcessing}
 									>
-										×
+									X
 									</Button>
 								</div>
 							</div>
@@ -1241,9 +1236,9 @@ completeness_score(Score) :-
 						disabled={isProcessing || !templateParams.name}
 					>
 						{#if isProcessing}
-							<Spinner bsSize="sm" /> Generating...
+							<Spinner size="sm" /> Generating...
 						{:else}
-							✨ Generate from Template
+							Generate from Template
 						{/if}
 					</Button>
 				</div>
@@ -1252,26 +1247,26 @@ completeness_score(Score) :-
 			{#if validationResult}
 				{#if validationResult.valid}
 					<Alert color="success" fade={false}>
-						✅ DTDL is valid!
+						DTDL is valid!
 						{#if qualityScore !== null}
 							<br />Quality Score: {qualityScore}%
 						{/if}
 					</Alert>
 				{:else if validationResult.warning}
 					<Alert color="warning" fade={false}>
-						⚠️ {validationResult.warning}
+						{validationResult.warning}
 						<br /><small>{validationResult.error}</small>
 					</Alert>
 				{:else}
 					<Alert color="danger" fade={false}>
-						<strong>❌ Generation failed</strong><br />
+						<strong>Generation failed</strong><br />
 						{validationResult.error}
 						<hr style="margin: 0.5rem 0;" />
 						<small>
 							<strong>Possible causes:</strong><br />
-							• Using a code completion model instead of a chat model<br />
-							• Model returned malformed output with special tokens<br />
-							• Check the "Raw LLM Output" section to see what was returned
+							- Using a code completion model instead of a chat model<br />
+							- Model returned malformed output with special tokens<br />
+							- Check the "Raw LLM Output" section to see what was returned
 						</small>
 					</Alert>
 				{/if}
@@ -1283,9 +1278,9 @@ completeness_score(Score) :-
 						<CardTitle>Generated DTDL:</CardTitle>
 						<pre class="code-preview">{generatedDTDL}</pre>
 						<ButtonGroup>
-							<Button color="success" bsSize="sm" on:click={downloadDTDL}>⬇ Download JSON</Button>
-							<Button color="primary" bsSize="sm" on:click={sendToPipeline}>
-								➜ Send to Pipeline
+							<Button color="success" size="sm" on:click={downloadDTDL}>Download JSON</Button>
+							<Button color="primary" size="sm" on:click={sendToPipeline}>
+								Send to Pipeline
 							</Button>
 						</ButtonGroup>
 					</CardBody>
@@ -1299,7 +1294,7 @@ completeness_score(Score) :-
 				<Label>Paste JSON Schema or OpenAPI specification:</Label>
 				<Input
 					type="textarea"
-					rows="12"
+					rows={12}
 					bind:value={jsonSchemaInput}
 					placeholder={`Example JSON Schema:
 {
@@ -1328,11 +1323,11 @@ completeness_score(Score) :-
 				<Alert color="info" fade={false}>
 					<strong>Conversion rules:</strong>
 					<ul class="mb-0 mt-2" style="font-size: 0.875rem;">
-						<li><code>readOnly: true</code> → Telemetry</li>
-						<li><code>readOnly: false</code> or no readOnly → Property</li>
-						<li><code>required</code> fields → non-writable properties</li>
+						<li><code>readOnly: true</code>Telemetry</li>
+						<li><code>readOnly: false</code> or no readOnly Property</li>
+						<li><code>required</code> fields non-writable properties</li>
 						<li>Type mapping: string→string, number→double, integer→integer, boolean→boolean</li>
-						<li><code>format: "date-time"</code> → dateTime schema</li>
+						<li><code>format: "date-time"</code>dateTime schema</li>
 					</ul>
 				</Alert>
 			</div>
@@ -1344,9 +1339,9 @@ completeness_score(Score) :-
 					disabled={isProcessing || !jsonSchemaInput.trim()}
 				>
 					{#if isProcessing}
-						<Spinner bsSize="sm" /> Converting...
+						<Spinner size="sm" /> Converting...
 					{:else}
-						🔄 Convert to DTDL
+						Convert to DTDL
 					{/if}
 				</Button>
 			</div>
@@ -1354,26 +1349,26 @@ completeness_score(Score) :-
 			{#if validationResult}
 				{#if validationResult.valid}
 					<Alert color="success" fade={false}>
-						✅ DTDL is valid!
+						DTDL is valid!
 						{#if qualityScore !== null}
 							<br />Quality Score: {qualityScore}%
 						{/if}
 					</Alert>
 				{:else if validationResult.warning}
 					<Alert color="warning" fade={false}>
-						⚠️ {validationResult.warning}
+						{validationResult.warning}
 						<br /><small>{validationResult.error}</small>
 					</Alert>
 				{:else}
 					<Alert color="danger" fade={false}>
-						<strong>❌ Generation failed</strong><br />
+						<strong>Generation failed</strong><br />
 						{validationResult.error}
 						<hr style="margin: 0.5rem 0;" />
 						<small>
 							<strong>Possible causes:</strong><br />
-							• Using a code completion model instead of a chat model<br />
-							• Model returned malformed output with special tokens<br />
-							• Check the "Raw LLM Output" section to see what was returned
+							- Using a code completion model instead of a chat model<br />
+							- Model returned malformed output with special tokens<br />
+							- Check the "Raw LLM Output" section to see what was returned
 						</small>
 					</Alert>
 				{/if}
@@ -1385,9 +1380,9 @@ completeness_score(Score) :-
 						<CardTitle>Generated DTDL:</CardTitle>
 						<pre class="code-preview">{generatedDTDL}</pre>
 						<ButtonGroup>
-							<Button color="success" bsSize="sm" on:click={downloadDTDL}>⬇ Download JSON</Button>
-							<Button color="primary" bsSize="sm" on:click={sendToPipeline}>
-								➜ Send to Pipeline
+							<Button color="success" size="sm" on:click={downloadDTDL}>Download JSON</Button>
+							<Button color="primary" size="sm" on:click={sendToPipeline}>
+								Send to Pipeline
 							</Button>
 						</ButtonGroup>
 					</CardBody>
