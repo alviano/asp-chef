@@ -10,8 +10,8 @@ path(I1, I2) :- can_communicate_direct(I1, I2).
 path(I1, I3) :- path(I1, I2), can_communicate_direct(I2, I3), I1 != I3.
 design_issue("cyclic_dependency", I1, I2) :- path(I1, I2), path(I2, I1), I1 < I2.
 design_issue("inconsistent_telemetry_schema", Name, I1, I2, S1, S2) :- has_telemetry(I1, Name, Tel1), has_telemetry(I2, Name, Tel2), schema(Tel1, S1), schema(Tel2, S2), S1 != S2, I1 < I2.
-design_issue("naming_convention_violation", Interface, Name) :- interface(Interface), displayName(Interface, Name), not starts_with_uppercase(Name).
-%%% starts_with_uppercase(Name) :- Name = Name.
+%%% design_issue("naming_convention_violation", Interface, Name) :- interface(Interface), displayName(Interface, Name), not starts_with_uppercase(Name).
+%%% starts_with_uppercase requires string built-in support not available in plain ASP; rule disabled until implemented.
 design_issue("sensor_controls_actuator", Sensor, Actuator) :- sensor_interface(Sensor), actuator_interface(Actuator), can_communicate_direct(Sensor, Actuator).
 stat_interface_count(Count) :- Count = #count{I : interface(I)}.
 stat_relationship_count(Count) :- Count = #count{R : relationship(R)}.
@@ -19,7 +19,12 @@ stat_property_count(Count) :- Count = #count{P : property(P)}.
 stat_telemetry_count(Count) :- Count = #count{T : telemetry(T)}.
 stat_command_count(Count) :- Count = #count{C : command(C)}.
 issue_count_critical(Count) :- Count = #count{I1, I2 : design_issue("cyclic_dependency", I1, I2)}.
-issue_count_warning(Count) :- Count = #count{Args : design_issue(Type, Args), Type != "cyclic_dependency"}.
+non_critical_issue(Type, A, B)    :- design_issue(Type, A, B),    Type != "cyclic_dependency".
+non_critical_issue(Type, A, B, C) :- design_issue(Type, A, B, C), Type != "cyclic_dependency".
+non_critical_issue(Type, A, B, C, D, E) :- design_issue(Type, A, B, C, D, E), Type != "cyclic_dependency".
+issue_count_warning(Count) :- Count = #count{Type, A, B : non_critical_issue(Type, A, B)}
+                                           + #count{Type, A, B, C : non_critical_issue(Type, A, B, C)}
+                                           + #count{Type, A, B, C, D, E : non_critical_issue(Type, A, B, C, D, E)}.
 #show has_temperature_telemetry/1.
 #show hub_interface/2.
 #show can_communicate/3.
