@@ -113,6 +113,14 @@ export class DTDL {
             res.push(`writable(${id}).`);
         }
 
+        if (Array.isArray(property['@type']) && property['@type'].length > 1) {
+            res.push(`semantic_type(${id}, "${property['@type'][1]}").`);
+        }
+
+        if (property.unit) {
+            res.push(`unit(${id}, "${property.unit}").`);
+        }
+
         DTDL.processSchema(schemaId, property.schema, res);
     }
 
@@ -123,6 +131,14 @@ export class DTDL {
         res.push(`telemetry(${id}).`);
         res.push(`schema(${id}, ${schemaId}).`);
         this.mapMetadata(telemetry, id, res);
+
+        if (Array.isArray(telemetry['@type']) && telemetry['@type'].length > 1) {
+            res.push(`semantic_type(${id}, "${telemetry['@type'][1]}").`);
+        }
+
+        if (telemetry.unit) {
+            res.push(`unit(${id}, "${telemetry.unit}").`);
+        }
 
         DTDL.processSchema(schemaId, telemetry.schema, res);
     }
@@ -214,7 +230,10 @@ export class DTDL {
 
         if (iface.contents?.length) {
             iface.contents.forEach((content) => {
-                switch (content['@type']) {
+                const contentType = Array.isArray(content['@type'])
+                    ? content['@type'][0]
+                    : content['@type'];
+                switch (contentType) {
                     case 'Property':
                         DTDL.processProperty(id, content, res);
                         break;
@@ -277,6 +296,13 @@ export class DTDL {
         await DTDL.validateDtdl(dtdl);
 
         const res = [];
+
+        const context = Array.isArray(dtdl) ? dtdl[0]?.['@context'] : dtdl['@context'];
+        if (Array.isArray(context) && context.length > 1) {
+            context.slice(1).forEach((ext) => {
+                res.push(`context_extension("${ext}").`);
+            });
+        }
 
         if (Array.isArray(dtdl)) {
             dtdl.forEach((iface) => DTDL.processInterface(iface, res));
