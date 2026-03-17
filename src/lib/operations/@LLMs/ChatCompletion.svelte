@@ -104,7 +104,7 @@
     });
 
     function validate_server_type(server_type) {
-        if (!["Groq", "OpenAI", "Ollama"].includes(server_type)) {
+        if (!["Groq", "OpenAI", "Ollama", "OpenRouter"].includes(server_type)) {
             throw new Error(`${operation}: Unknown server type ${server_type}`)
         }
     }
