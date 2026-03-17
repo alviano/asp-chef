@@ -1,7 +1,5 @@
 <script context="module">
 	import { Option, Recipe } from '$lib/recipe';
-	import { Base64 } from 'js-base64';
-	import { Utils } from '$lib/utils.js';
 
 	const operation = '@DTDL/Query';
 	export const default_extra_options = {
@@ -39,7 +37,6 @@
 	onMount(() => {
 		listeners.set(id, (input) => {
 			inputData = input;
-			debugger;
 		});
 	});
 
