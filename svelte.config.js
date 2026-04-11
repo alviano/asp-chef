@@ -9,62 +9,39 @@ const config = {
     preprocess: [
         vitePreprocess(),
         mdsvex({
-              extensions: ['.md']
+            extensions: ['.md']
         })
     ],
 
     kit: {
         adapter: adapter({
-              fallback: '/',
+            fallback: '/'
         }),
         alias: {
-            "$lib": "./src/lib",
-            "$lib/*": "./src/lib/*",
+            $lib: './src/lib',
+            '$lib/*': './src/lib/*'
         },
         csp: {
-            mode: "auto",
+            mode: 'auto',
             directives: {
-                "default-src": ["self"],
-                "connect-src": [
-                    "*",
-                    "data:"
-                ],
-                "script-src": [
-                    "*",
-                    "unsafe-eval",
-                ],
-                "script-src-attr": [
-                    "*",
-                    "unsafe-inline",
-                ],
-                "worker-src": [
-                    "self",
-                    "blob:",
-                ],
-                "style-src": [
-                    "*",
-                    "unsafe-inline",
-                ],
-                "style-src-elem": [
-                    "*",
-                    "unsafe-inline",
-                ],
-                "img-src": [
-                    "*",
-                    "data:",
-                ],
-                "font-src": [
-                    "*",
-                ],
-                "object-src": ["none"],
-                "frame-src": ["none"],
-                "frame-ancestors": ["none"],
-                "base-uri": ["none"],
-            },
+                'default-src': ['self'],
+                'connect-src': ['*', 'data:'],
+                'script-src': ['*', 'unsafe-eval'],
+                'script-src-attr': ['*', 'unsafe-inline'],
+                'worker-src': ['self', 'blob:'],
+                'style-src': ['*', 'unsafe-inline'],
+                'style-src-elem': ['*', 'unsafe-inline'],
+                'img-src': ['*', 'data:', 'blob:'],
+                'font-src': ['*'],
+                'object-src': ['none'],
+                'frame-src': ['none'],
+                'frame-ancestors': ['none'],
+                'base-uri': ['none']
+            }
         }
     },
 
-    extensions: ['.svelte', '.md'],
+    extensions: ['.svelte', '.md']
 };
 
 export default config;
