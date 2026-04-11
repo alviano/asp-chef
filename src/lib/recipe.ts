@@ -85,7 +85,10 @@ export class Recipe {
     }
 
     static async load_operation_components(feedback = (processed, total, file, skip, error) => { /* empty */ }) {
-        const map = Object.entries(import.meta.glob('/src/lib/operations/**/*.svelte'));
+        const map = Object.entries(import.meta.glob([
+          '/src/lib/operations/**/*.svelte',
+          '!**/+*.svelte'
+        ]));
         this._remote_javascript_operations = new Map(Object.entries(get(registered_javascript)));
         this._remote_recipe_operations = new Map(Object.entries(get(registered_recipes)));
         let total = map.length + this._remote_javascript_operations.size + this._remote_recipe_operations.size;
@@ -94,7 +97,7 @@ export class Recipe {
         const promises = [];
         for (const [key, value] of map) {
             const the_key = key.slice(20, -7);
-            const skip = the_key.startsWith('+');
+            const skip = false;  // WAS: the_key.startsWith('+');  // files starting with + are already filtered out
             if (skip) {
                 total--;
             } else {
