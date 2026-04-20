@@ -88,7 +88,7 @@ export class DTDL {
                     schema.fields.forEach((field) => {
                         const fieldSchemaId = this.schemaId(field.schema, id, field.name);
                         res.push(`has_field(${id}, "${field.name}", ${fieldSchemaId}).`);
-                        this.mapMetadata(schema, id, res);
+                        this.mapMetadata(field, id, res);
                         DTDL.processSchema(fieldSchemaId, field.schema, res);
                     });
                 }

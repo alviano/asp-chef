@@ -13,6 +13,13 @@ design_issue("inconsistent_telemetry_schema", Name, I1, I2, S1, S2) :- has_telem
 %%% design_issue("naming_convention_violation", Interface, Name) :- interface(Interface), displayName(Interface, Name), not starts_with_uppercase(Name).
 %%% starts_with_uppercase requires string built-in support not available in plain ASP; rule disabled until implemented.
 design_issue("sensor_controls_actuator", Sensor, Actuator) :- sensor_interface(Sensor), actuator_interface(Actuator), can_communicate_direct(Sensor, Actuator).
+extends_depth(I, 0) :- interface(I), not extends(I, _).
+extends_depth(I, D+1) :- extends(I, Parent), extends_depth(Parent, D), D < 10.
+design_issue("deep_extends_chain", I, D) :- extends_depth(I, D), D > 3.
+outgoing_relationship_count(I, Count) :- interface(I), Count = #count{R : has_relationship(I, _, R)}.
+design_issue("high_fan_out", I, Count) :- outgoing_relationship_count(I, Count), Count > 5.
+incoming_relationship_count(I, Count) :- interface(I), Count = #count{R : has_relationship(_, _, R), target(R, I)}.
+design_issue("isolated_interface", I, "no_connections") :- interface(I), outgoing_relationship_count(I, 0), incoming_relationship_count(I, 0).
 stat_interface_count(Count) :- Count = #count{I : interface(I)}.
 stat_relationship_count(Count) :- Count = #count{R : relationship(R)}.
 stat_property_count(Count) :- Count = #count{P : property(P)}.
@@ -22,16 +29,15 @@ issue_count_critical(Count) :- Count = #count{I1, I2 : design_issue("cyclic_depe
 non_critical_issue(Type, A, B)    :- design_issue(Type, A, B),    Type != "cyclic_dependency".
 non_critical_issue(Type, A, B, C) :- design_issue(Type, A, B, C), Type != "cyclic_dependency".
 non_critical_issue(Type, A, B, C, D, E) :- design_issue(Type, A, B, C, D, E), Type != "cyclic_dependency".
-issue_count_warning(Count) :- Count = #count{Type, A, B : non_critical_issue(Type, A, B)}
-                                           + #count{Type, A, B, C : non_critical_issue(Type, A, B, C)}
-                                           + #count{Type, A, B, C, D, E : non_critical_issue(Type, A, B, C, D, E)}.
+non_critical_issue_any(Type, A, B) :- non_critical_issue(Type, A, B).
+non_critical_issue_any(Type, A, B) :- non_critical_issue(Type, A, B, _).
+non_critical_issue_any(Type, A, B) :- non_critical_issue(Type, A, B, _, _, _).
+issue_count_warning(Count) :- Count = #count{Type, A, B : non_critical_issue_any(Type, A, B)}.
 #show has_temperature_telemetry/1.
 #show hub_interface/2.
 #show can_communicate/3.
 #show similar_interfaces/3.
-#show design_issue/2.
 #show design_issue/3.
-#show design_issue/4.
 #show design_issue/6.
 #show stat_interface_count/1.
 #show stat_relationship_count/1.
