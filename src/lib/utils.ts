@@ -194,7 +194,7 @@ export class Utils extends BaseUtils {
         return await response.json();
     }
 
-    static async clingo_run(program: string, number = 0, options = [], timeout = null) {
+    static async clingo_run(program: string, number = 1, options = [], timeout = null) {
         const the_timeout = timeout !== null ? timeout : this._clingo_timeout;
         return await this._clingo_lock.acquire('clingo', async () => {
             if (this._clingo_worker === null) {
@@ -202,7 +202,7 @@ export class Utils extends BaseUtils {
             }
             return new Promise((resolve, reject) => {
                 this._clingo_reject = reject;
-                const timeout = setTimeout(async () => {
+                const timeout_ref = setTimeout(async () => {
                     await this.clingo_terminate(
                         `Error: TIMEOUT ${the_timeout} seconds (it can be increased with a Set Timeout ingredient)`
                     );
@@ -214,14 +214,14 @@ export class Utils extends BaseUtils {
                 if (get(clingo_remote_on)) {
                     this.__remote_clingo_run(program, number, the_options, the_timeout).then(
                         (data) => {
-                            clearTimeout(timeout);
+                            clearTimeout(timeout_ref);
                             delete data.Input;
                             resolve(data);
                         }
                     );
                 } else {
                     this._clingo_worker.onmessage = ({ data }) => {
-                        clearTimeout(timeout);
+                        clearTimeout(timeout_ref);
                         resolve(data);
                     };
                     this._clingo_worker.postMessage({

@@ -5,6 +5,7 @@ async function check(recipe, input, rules, expected_output) {
     await recipe.click_pause_baking();
     await recipe.input(input);
     await recipe.reify_program(rules);
+    await recipe.sort_canonical();
     await recipe.click_pause_baking();
     await recipe.output(expected_output);
 }
@@ -24,8 +25,8 @@ foo.
 atom_tuple(0).
 atom_tuple(0,1).
 literal_tuple(0).
-rule(disjunction(0),normal(0)).
 output(foo,0).
+rule(disjunction(0),normal(0)).
         `);
     });
 
@@ -37,10 +38,10 @@ output(foo,0).
 atom_tuple(0).
 atom_tuple(0,1).
 literal_tuple(0).
-rule(choice(0),normal(0)).
 literal_tuple(1).
 literal_tuple(1,1).
 output(a,1).
+rule(choice(0),normal(0)).
         `);
     });
 
@@ -53,13 +54,13 @@ atom_tuple(0).
 atom_tuple(0,1).
 atom_tuple(0,2).
 literal_tuple(0).
-rule(disjunction(0),normal(0)).
 literal_tuple(1).
 literal_tuple(1,1).
-output(a,1).
 literal_tuple(2).
 literal_tuple(2,2).
+output(a,1).
 output(b,2).
+rule(disjunction(0),normal(0)).
         `);
     });
 
@@ -71,15 +72,15 @@ a.
         `, `
 atom_tuple(0).
 atom_tuple(0,1).
-literal_tuple(0).
-rule(disjunction(0),normal(0)).
 atom_tuple(1).
 atom_tuple(1,2).
-rule(choice(1),normal(0)).
-output(a,0).
+literal_tuple(0).
 literal_tuple(1).
 literal_tuple(1,2).
+output(a,0).
 output(b,1).
+rule(choice(1),normal(0)).
+rule(disjunction(0),normal(0)).
         `);
     });
 

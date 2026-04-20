@@ -11,8 +11,8 @@
         const res = [];
         for (const part of input) {
             try {
-                const model = await Utils.search_model(part.map((atom, index) => `${options.predicate}(${index + 1}, ${atom.str}).`).join('\n'));
-                res.push(Utils.parse_atoms(model));
+                const atoms = part.map((atom, index) => `${options.predicate}(${index + 1}, ${atom.str})`);
+                res.push(Utils.parse_atoms(atoms));
             } catch (error) {
                 Recipe.set_errors_at_index(index, error, res);
             }

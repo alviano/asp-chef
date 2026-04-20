@@ -348,7 +348,7 @@
     });
 
     onDestroy(() => {
-        resizeObserver.unobserve(canvas);
+        resizeObserver.disconnect();
     });
 </script>
 
