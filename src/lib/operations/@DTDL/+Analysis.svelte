@@ -63,11 +63,21 @@
                 const type = atom.terms[0].string
                     .replace(/_/g, ' ')
                     .replace(/\b\w/g, (c) => c.toUpperCase());
-                data.issues.items.push({
-                    type,
-                    interfaceId: atom.terms[1].string,
-                    detail: atom.terms[2]?.string || ''
-                });
+                if (atom.terms.length === 3) {
+                    // design_issue(type, iface1, iface2)
+                    data.issues.items.push({
+                        type,
+                        interfaceId: atom.terms[1].string,
+                        detail: atom.terms[2]?.string || ''
+                    });
+                } else if (atom.terms.length === 6) {
+                    // design_issue(type, telemetryName, iface1, iface2, schema1, schema2)
+                    data.issues.items.push({
+                        type,
+                        interfaceId: atom.terms[2].string,
+                        detail: `telemetry "${atom.terms[1].string}" on ${shortId(atom.terms[2].string)} vs ${shortId(atom.terms[3].string)}: schema ${atom.terms[4].string} ≠ ${atom.terms[5].string}`
+                    });
+                }
             } else if (atom.predicate !== '__error__') {
                 data.other.push(atom);
             }
