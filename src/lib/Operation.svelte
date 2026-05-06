@@ -6,19 +6,9 @@
     import {errors_at_index, readonly_ingredients, show_ingredient_details, show_ingredient_headers} from "$lib/stores";
 
     function default_options() {
-        const get_defaults = (options: any) => {
-            return Object.fromEntries(
-                Object.entries(options).map(([key, value]: [string, any]) => {
-                    if (value && typeof value === 'object' && value.default === undefined) {
-                        return [key, get_defaults(value)];
-                    }
-                    return [key, (value && typeof value === 'object' && 'default' in value) ? value.default : value];
-                })
-            );
-        };
         return {
             ...Recipe.common_default_options(),
-            ...get_defaults(default_extra_options),
+            ...Recipe.get_defaults(default_extra_options),
         };
     }
 

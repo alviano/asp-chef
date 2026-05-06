@@ -10,6 +10,8 @@ import {
     recipe,
     registered_javascript,
     registered_recipes,
+    encode_input,
+    decode_output
 } from "$lib/stores";
 import {consts} from "$lib/consts";
 import {v4 as uuidv4} from 'uuid';
@@ -605,6 +607,25 @@ export class Recipe {
         throw Error('Unknown operation: ' + ingredient.operation);
     }
 
+    static get_defaults(options: any) : any {
+        return Object.fromEntries(
+            Object.entries(options).map(([key, value]: [string, any]) => {
+                if (value && typeof value === 'object' && value.default === undefined) {
+                    return [key, this.get_defaults(value)];
+                }
+                return [key, (value && typeof value === 'object' && 'default' in value) ? value.default : value];
+            })
+        );
+    }
+
+    static operation_default_options(operation: string) {
+        const extraSchema = this._operation_default_extra_options.get(this.operation_type_filename(operation)) || {};
+        return {
+            ...this.common_default_options(),
+            ...this.get_defaults(extraSchema),
+        };
+    }
+
     static async add_operation(operation: string, options: any, index: number = undefined) {
         if (this.is_remote_recipe_operation(operation)) {
             const recipe = Recipe.get_remote_recipe_operation(operation);
@@ -707,6 +728,35 @@ export class Recipe {
     static remove_all_operations() {
         this.invalidate_cached_output(0);
         recipe.set([]);
+    }
+
+    static remove_all_except(index: number) {
+        this.invalidate_cached_output(0);
+        recipe.set([this.recipe[index]]);
+    }
+
+    static toggle_encode_input() {
+        encode_input.update(v => !v);
+    }
+
+    static toggle_decode_output() {
+        decode_output.update(v => !v);
+    }
+
+    static set_encode_input(value: boolean) {
+        encode_input.set(value);
+    }
+
+    static set_decode_output(value: boolean) {
+        decode_output.set(value);
+    }
+
+    static get is_encode_input(): boolean {
+        return get(encode_input);
+    }
+
+    static get is_decode_output(): boolean {
+        return get(decode_output);
     }
 
     static remove_operation(index: number) {

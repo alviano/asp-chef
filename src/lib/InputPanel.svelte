@@ -7,9 +7,10 @@
     import CodeMirror from "$lib/CodeMirror.svelte";
     import {onDestroy, onMount} from "svelte";
     import {v4 as uuidv4} from "uuid";
+    import {encode_input} from "$lib/stores";
+    import {Recipe} from "$lib/recipe";
 
     export let value;
-    export let encode;
 
     let editor;
 
@@ -49,7 +50,7 @@
                     <Button size="sm" color="danger" on:click={clear_input}><Icon name="trash" /></Button>
                 </Popover>
                 <Popover title="Encode input" value="If active, the input is Base64 encoded as a single fact.">
-                    <Button size="sm" outline="{!encode}" on:click={() => encode = !encode}>Encode</Button>
+                    <Button size="sm" outline="{!$encode_input}" on:click={() => Recipe.toggle_encode_input()}>Encode</Button>
                 </Popover>
             </span>
         </CardTitle>

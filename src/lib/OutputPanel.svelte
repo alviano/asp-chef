@@ -6,14 +6,14 @@
     import {Utils} from "$lib/utils";
     import {consts} from "$lib/consts";
     import {Base64} from "js-base64";
-    import {errors_at_index} from "$lib/stores";
+    import {errors_at_index, decode_output} from "$lib/stores";
+    import {Recipe} from "$lib/recipe";
 
     export let value = [];
-    export let decode = false;
 
     export let change_input = (input) => {};
 
-    $: text_value = !decode ? Utils.flatten_output(value) : value.map(model =>
+    $: text_value = !$decode_output ? Utils.flatten_output(value) : value.map(model =>
         model.length === 0 ? 'EMPTY MODEL' :
         model.map(atom => atom.predicate !== '__base64__' ? atom.str + '.' : Base64.decode(atom.terms[0].string))
             .join('\n')).join('\n' + consts.SYMBOLS.MODELS_SEPARATOR +'\n');
@@ -42,7 +42,7 @@
                     </Button>
                 </Popover>
                 <Popover title="Decode output" value="If active, Base64 encoded content in __base64__/1 instances is decoded.">
-                    <Button size="sm" outline="{!decode}" on:click={() => decode = !decode}>Decode</Button>
+                    <Button size="sm" outline="{!$decode_output}" on:click={() => Recipe.toggle_decode_output()}>Decode</Button>
                 </Popover>
             </span>
         </CardTitle>

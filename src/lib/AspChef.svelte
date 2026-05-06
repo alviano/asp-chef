@@ -16,7 +16,9 @@
         recipe_input,
         show_help,
         show_ingredient_details,
-        show_ingredient_headers
+        show_ingredient_headers,
+        encode_input,
+        decode_output
     } from "$lib/stores";
     import RecipePanel from "$lib/RecipePanel.svelte";
     import {onDestroy, onMount} from "svelte";
@@ -26,9 +28,7 @@
     import {v4 as uuidv4} from 'uuid';
     import {consts} from "$lib/consts";
 
-    let encode_input = false;
     let output_value = [];
-    let decode_output = false;
 
     let process_timeout = null;
     let processing = false;
@@ -107,19 +107,19 @@
 
     Utils.capture_log();
 
-    $: $recipe_input, encode_input, Recipe.invalidate_cached_output(0);
-    $: delayed_process($recipe_input, encode_input, decode_output, $pause_baking);
+    $: $recipe_input, $encode_input, Recipe.invalidate_cached_output(0);
+    $: delayed_process($recipe_input, $encode_input, $decode_output, $pause_baking);
     $: $show_help, show_operations, show_io_panel,
         $show_ingredient_details, $readonly_ingredients, $show_ingredient_headers, $pause_baking,
-        update_url($recipe_input, encode_input, decode_output);
+        update_url($recipe_input, $encode_input, $decode_output);
 
     function reload_recipe() {
         if (location.hash.length > 1) {
             const data = Recipe.deserialize(location.hash.slice(1));
             if (data !== null) {
                 $recipe_input = data.input;
-                encode_input = data.encode_input;
-                decode_output = data.decode_output;
+                Recipe.set_encode_input(data.encode_input);
+                Recipe.set_decode_output(data.decode_output);
                 $show_help = data.show_help;
                 show_operations = data.show_operations;
                 show_io_panel = data.show_io_panel;
@@ -134,7 +134,7 @@
 
     function rerun_recipe() {
         Recipe.invalidate_cached_output(0);
-        delayed_process($recipe_input, encode_input, decode_output, $pause_baking);
+        delayed_process($recipe_input, $encode_input, $decode_output, $pause_baking);
     }
 
     onMount(() => {
@@ -195,8 +195,8 @@
 
         reload_recipe();
         recipe_unsubscribe = recipe.subscribe(async () => {
-            await update_url($recipe_input, encode_input, decode_output);
-            await delayed_process($recipe_input, encode_input, decode_output, $pause_baking);
+            await update_url($recipe_input, $encode_input, $decode_output);
+            await delayed_process($recipe_input, $encode_input, $decode_output, $pause_baking);
         });
     }
 
@@ -229,7 +229,7 @@
         {#if show_io_panel}
             <Col class="p-0 vh-100" style="min-width: {$io_panel_width}%; max-width: {$io_panel_width}%; overflow: hidden;">
                 <div bind:this={input_panel_div} style="height: {$input_height}vh; overflow-x: hidden; overflow-y: scroll;">
-                    <InputPanel bind:value={$recipe_input} bind:encode={encode_input} />
+                    <InputPanel bind:value={$recipe_input} />
                 </div>
                 <div bind:this={progress_panel_div} data-testid="AspChef-baking-bar">
                     <span class="d-test">{processing ? "Baking..." : "Ready!"}</span>
@@ -243,7 +243,7 @@
                     </Progress>
                 </div>
                 <div bind:this={output_panel_div} style="height: {100 - $input_height}vh; padding-bottom: 1em; overflow-x: hidden; overflow-y: scroll;">
-                    <OutputPanel value={output_value} bind:decode={decode_output} change_input={(value) => $recipe_input = value} />
+                    <OutputPanel value={output_value} change_input={(value) => $recipe_input = value} />
                 </div>
             </Col>
         {/if}

@@ -84,7 +84,7 @@
                style="max-width: 5em;"
                on:input={edit}
         />
-        <Button outline="{!options.show_schema}" on:click={() => { options.show_schema = !options.show_schema; edit(); }}>Shema</Button>
+        <Button outline="{!options.show_schema}" on:click={() => { options.show_schema = !options.show_schema; edit(); }}>Schema</Button>
         <InputGroupText>Output predicate</InputGroupText>
         <Input type="text"
                bind:value="{options.output_predicate}"
