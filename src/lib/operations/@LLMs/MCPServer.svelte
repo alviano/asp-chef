@@ -166,7 +166,10 @@
         },
 
         add_operation: async (data) => {
-            const at = data.at_index !== undefined ? start_index + data.at_index : index;
+            const at =
+                data.at_index !== undefined
+                    ? Math.min(index, start_index + data.at_index)
+                    : index;
             const mergedOptions = {
                 ...Recipe.operation_default_options(data.operation),
                 ...(data.options || {})
@@ -183,18 +186,16 @@
         },
 
         remove_operations: async (data) => {
-            const start = start_index + (data.at_index ?? 0);
-            const count = data.how_many ?? 0;
+            const requested_start = data.at_index ?? 0;
+            const requested_count = data.how_many ?? 0;
 
-            if (data.at_index === undefined || data.at_index < 0) {
+            if (requested_start < 0 || requested_start >= num_ingredients) {
                 addLog('remove_operations failed: invalid at_index', false);
                 return;
             }
 
-            if (start <= index && (count === 0 || start + count > index)) {
-                addLog(`remove_operations ignored (range includes connector at ${index})`, false);
-                return;
-            }
+            const start = start_index + requested_start;
+            const count = Math.min(requested_count, num_ingredients - requested_start);
 
             Recipe.remove_operations(start, count);
             addLog(`remove_operations at ${start} (count: ${count})`);
@@ -202,41 +203,68 @@
 
         edit_operation: async (data) => {
             const recipe = (Recipe as any).recipe as any[];
-            const ingredient = recipe.find((ing) => ing.id === data.op_id) ||
-                             (data.at_index !== undefined ? recipe[start_index + data.at_index] : null);
+            const ingredient =
+                recipe.find((ing) => ing.id === data.op_id) ||
+                (data.at_index !== undefined && data.at_index < num_ingredients
+                    ? recipe[start_index + data.at_index]
+                    : null);
 
             if (!ingredient) {
-                addLog('edit_operation failed: ingredient not found', false);
+                addLog('edit_operation failed: ingredient not found or out of context', false);
                 return;
             }
 
             const target_index = recipe.indexOf(ingredient);
-            Recipe.edit_operation(ingredient.id, target_index, { ...ingredient.options, ...(data.options || {}) });
+            if (target_index >= index) {
+                addLog('edit_operation ignored: target is at or after connector', false);
+                return;
+            }
+
+            Recipe.edit_operation(ingredient.id, target_index, {
+                ...ingredient.options,
+                ...(data.options || {})
+            });
             addLog(`edit_operation id=${ingredient.id}`);
         },
 
         fix_operation: async (data) => {
             const recipe = (Recipe as any).recipe as any[];
-            const ingredient = recipe.find((ing) => ing.id === data.op_id) ||
-                             (data.at_index !== undefined ? recipe[start_index + data.at_index] : null);
+            const ingredient =
+                recipe.find((ing) => ing.id === data.op_id) ||
+                (data.at_index !== undefined && data.at_index < num_ingredients
+                    ? recipe[start_index + data.at_index]
+                    : null);
 
             if (!ingredient) {
-                addLog('fix_operation failed: ingredient not found', false);
+                addLog('fix_operation failed: ingredient not found or out of context', false);
                 return;
             }
 
             const target_index = recipe.indexOf(ingredient);
+            if (target_index >= index) {
+                addLog('fix_operation ignored: target is at or after connector', false);
+                return;
+            }
+
             Recipe.fix_operation(ingredient.id, target_index, data.operation);
             addLog(`fix_operation id=${ingredient.id} → "${data.operation}"`);
         },
 
         swap_operations: async (data) => {
+            if (data.index_1 >= num_ingredients || data.index_2 >= num_ingredients) {
+                addLog('swap_operations ignored: index out of context', false);
+                return;
+            }
             Recipe.swap_operations(start_index + data.index_1, start_index + data.index_2);
             addLog(`swap_operations ${data.index_1} ↔ ${data.index_2}`);
         },
 
         duplicate_operation: async (data) => {
-            if (data.at_index === undefined || data.at_index < 0) {
+            if (
+                data.at_index === undefined ||
+                data.at_index < 0 ||
+                data.at_index >= num_ingredients
+            ) {
                 addLog('duplicate_operation failed: invalid at_index', false);
                 return;
             }
@@ -245,31 +273,36 @@
         },
 
         toggle_apply_operation: async (data) => {
-            if (data.at_index === undefined || data.at_index < 0) return;
+            if (data.at_index === undefined || data.at_index < 0 || data.at_index >= num_ingredients)
+                return;
             Recipe.toggle_apply_operation(start_index + data.at_index);
             addLog(`toggle_apply at ${data.at_index}`);
         },
 
         toggle_stop_at_operation: async (data) => {
-            if (data.at_index === undefined || data.at_index < 0) return;
+            if (data.at_index === undefined || data.at_index < 0 || data.at_index >= num_ingredients)
+                return;
             Recipe.toggle_stop_at_operation(start_index + data.at_index);
             addLog(`toggle_stop at ${data.at_index}`);
         },
 
         toggle_show_operation: async (data) => {
-            if (data.at_index === undefined || data.at_index < 0) return;
+            if (data.at_index === undefined || data.at_index < 0 || data.at_index >= num_ingredients)
+                return;
             Recipe.toggle_show_operation(start_index + data.at_index);
             addLog(`toggle_show at ${data.at_index}`);
         },
 
         toggle_readonly_operation: async (data) => {
-            if (data.at_index === undefined || data.at_index < 0) return;
+            if (data.at_index === undefined || data.at_index < 0 || data.at_index >= num_ingredients)
+                return;
             Recipe.toggle_readonly_operation(start_index + data.at_index);
             addLog(`toggle_readonly at ${data.at_index}`);
         },
 
         toggle_hide_header_operation: async (data) => {
-            if (data.at_index === undefined || data.at_index < 0) return;
+            if (data.at_index === undefined || data.at_index < 0 || data.at_index >= num_ingredients)
+                return;
             Recipe.toggle_hide_header_operation(start_index + data.at_index);
             addLog(`toggle_hide_header at ${data.at_index}`);
         }
