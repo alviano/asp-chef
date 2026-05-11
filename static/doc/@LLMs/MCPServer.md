@@ -59,6 +59,14 @@ The position of the **MCP Server** ingredient is critical for security and stabi
 - **Context Boundary**: The remote server only "sees" the portion of the recipe defined by the **Context Ingredients** setting (counting backwards from the **MCP Server**'s position).
 - **Self-Protection**: To maintain a stable connection, the remote server is strictly prohibited from modifying or removing the **MCP Server** ingredient itself or any operations following it. A `remove_all_operations` command will only clear the recipe *within the exposed context*.
 
+#### Exclusive Connection Management
+
+To prevent synchronization conflicts and ensure a single "source of truth", this ingredient implements an exclusive connection policy:
+
+- **Single Active Instance**: Only one **MCP Server** connection can be active at any given time.
+- **Auto-Disconnection**: If you click **Connect** on a specific MCP Server ingredient, any other active connection—whether it belongs to another MCP Server ingredient in the same recipe or an instance running in a different browser tab/window—will be automatically disconnected.
+- **Identifier-based Logic**: This behavior is enforced using the ingredient's unique identifier. Each time a connection is initiated, a broadcast signal is sent to all other instances, which will gracefully shut down their connection if they detect a new active session.
+
 #### Quick Start: Local Implementation
 
 To use this operation, you need an MCP Server that understands the ASP Chef synchronization protocol. You can use the official Python implementation:

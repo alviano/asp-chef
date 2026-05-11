@@ -48,6 +48,17 @@
     let consecutiveErrors = 0;
     let isTuningOpen = false;
 
+    const syncChannel = new BroadcastChannel('asp-chef-mcp-exclusive-connection');
+
+    syncChannel.onmessage = (event) => {
+        if (event.data.action === 'connect' && event.data.id !== id) {
+            if (status === 'Connected' || status === 'Connecting...') {
+                addLog(`Connection closed: another instance became active`, false);
+                disconnect();
+            }
+        }
+    };
+
     $: start_index =
         !options || options.context_ingredients === 0
             ? 0
@@ -336,6 +347,8 @@
             reconnectTimer = null;
         }
 
+        syncChannel.postMessage({ action: 'connect', id });
+
         const url = `${base_url()}/events`;
         addLog(`connecting to ${url}…`);
         status = 'Connecting...';
@@ -389,10 +402,12 @@
         status = 'Disconnected';
         consecutiveErrors = 0;
         Recipe.set_errors_at_index(index, undefined);
-        addLog('disconnected by user');
     }
 
-    onDestroy(disconnect);
+    onDestroy(() => {
+        disconnect();
+        syncChannel.close();
+    });
 </script>
 
 <style>
@@ -412,9 +427,6 @@
                          style="width: 8px; height: 8px; box-shadow: 0 0 5px {status === 'Connected' ? '#198754' : status === 'Connecting...' ? '#ffc107' : status === 'Error' ? '#dc3545' : '#6c757d'}"></div>
                     <span class="small fw-bold text-muted status-pill">MCP Server: {status}</span>
                 </div>
-                <Badge color="white" class="rounded-pill text-dark border shadow-sm px-3" style="font-size: 0.75rem;">
-                    {base_url()}
-                </Badge>
             </div>
 
             <div class="d-flex gap-2 mb-3">
