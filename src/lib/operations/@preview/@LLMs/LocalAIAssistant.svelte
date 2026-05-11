@@ -385,8 +385,6 @@
                 </div>
             </div>
         </Collapse>
-    </div>
-    <div slot="output">
         {#if $kitchenState.isLoading}
             <div class='mb-3 px-1'>
                 <Progress animated striped={$kitchenState.progress === 0} color='primary' value={$kitchenState.progress === 0 ? 100 : $kitchenState.progress} style='height: 8px;' class='rounded-pill shadow-sm' />
