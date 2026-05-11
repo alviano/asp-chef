@@ -323,51 +323,51 @@
                 </div>
             </div>
         </Collapse>
+    </div>
 
-        <div class="position-relative">
-            {#if isSystemWorking}
-                <div class="position-absolute top-0 start-50 translate-middle-x mt-2 z-index-20">
-                    <div class="badge rounded-pill bg-info text-white shadow-sm p-2 px-3 d-flex align-items-center gap-2 animate-pulse" style="z-index: 100;">
-                        <div class="spinner-border spinner-border-sm" role="status"></div>
-                        <span class="small fw-bold">SYSTEM IS FETCHING DOCUMENTATION...</span>
-                    </div>
+    <div slot="output" class="position-relative">
+        {#if isSystemWorking}
+            <div class="position-absolute top-0 start-50 translate-middle-x mt-2 z-index-20">
+                <div class="badge rounded-pill bg-info text-white shadow-sm p-2 px-3 d-flex align-items-center gap-2 animate-pulse" style="z-index: 100;">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <span class="small fw-bold">SYSTEM IS FETCHING DOCUMENTATION...</span>
                 </div>
-            {/if}
+            </div>
+        {/if}
 
-            <AIAssistantChat
-                bind:messages
-                {isGenerating}
-                bind:editingIndex
-                bind:editingContent
-                bind:chatContainer
-                bind:isUserScrolling
-                onEditMessage={editMessage}
-                onDeleteMessage={deleteMessage}
-                onCancelEdit={cancelEdit}
-                onSaveEdit={saveEdit}
-                height={options.height}
-            />
+        <AIAssistantChat
+            bind:messages
+            {isGenerating}
+            bind:editingIndex
+            bind:editingContent
+            bind:chatContainer
+            bind:isUserScrolling
+            onEditMessage={editMessage}
+            onDeleteMessage={deleteMessage}
+            onCancelEdit={cancelEdit}
+            onSaveEdit={saveEdit}
+            height={options.height}
+        />
 
-            <div class="input-row align-items-stretch">
-                <div class="bg-white border rounded-3 p-1 shadow-sm d-flex align-items-center">
-                    <Input type="textarea" bind:value={userInput} placeholder="Ask your Remote Sous-Chef..."
-                        class="border-0 shadow-none bg-transparent"
-                        style="max-height: 150px; min-height: 50px; resize: none; width: 100%;"
-                        disabled={isGenerating}
-                        on:keydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send_message(); } }} />
-                </div>
+        <div class="input-row align-items-stretch">
+            <div class="bg-white border rounded-3 p-1 shadow-sm d-flex align-items-center">
+                <Input type="textarea" bind:value={userInput} placeholder="Ask your Remote Sous-Chef..."
+                    class="border-0 shadow-none bg-transparent"
+                    style="max-height: 150px; min-height: 50px; resize: none; width: 100%;"
+                    disabled={isGenerating}
+                    on:keydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send_message(); } }} />
+            </div>
 
-                <div class="d-flex flex-column gap-1 justify-content-between">
-                    {#if isGenerating}
-                        <Button color="danger" class="rounded-3 shadow-sm fw-bold w-100" style="height: 50px;" on:click={() => abortController.abort()}>STOP</Button>
-                    {:else}
-                        <Button color="success" class="rounded-3 shadow-sm fw-bold w-100" style="height: 50px;" on:click={send_message} disabled={!userInput.trim() || isGenerating}>
-                            SEND
-                        </Button>
-                    {/if}
-                    <div class="d-flex flex-column align-items-center mt-1">
-                        <Button color="link" size="sm" class="text-muted text-decoration-none fw-bold p-0" style="font-size: 0.7rem;" on:click={clear_messages}>CLEAR</Button>
-                    </div>
+            <div class="d-flex flex-column gap-1 justify-content-between">
+                {#if isGenerating}
+                    <Button color="danger" class="rounded-3 shadow-sm fw-bold w-100" style="height: 50px;" on:click={() => abortController.abort()}>STOP</Button>
+                {:else}
+                    <Button color="success" class="rounded-3 shadow-sm fw-bold w-100" style="height: 50px;" on:click={send_message} disabled={!userInput.trim() || isGenerating}>
+                        SEND
+                    </Button>
+                {/if}
+                <div class="d-flex flex-column align-items-center mt-1">
+                    <Button color="link" size="sm" class="text-muted text-decoration-none fw-bold p-0" style="font-size: 0.7rem;" on:click={clear_messages}>CLEAR</Button>
                 </div>
             </div>
         </div>
