@@ -166,8 +166,15 @@ You are a Pipeline Architect and Debugger. You analyze the recipe context and in
             .split(',')
             .map((n) => n.trim())
             .filter((n) => n.length > 0)
-            .map((n) => n.replace(/^[`"']|[`"']$/g, '').replace(/[^\w@\/].*$/, ''));
-
+            .map((n) =>
+                n
+                    // 1. Remove surrounding quotes (", ', or `)
+                    .replace(/^[`"']|[`"']$/g, '')
+                    // 2. Remove trailing punctuation like periods or semicolons,
+                    // but KEEP spaces between words.
+                    .replace(/[.;!]+$/, '')
+                    .trim()
+            );
         return await Promise.all(
             names.map(async (name) => {
                 try {
@@ -183,9 +190,7 @@ You are a Pipeline Architect and Debugger. You analyze the recipe context and in
     async handleDocRequests(content: string, interactionCount: number) {
         const cleanedContent = content.replace(/<think>[\s\S]*?<\/think>/gi, '');
         const docMatches = [
-            ...cleanedContent.matchAll(
-                /(?:SYSTEM:\s*)?DOC:\s*([@\/\w\s\.\-,\+]+?)(?=\s*(?:SYSTEM:|$|\n|---))/gi
-            )
+            ...cleanedContent.matchAll(/(?:SYSTEM:\s*DOC:|,)\s*([^,]+?)(?=\s*(?:,|$|SYSTEM:))/gi)
         ];
         if (docMatches.length === 0) return null;
 
