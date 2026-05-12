@@ -1,4 +1,4 @@
-The **MCP Server** operation acts as a bridge between ASP Chef and external tools (like LLMs) via the Model Context Protocol (MCP).
+The **MCP AI Agent** operation acts as a bridge between ASP Chef and external tools (like LLMs) via the Model Context Protocol (MCP).
 
 When active, it establishes a persistent connection using Server-Sent Events (SSE) to listen for commands and continuously synchronizes the recipe state with a remote server.
 
@@ -16,10 +16,10 @@ This operation turns ASP Chef into a remotely-controllable interface, enabling p
 
 #### Typical Pipeline
 
-The **MCP Server** should typically be placed at the end of the logic chain you want an agent to manage:
+The **MCP AI Agent** should typically be placed at the end of the logic chain you want an agent to manage:
 
 ```
-[Static Logic] → [Fixed Data] → [MCP Server (Context=0)]
+[Static Logic] → [Fixed Data] → [MCP AI Agent (Context=0)]
 ```
 
 In this setup, an LLM connecting via MCP can see and modify all ingredients preceding the server, but cannot see or modify anything that follows it.
@@ -47,24 +47,24 @@ Whenever the recipe or input changes, the operation POSTs the current state to `
 
 - **recipe**: A JSON array of the ingredients within the context.
 - **input**: The current raw text entering the first ingredient in context.
-- **connector_index**: The 0-based index of the MCP Server within the synchronized slice.
+- **connector_index**: The 0-based index of the MCP AI Agent within the synchronized slice.
 - **global_options**: Current UI state (Baking status, visibility settings).
 
 This allows the remote server to maintain a "Mirror" of the ASP Chef state, which is essential for providing LLMs with accurate context.
 
 #### Placement and Protection
 
-The position of the **MCP Server** ingredient is critical for security and stability:
+The position of the **MCP AI Agent** ingredient is critical for security and stability:
 
-- **Context Boundary**: The remote server only "sees" the portion of the recipe defined by the **Context Ingredients** setting (counting backwards from the **MCP Server**'s position).
-- **Self-Protection**: To maintain a stable connection, the remote server is strictly prohibited from modifying or removing the **MCP Server** ingredient itself or any operations following it. A `remove_all_operations` command will only clear the recipe *within the exposed context*.
+- **Context Boundary**: The remote server only "sees" the portion of the recipe defined by the **Context Ingredients** setting (counting backwards from the **MCP AI Agent**'s position).
+- **Self-Protection**: To maintain a stable connection, the remote server is strictly prohibited from modifying or removing the **MCP AI Agent** ingredient itself or any operations following it. A `remove_all_operations` command will only clear the recipe *within the exposed context*.
 
 #### Exclusive Connection Management
 
 To prevent synchronization conflicts and ensure a single "source of truth", this ingredient implements an exclusive connection policy:
 
-- **Single Active Instance**: Only one **MCP Server** connection can be active at any given time.
-- **Auto-Disconnection**: If you click **Connect** on a specific MCP Server ingredient, any other active connection—whether it belongs to another MCP Server ingredient in the same recipe or an instance running in a different browser tab/window—will be automatically disconnected.
+- **Single Active Instance**: Only one **MCP AI Agent** connection can be active at any given time.
+- **Auto-Disconnection**: If you click **Connect** on a specific MCP AI Agent ingredient, any other active connection—whether it belongs to another MCP AI Agent ingredient in the same recipe or an instance running in a different browser tab/window—will be automatically disconnected.
 - **Identifier-based Logic**: This behavior is enforced using the ingredient's unique identifier. Each time a connection is initiated, a broadcast signal is sent to all other instances, which will gracefully shut down their connection if they detect a new active session.
 
 #### Quick Start: Local Implementation
@@ -85,6 +85,10 @@ To use this operation, you need an MCP Server that understands the ASP Chef sync
         "/path/to/asp-chef-mcp-server/src/asp_chef_mcp_server",
         "run",
         "server.py"
+        "--host",
+        "localhost", // default
+        "--port",
+        "8000" // default
       ]
     }
   }

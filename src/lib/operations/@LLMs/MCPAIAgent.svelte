@@ -2,7 +2,7 @@
     import { Option, Recipe } from '$lib/recipe';
     import { encode_input } from '$lib/stores';
 
-    const operation = '@LLMs/MCP Server';
+    const operation = '@LLMs/MCP AI Agent';
 
     export const default_extra_options = {
         server_url: Option('http://localhost:8000', 'MCP Server base URL', 'string'),
