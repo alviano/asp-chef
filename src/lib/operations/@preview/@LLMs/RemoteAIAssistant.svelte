@@ -7,6 +7,7 @@
 
     const operation = "@preview/@LLMs/Remote AI Assistant";
     export const default_extra_options = {
+        system_prompt: Option(AIAssistantUtils.remoteSystemPrompt,"System prompt for the remote assistant","string"),
         server_type: Option("Groq", "Server type (Groq, OpenAI, Ollama, OpenRouter)", "string"),
         server: Option("https://api.groq.com/openai/v1", "The LLM server URL", "string"),
         endpoint: Option("chat/completions", "API endpoint", "string"),
@@ -86,7 +87,6 @@
         isGenerating = true;
         abortController = new AbortController();
 
-        // --- PREPARE CONTEXT ---
         const context_prompt = cl.prepareContext(options, index);
 
         messages = [...messages, { role: "assistant", content: "", showThinking: false }];
@@ -155,20 +155,16 @@
 
                         try {
                             const parsed = JSON.parse(message);
-                            // Support both OpenAI/Groq (choices[0].delta.content) and Ollama (message.content) formats
-                            // Support for 'reasoning' outside 'delta' if some proxies do that, though standard is inside delta
                             const content = parsed.choices?.[0]?.delta?.content ?? parsed.message?.content ?? "";
                             const reasoning = parsed.choices?.[0]?.delta?.reasoning ?? parsed.choices?.[0]?.delta?.reasoning_content ?? parsed.message?.reasoning ?? parsed.message?.reasoning_content ?? "";
 
                             if (reasoning || content) {
                                 if (reasoning) {
-                                    // If thinking started, wrap it in <think> tags for the UI parser
                                     if (!messages[messages.length - 1].content.includes("<think>")) {
                                         messages[messages.length - 1].content += "<think>";
                                     }
                                     messages[messages.length - 1].content += reasoning;
                                 } else {
-                                    // Close think tag if we were thinking but now have normal content
                                     if (messages[messages.length - 1].content.includes("<think>") && !messages[messages.length - 1].content.includes("</think>")) {
                                         messages[messages.length - 1].content += "</think>";
                                     }
@@ -187,10 +183,10 @@
                     }
                 }
 
-                const docResult = await AIAssistantUtils.handleDocRequests(current_assistant_content, interactionCount);
-                const inputResult = await AIAssistantUtils.handleInputRequests(current_assistant_content, $recipe_input, interactionCount);
-                const opsResult = await AIAssistantUtils.handleOperationsListRequest(current_assistant_content, interactionCount);
-                const protocolResult = docResult || inputResult || opsResult;
+                const toolCall = AIAssistantUtils.parseAssistantToolCall(current_assistant_content);
+                const protocolResult = toolCall
+                    ? await AIAssistantUtils.handleAssistantToolCall(toolCall, interactionCount, $recipe_input)
+                    : null;
 
                 if (protocolResult) {
                     if (protocolResult.stop) {
@@ -301,7 +297,7 @@
                     <div class="col-12 mt-2">
                         <!-- svelte-ignore a11y_label_has_associated_control -->
                         <label class="small fw-bold text-muted d-flex justify-content-between mb-1">
-                            <span>CONTEXT INGREDIENTS</span>
+                            <span>CONTEXT INGREDIENTS (steps above this one - 0 for all)</span>
                             <span>{options.context_ingredients}</span>
                         </label>
                         <input type="range" class="form-range" min="0" max={index} step="1" bind:value={options.context_ingredients} on:change={edit} />
@@ -373,6 +369,3 @@
         </div>
     </div>
 </Operation>
-
-
-

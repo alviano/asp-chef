@@ -9,7 +9,6 @@
     export let chatContainer;
     export let isUserScrolling = false;
 
-    // Callbacks
     export let onEditMessage;
     export let onDeleteMessage;
     export let onCancelEdit;
@@ -19,8 +18,9 @@
 
     let chat_box;
 
+    $: chatContainer = chat_box;
+
     $: if (chat_box && messages) {
-        // Run after the DOM has likely updated due to message changes
         setTimeout(() => {
             Array.from(chat_box.getElementsByTagName('pre')).forEach(Utils.add_copy_button);
         }, 0);
@@ -34,7 +34,6 @@
 </script>
 
 <style>
-    /* Custom Scrollbar */
     .chat-box::-webkit-scrollbar { width: 6px; }
     .chat-box::-webkit-scrollbar-track { background: transparent; }
     .chat-box::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
@@ -90,10 +89,9 @@
     }
 </style>
 
-<div bind:this={chatContainer} class="chat-box mb-3 d-flex flex-column gap-3"
+<div bind:this={chat_box} class="chat-box mb-3 d-flex flex-column gap-3"
      style="height:{height}px; overflow-y:auto; background:#f1f5f9; border:1px solid #e2e8f0; padding:20px; border-radius:12px;"
-     on:scroll={handleScroll}
-     bind:this={chat_box}>
+     on:scroll={handleScroll}>
 
     {#if messages.length === 0}
         <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-50">

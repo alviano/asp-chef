@@ -7,6 +7,7 @@
 
     const operation = "@preview/@LLMs/Local AI Assistant";
     export const default_extra_options = {
+        system_prompt: Option(AIAssistantUtils.localSystemPrompt, "System prompt for the local LLM", "string"),
         model: Option("Qwen3-1.7B-q4f16_1-MLC", "The model ID to use", "string"),
         ...AIAssistantUtils.common_extra_options(),
         repetition_penalty: Option(1.1, "Repetition penalty", "number")
@@ -20,7 +21,6 @@
         progress: 0
     });
     export let sharedEngine = null;
-    // --- PRIVATE INTERCOM ---
     let syncChannel;
     if (typeof window !== "undefined") {
         syncChannel = new BroadcastChannel("kitchen_state_channel");
@@ -182,7 +182,6 @@
         mutateKitchen({ isBusy: true });
         pendingClear = false;
 
-        // --- PREPARE CONTEXT ---
         const context_prompt = cl.prepareContext(options, index);
 
         messages = [...messages, { role: "assistant", content: "", showThinking: false }];
@@ -234,10 +233,10 @@
 
                 if (pendingClear) break;
 
-                const docResult = await AIAssistantUtils.handleDocRequests(current_assistant_content, interactionCount);
-                const inputResult = await AIAssistantUtils.handleInputRequests(current_assistant_content, $recipe_input, interactionCount);
-                const opsResult = await AIAssistantUtils.handleOperationsListRequest(current_assistant_content, interactionCount);
-                const protocolResult = docResult || inputResult || opsResult;
+                const toolCall = AIAssistantUtils.parseAssistantToolCall(current_assistant_content);
+                const protocolResult = toolCall
+                    ? await AIAssistantUtils.handleAssistantToolCall(toolCall, interactionCount, $recipe_input)
+                    : null;
 
                 if (protocolResult) {
                     if (protocolResult.stop) {
@@ -363,7 +362,7 @@
                     <div class='col-12 mt-2'>
                         <!-- svelte-ignore a11y_label_has_associated_control -->
                         <label class='small fw-bold text-muted d-flex justify-content-between mb-1'>
-                            <span>CONTEXT INGREDIENTS (steps above this one)</span>
+                            <span>CONTEXT INGREDIENTS (steps above this one - 0 for all)</span>
                             <span>{options.context_ingredients}</span>
                         </label>
                         <input type='range' class='form-range' min='0' max={index} step='1' bind:value={options.context_ingredients} on:change={edit} />
@@ -424,6 +423,7 @@
                 onDeleteMessage={deleteMessage}
                 onCancelEdit={cancelEdit}
                 onSaveEdit={saveEdit}
+                height={options.height}
             />
             <div class='input-row align-items-stretch'>
                 <div class='bg-white border rounded-3 p-1 shadow-sm d-flex align-items-center'>
