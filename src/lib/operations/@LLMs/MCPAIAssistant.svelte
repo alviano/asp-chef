@@ -5,7 +5,7 @@
     const operation = '@LLMs/MCP AI Assistant';
 
     export const default_extra_options = {
-        server_url: Option('http://localhost:8000', 'MCP Server base URL', 'string'),
+        server_url: Option('http://localhost:8100', 'MCP Server base URL', 'string'),
         auto_reconnect: Option(true, 'Auto-reconnect on disconnect', 'boolean'),
         context_ingredients: Option(
             0,
@@ -72,7 +72,7 @@
     }
 
     function base_url(): string {
-        return (options?.server_url || 'http://localhost:8000').replace(/\/$/, '');
+        return (options?.server_url || 'http://localhost:8100').replace(/\/$/, '');
     }
 
     function addLog(msg: string, ok = true) {
@@ -432,7 +432,7 @@
             <div class="d-flex gap-2 mb-3">
                 <InputGroup size="sm" class="shadow-sm rounded">
                     <InputGroupText class="bg-white border-end-0">🌐</InputGroupText>
-                    <Input type="text" bind:value={options.server_url} on:input={edit} disabled={status === 'Connected' || status === 'Connecting...'} class="border-start-0 border-end-0" placeholder="http://localhost:8000" />
+                    <Input type="text" bind:value={options.server_url} on:input={edit} disabled={status === 'Connected' || status === 'Connecting...'} class="border-start-0 border-end-0" placeholder="http://localhost:8100" />
                     <Button color={status === 'Disconnected' ? 'success' : 'danger'} size="sm" on:click={() => status === 'Disconnected' ? connect() : disconnect()}>
                         {status === 'Disconnected' ? 'Connect' : 'Disconnect'}
                     </Button>

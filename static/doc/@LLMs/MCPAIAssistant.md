@@ -4,7 +4,7 @@ When active, it establishes a persistent connection using Server-Sent Events (SS
 
 The following options are available:
 
-- **Server URL**: the base URL of the MCP-compatible server (default: `http://localhost:8000`).
+- **Server URL**: the base URL of the MCP-compatible server (default: `http://localhost:8100`).
 - **Auto-reconnect**: if enabled, the operation automatically attempts to restore the connection if it is lost.
 - **Context Ingredients**: limits the number of preceding operations sent to the server as context. Set to `0` to include the entire preceding recipe.
 
@@ -88,7 +88,7 @@ To use this operation, you need an MCP Server that understands the ASP Chef sync
         "--host",
         "localhost", // default
         "--port",
-        "8000" // default
+        "8100" // default
       ]
     }
   }
