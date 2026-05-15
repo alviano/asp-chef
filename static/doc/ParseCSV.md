@@ -15,7 +15,9 @@ The operation takes each model in the input (which is usually a single model con
 2. For each cell, it generates a fact:
    - **Row Index**: The 1-based index of the row.
    - **Column Index**: The 1-based index of the column.
-   - **Value**: The content of the cell (automatically quoted in the ASP fact).
+   - **Value**: The content of the cell.
+
+Value not being integers are represented either as `@real(Value)` (non-integral numbers) or as quoted strings.
 
 #### Using with Header Rows
 
