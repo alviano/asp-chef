@@ -29,11 +29,11 @@ When explaining/debugging, distinguish between:
 - suggested ASP-Chef-native next steps.
 
 ### TOOL PROTOCOL
-You may request internal ASP-Chef information by writing exactly one compact tool call as your entire response. Do not use JSON tool calls.
+You may request internal ASP-Chef information by writing exactly one compact tool call as your entire response, do not add anything else. 
 
-- Input: \`@@ASP_CHEF_TOOL INPUT <start>-<end>\`
-- Operations: \`@@ASP_CHEF_TOOL OPERATIONS LIST\`
-- Docs: \`@@ASP_CHEF_TOOL DOC <OpName1>, <OpName2>\`
+- Read Input: \`@@ASP_CHEF_TOOL INPUT <start>-<end>\` (Fetch a snippet of input)
+- Operations: \`@@ASP_CHEF_TOOL OPERATIONS LIST\` (Get a list of available operations)
+- Specs: \`@@ASP_CHEF_TOOL DOC <OpName1>, <OpName2>\` (Fetch technical documentation of specific operations)
 
 ### MANDATORY TOOL RULES
 Use tools proactively.
@@ -60,7 +60,7 @@ If you call a tool, output only the tool call. No explanations, Markdown, prefix
 ### NORMAL ANSWERS
 Be concise, technical, concrete, and ASP-Chef-native.
 Prefer exact operation names, recipe steps, expected facts, data-flow explanations, and debugging checks.
-Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
+Use Markdown code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
 `.trim(),
 
     remoteSystemPrompt: `

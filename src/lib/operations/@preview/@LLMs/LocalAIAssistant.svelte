@@ -95,9 +95,11 @@
 
     $: normalizedModelSearch = (modelSearch ?? "").toLowerCase().trim();
 
-    $: filteredModels = availableModels
-        .filter((modelName) => modelName.toLowerCase().includes(normalizedModelSearch))
-        .slice(0, 15);
+    $: filteredModels = normalizedModelSearch
+        ? availableModels.filter((modelName) =>
+            modelName.toLowerCase().includes(normalizedModelSearch)
+        )
+        : availableModels;
 
     $: if (highlightedModelIndex >= filteredModels.length) {
         highlightedModelIndex = filteredModels.length - 1;
@@ -152,14 +154,13 @@
     function closeModelDropdown() {
         isModelDropdownOpen = false;
         highlightedModelIndex = -1;
+        modelSearch = options?.model ?? "";
     }
 
     function updateModelSearch(value) {
         modelSearch = value;
-        options.model = value;
         isModelDropdownOpen = true;
         highlightedModelIndex = 0;
-        edit();
     }
 
     function selectModel(modelName) {
@@ -438,6 +439,7 @@
 
     .model-autocomplete-wrapper {
         min-width: 0;
+        overflow: visible;
     }
 
     .model-autocomplete-input {
@@ -449,10 +451,25 @@
         top: calc(100% + 4px);
         left: 0;
         right: 0;
-        max-height: 280px;
-        overflow-y: auto;
-        z-index: 1050;
+        max-height: 520px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        z-index: 9999;
         border: 1px solid #dee2e6;
+        overscroll-behavior: contain;
+    }
+
+    .model-autocomplete::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .model-autocomplete::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+    }
+
+    .model-autocomplete::-webkit-scrollbar-track {
+        background: #f8fafc;
     }
 
     .model-autocomplete-item {
@@ -493,7 +510,7 @@
 </style>
 
 <Operation {id} {operation} {options} {index} {default_extra_options} {add_to_recipe} {keybinding}>
-    <div class="p-3 border-0 rounded-3 bg-white shadow-sm overflow-hidden" style="border: 1px solid #e2e8f0 !important;">
+    <div class="p-3 border-0 rounded-3 bg-white shadow-sm" style="border: 1px solid #e2e8f0 !important; overflow: visible;">
         <div class="mb-3 p-2 bg-light border rounded-pill d-flex justify-content-between align-items-center px-3">
             <div class="d-flex align-items-center gap-2">
                 <div class="rounded-circle {($kitchenState.activeModel && $kitchenState.activeModel === options.model) ? 'bg-success' : 'bg-secondary'}" style="width: 8px; height: 8px; box-shadow: 0 0 5px {($kitchenState.activeModel && $kitchenState.activeModel === options.model) ? '#198754' : '#6c757d'}"></div>
@@ -532,7 +549,7 @@
                     {#if isModelDropdownOpen && !$kitchenState.isBusy && !$kitchenState.isLoading}
                         <div
                             bind:this={modelDropdownElement}
-                            class="model-autocomplete shadow-sm bg-white rounded-3 overflow-hidden"
+                            class="model-autocomplete shadow-sm bg-white rounded-3"
                         >
                             {#if filteredModels.length > 0}
                                 {#each filteredModels as modelName, modelIndex}
