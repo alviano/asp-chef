@@ -302,6 +302,9 @@ async def process(request: Request):
 
 ## Contributors
 
+* Lorenzo Adduci
 * [Mario Alviano](https://alviano.net)
 * Davide Cirimele
+* Paola Guarasci
 * Luis Angel Rodriguez Reiners
+* Pierpaolo Sestito

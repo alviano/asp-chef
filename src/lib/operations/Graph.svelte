@@ -5,7 +5,6 @@
     const operation = "Graph";
     export const default_extra_options = {
         height: Option(500, "Height of the graph canvas", "number"),
-        node_radius: Option(20, "Radius of the graph nodes", "number"),
         predicate: Option('__graph__', "Predicate containing the graph definition", "predicate_name"),
         echo: Option(false, "Include the graph definition in the output", "boolean"),
         search: Option('', "Search term to highlight nodes", "string"),
