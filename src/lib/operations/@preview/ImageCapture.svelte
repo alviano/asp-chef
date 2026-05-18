@@ -10,17 +10,17 @@
         crop_bottom: Option(null, "Number of pixels to crop from the bottom", "integer"),
         output_predicate: Option('__png__', "Predicate to store the image", "predicate_name"),
         auto_output: Option(0, "Delay (ms) to automatically store the image when the recipe is executed (0 to disable)", "integer"),
-        output_png: Option(null, "The latest generate image", "string"),
     };
 
     const listeners = new Map();
 
     Recipe.register_operation_type(operation, async (input, options, index, id) => {
+        let output_png = null;
         try {
-            await listeners.get(id)(input, options);
+            output_png = await listeners.get(id)(input, options);
         } catch (error) { /* component not mounted, possibly because of headless mode */ }
-        if (options.output_predicate && options.output_png) {
-            return input.map(model => [...model, Utils.parse_atom(`${options.output_predicate}("${options.output_png}")`)]);
+        if (options.output_predicate && output_png) {
+            return input.map(model => [...model, Utils.parse_atom(`${options.output_predicate}("${output_png}")`)]);
         }
         return input;
     });
@@ -39,6 +39,7 @@
     export let keybinding;
 
     let self;
+    let output_png = null;
 
     function edit() {
         Recipe.edit_operation(id, index, options);
@@ -73,7 +74,7 @@
             0, 0, cropCanvas.width, cropCanvas.height
         );
 
-        options.output_png = cropCanvas.toDataURL('image/png').substring("data:image/png;base64,".length);
+        output_png = cropCanvas.toDataURL('image/png').substring("data:image/png;base64,".length);
 
         if (notify_edit) {
             edit();
@@ -81,17 +82,18 @@
     }
 
     function clear_image() {
-        options.output_png = null;
+        output_png = null;
         edit();
     }
 
     onMount(() => {
         listeners.set(id, async (input, options) => {
-            await tick();
             if (options.auto_output) {
-                await Utils.delay(100);
+                await Utils.delay(options.auto_output);
+                await tick();
                 await store_image(false);
             }
+            return output_png;
         });
     });
 
@@ -118,7 +120,7 @@
         <div slot="output">
             <ButtonGroup class="w-100">
                 <Button size="sm" color="primary" on:click={() => store_image(true)}>Store Image</Button>
-                <Button size="sm" color="secondary" outline disabled={options.auto_output !== 0 || !options.output_png} on:click={clear_image}>Clear Image</Button>
+                <Button size="sm" color="secondary" outline disabled={options.auto_output !== 0 || !output_png} on:click={clear_image}>Clear Image</Button>
             </ButtonGroup>
         </div>
     </Operation>
