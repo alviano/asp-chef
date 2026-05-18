@@ -42,7 +42,7 @@ export class Recipe {
     private static _operation_types = new Map();
     private static _operation_components = new Map();
     private static _operation_keys = [];
-        private static _operation_default_extra_options = new Map();
+    private static _operation_default_extra_options = new Map();
     private static _operation_doc = new Map();
     private static uncachable_operations_types = new Set();
     private static _remote_javascript_operations = new Map();
@@ -813,4 +813,8 @@ export class Recipe {
     static get number_of_hidden_headers() {
         return this.recipe.filter(ingredient => ingredient.options.hide_header).length;
     }
+}
+
+if (import.meta.hot) {
+    import.meta.hot.accept();
 }
