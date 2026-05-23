@@ -347,7 +347,7 @@
                     max_tokens: options.max_tokens,
                     repetition_penalty: options.repetition_penalty,
                     stream: true,
-                    stop: ["@@ASP_CHEF_STOP"],
+                    stop: ["@@STOP"],
                 });
 
                 current_assistant_content = "";
