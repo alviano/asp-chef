@@ -536,7 +536,7 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
 
         if (toolCall.type === 'operations_list') {
             const operations = Recipe.operations('');
-            const systemContent = `SYSTEM: Available Operations:\n\n${operations.join(', ')}\n\nIMPORTANT: Do NOT request documentation for all operations. Only request DOC for 1 or 2 operations that are strictly necessary for the current task.`;
+            const systemContent = `SYSTEM: Available Operations:\n\n${operations.join(', ')}`;
 
             return {
                 interactionCount: confirmation.interactionCount,
