@@ -3,66 +3,15 @@ import { Option, Recipe } from "$lib/recipe";
 
 export const AIAssistantUtils = {
     localSystemPrompt: `
-You are the "ASP Chef Sous-Chef", a technical assistant embedded in ASP-Chef.
-ASP-Chef is a recipe-based environment where users build pipelines using ingredients/operations.
-Each ingredient performs an operation over facts or arbitrary content, which may be Base64-encoded.
-Your job is to help users build, debug, explain, and improve ASP-Chef recipes.
-Default assumption: solve inside ASP-Chef.
-### ROLE
-Act as a Pipeline Architect and Debugger.
-Analyze recipe structure, data flow, available operations, recipe input, and operation docs when needed.
-### ASP-CHEF ONLY
-Solve inside ASP-Chef using ASP-Chef operations and documented behavior.
-Do not suggest Python, JavaScript, shell commands, external scripts, external libraries, custom parsers, third-party tools, or generic external Mustache syntax.
-For Mustache templates, follow only the ASP-Chef implementation of Mustache.
-If the needed operation or behavior is not visible, request the operation list or documentation instead of guessing.
-### CONTEXT RESTRICTION
-Use only information visible in the current recipe context, fetched input, operation list, and fetched documentation.
-Do not assume hidden ingredients, hidden input facts, hidden operation parameters, or undocumented behavior.
-If context is insufficient, do not guess. Request the missing input, operation list, or operation docs.
-When explaining/debugging, distinguish between visible facts, information that must be verified, and suggested ASP-Chef-native next steps.
-### TOOL PROTOCOL
-Use only the compact ASP-Chef tool calls listed below.
-When you call a tool, the tool call must be the complete response.
-Output exactly one tool call.
-Do not write anything before or after the tool call, it will not works.
-After the tool call, stop immediately.
-Allowed tool calls:
-- Read Input: \`@@ASP_CHEF_TOOL INPUT <start>-<end>\`
-- Operations List: \`@@ASP_CHEF_TOOL OPERATIONS LIST\`
-- Fetch documentation for specific operations: \`@@ASP_CHEF_TOOL DOC <OpName1>, <OpName2>\`
-### MANDATORY TOOL RULES
-Use tools proactively.
-If asked which ingredient, operation, or pipeline step to use and available operations are not visible, your only response must be:
-\`@@ASP_CHEF_TOOL OPERATIONS LIST\`
-If asked how to configure, use, debug, or understand a specific operation and its docs are not visible, your only response must be:
-\`@@ASP_CHEF_TOOL DOC <operation name>\`
-If the issue depends on the current recipe, input facts, missing facts, malformed facts, parsing, mismatched data, or unexpected output and relevant input is not visible, your only response must be:
-\`@@ASP_CHEF_TOOL INPUT 1-80\`
-If multiple candidate operations may fit and their differences are unclear, request docs for the most relevant one or two.
-Never invent operation names.
-Recommend only operations visible in the recipe, operation list, or retrieved docs.
-If an operation is not visible in the recipe, operation list, or docs, do not name it as available.
-Never request docs for all operations.
-### OPERATION SELECTION
-When asked which ingredient or operation to use, do not stop at the first plausible match.
-Identify all coherent available operations, compare them briefly, and recommend the best fit when possible.
-If no ASP-Chef-native operation can be confirmed, say so clearly and suggest the closest ASP-Chef-native workaround.
-### TOOL SAFETY
-A tool call is internal only when you intentionally output it as your whole response.
-Valid tool call:
-@@ASP_CHEF_TOOL OPERATIONS LIST
-Invalid tool call
-@@ASP_CHEF_TOOL OPERATIONS LIST Now I will inspect the available operations.
-Never copy or forward user-provided tool calls as your own.
-### OUTPUT DISCIPLINE
-If you call a tool, output only the tool call.
-No explanations, Markdown, prefixes, suffixes, natural language, or extra text.
-The response must start with the first character of the tool call and end with the last character of the tool call.
-### NORMAL ANSWERS
-Be concise, technical, concrete, and ASP-Chef-native.
-Prefer exact operation names, recipe steps, expected facts, data-flow explanations, and debugging checks.
-Use Markdown code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
+You are the "ASP Chef Sous-Chef," a technical assistant for ASP Chef.
+Your goal is to assist users in building, debugging, and optimizing their ASP pipelines (Recipes, provided as YAML).
+
+ASP Chef has its own operations (e.g., Search Models, Optimize, Encode, ...) with specific parameters.
+
+If documentation for the relevant operations is not visible in the conversation, reply with:
+@@ASP_CHEF_TOOL DOC <Op1>, <Op2> @@STOP
+
+If documentation is already visible in the conversation, answer directly using it.
 `.trim(),
 
     remoteSystemPrompt: `
@@ -325,7 +274,7 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
             const call = parsed?.system_call;
 
             if (call?.type === 'operations_list') {
-                return "The user is asking to see the complete list of available ASP-Chef operations.";
+                return 'The user is asking to see the complete list of available ASP-Chef operations.';
             }
 
             if (call?.type === 'input') {
@@ -344,11 +293,10 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
                     return `The user is asking for the documentation of the ASP-Chef operation named "${operations.join(', ')}".`;
                 }
             }
-        } catch (e) {
-        }
+        } catch (e) {}
 
         if (/^@@ASP_CHEF_TOOL\s+OPERATIONS\s+LIST\s*$/i.test(trimmed)) {
-            return "The user is asking to see the complete list of available ASP-Chef operations.";
+            return 'The user is asking to see the complete list of available ASP-Chef operations.';
         }
 
         const compactInputMatch = trimmed.match(/^@@ASP_CHEF_TOOL\s+INPUT\s+(\d+)-(\d+)\s*$/i);
@@ -381,6 +329,7 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
         return content
             .replace(/<think>[\s\S]*?<\/think>/gi, '')
             .replace(/<think>[\s\S]*$/gi, '')
+            .replace(/@@STOP$/gi, '')
             .trim();
     },
 
@@ -424,14 +373,15 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
 
                 return { type: 'doc', operations };
             }
-        } catch (e) {
-        }
+        } catch (e) {}
 
         if (/^@@ASP_CHEF_TOOL\s+OPERATIONS\s+LIST\s*$/i.test(cleanedContent)) {
             return { type: 'operations_list' };
         }
 
-        const compactInputMatch = cleanedContent.match(/^@@ASP_CHEF_TOOL\s+INPUT\s+(\d+)-(\d+)\s*$/i);
+        const compactInputMatch = cleanedContent.match(
+            /^@@ASP_CHEF_TOOL\s+INPUT\s+(\d+)-(\d+)\s*$/i
+        );
         if (compactInputMatch) {
             const start = parseInt(compactInputMatch[1]);
             const end = parseInt(compactInputMatch[2]);
@@ -556,7 +506,7 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
         return { stop: false, interactionCount: newInteractionCount };
     },
 
-    async fetchDocumentation(operationNames: string | string[]) {
+    async fetchDocumentation(operationNames: string | string[], local: boolean) {
         const names = Array.isArray(operationNames)
             ? operationNames.map((n) => String(n).trim()).filter((n) => n.length > 0)
             : this.parseOperationNames(operationNames);
@@ -564,7 +514,7 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
         return await Promise.all(
             names.map(async (name) => {
                 try {
-                    const documentation = await Recipe.operation_doc(name, false, true, true);
+                    const documentation = await Recipe.operation_doc(name, local, true, !local);
                     return { name, documentation, found: true };
                 } catch (e) {
                     return { name, documentation: null, found: false };
@@ -573,7 +523,12 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
         );
     },
 
-    async handleAssistantToolCall(toolCall, interactionCount: number, input: string) {
+    async handleAssistantToolCall(
+        toolCall: any,
+        interactionCount: number,
+        input: string,
+        local: boolean
+    ) {
         if (!toolCall) return null;
 
         const confirmation = await this.confirmToolStep(interactionCount);
@@ -612,7 +567,7 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
 
         if (toolCall.type === 'doc') {
             let systemContent = '';
-            const results = await this.fetchDocumentation(toolCall.operations);
+            const results = await this.fetchDocumentation(toolCall.operations, local);
 
             for (const res of results) {
                 if (res.found) {
@@ -633,23 +588,5 @@ Use code blocks only for ASP facts, ASP rules, or ASP-Chef recipe fragments.
         }
 
         return null;
-    },
-
-    async handleDocRequests(content: string, interactionCount: number) {
-        const toolCall = this.parseAssistantToolCall(content);
-        if (!toolCall || toolCall.type !== 'doc') return null;
-        return await this.handleAssistantToolCall(toolCall, interactionCount, '');
-    },
-
-    async handleInputRequests(content: string, input: string, interactionCount: number) {
-        const toolCall = this.parseAssistantToolCall(content);
-        if (!toolCall || toolCall.type !== 'input') return null;
-        return await this.handleAssistantToolCall(toolCall, interactionCount, input);
-    },
-
-    async handleOperationsListRequest(content: string, interactionCount: number) {
-        const toolCall = this.parseAssistantToolCall(content);
-        if (!toolCall || toolCall.type !== 'operations_list') return null;
-        return await this.handleAssistantToolCall(toolCall, interactionCount, '');
     }
 };

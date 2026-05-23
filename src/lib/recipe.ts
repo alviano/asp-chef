@@ -192,9 +192,9 @@ export class Recipe {
         const doc = await this._operation_doc.get(operation);
         const split = Utils.split_with_limit(doc, '§§§§', 2);
         let res = short ? split[0] : split[0] + (split[1] ? '### Details' + split[1] : '');
-                if (default_extra_options) {
-                      res += `\n\n### Default Extra Options\n\n\`\`\`json\n${JSON.stringify(this._operation_default_extra_options.get(this.operation_type_filename(operation)), null, 2)}\n\`\`\``;
-                }
+        if (default_extra_options) {
+            res += `\n\n### Default Extra Options\n\n\`\`\`json\n${JSON.stringify(this._operation_default_extra_options.get(this.operation_type_filename(operation)), null, 2)}\n\`\`\``;
+        }
         return markdown ? res : Utils.render_markdown(res);
     }
 

@@ -170,7 +170,9 @@
         edit();
 
         tick().then(() => {
-            modelInputElement?.focus();
+            if (modelInputElement && modelInputElement.focus) {
+                modelInputElement.focus();
+            }
         });
     }
 
@@ -344,7 +346,8 @@
                     top_p: options.top_p,
                     max_tokens: options.max_tokens,
                     repetition_penalty: options.repetition_penalty,
-                    stream: true
+                    stream: true,
+                    stop: ["@@ASP_CHEF_STOP"],
                 });
 
                 current_assistant_content = "";
@@ -370,7 +373,7 @@
                 const toolCall = AIAssistantUtils.parseAssistantToolCall(current_assistant_content);
 
                 const protocolResult = toolCall
-                    ? await AIAssistantUtils.handleAssistantToolCall(toolCall, interactionCount, $recipe_input)
+                    ? await AIAssistantUtils.handleAssistantToolCall(toolCall, interactionCount, $recipe_input, true)
                     : null;
 
                 if (protocolResult) {

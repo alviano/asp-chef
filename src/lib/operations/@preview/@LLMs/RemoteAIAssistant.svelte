@@ -185,7 +185,7 @@
 
                 const toolCall = AIAssistantUtils.parseAssistantToolCall(current_assistant_content);
                 const protocolResult = toolCall
-                    ? await AIAssistantUtils.handleAssistantToolCall(toolCall, interactionCount, $recipe_input)
+                    ? await AIAssistantUtils.handleAssistantToolCall(toolCall, interactionCount, $recipe_input, false)
                     : null;
 
                 if (protocolResult) {
