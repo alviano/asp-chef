@@ -22,7 +22,7 @@ input, textarea {
 }
 
 .alert, .btn, .btn-sm, .card, .form-control, .input-group-text, .progress {
-  border-radius: 0;
+  border-radius: 0 !important;
 }
 
 blockquote {
