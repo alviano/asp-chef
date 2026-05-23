@@ -1,5 +1,5 @@
 <script>
-  import '../app.css';
+  import '$lib/app.css';
   import { Button, Container, Offcanvas, Row } from "@sveltestrap/sveltestrap";
   import { Keybindings } from 'dumbo-svelte';
   import { privacy_policy } from '$lib/stores';
