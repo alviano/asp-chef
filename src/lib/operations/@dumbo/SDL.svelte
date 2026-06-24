@@ -6,6 +6,7 @@
     const operation = "@dumbo/SDL";
     export const default_extra_options = {
         program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
+        minizinc: Option(false, "Target MiniZinc compilation (rather than ASP)", "boolean"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
@@ -23,6 +24,7 @@
                 });
                 const json = await Dumbo.fetch("sdl/", {
                     program: program.join('\n'),
+                    minizinc: options.minizinc,
                 });
                 input_part.push(Dumbo.encode_program(json.program, options.program_predicate));
                 res.push(input_part);
@@ -36,7 +38,7 @@
 
 <script>
     import Operation from "$lib/Operation.svelte";
-    import {Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
+    import {Button, Input, InputGroup, InputGroupText} from "@sveltestrap/sveltestrap";
 
     export let id;
     export let options;
@@ -57,5 +59,6 @@
                placeholder="program predicate"
                on:input={edit}
         />
+        <Button outline="{!options.minizinc}" on:click={() => { options.minizinc = !options.minizinc; edit(); }}>MiniZinc</Button>
     </InputGroup>
 </Operation>
