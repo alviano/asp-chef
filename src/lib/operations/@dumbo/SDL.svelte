@@ -24,7 +24,7 @@
                 });
                 const json = await Dumbo.fetch("sdl/", {
                     program: program.join('\n'),
-                    minizinc: options.minizinc,
+                    minizinc: !!options.minizinc,
                 });
                 input_part.push(Dumbo.encode_program(json.program, options.program_predicate));
                 res.push(input_part);
