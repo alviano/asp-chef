@@ -5,7 +5,7 @@
 
     const operation = "@dumbo/SDL";
     export const default_extra_options = {
-        program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
+        program_predicate: Option('__program__', "Predicate containing the SDL program (Base64 JSON)", "predicate_name"),
         minizinc: Option(false, "Target MiniZinc compilation (rather than ASP)", "boolean"),
     };
 

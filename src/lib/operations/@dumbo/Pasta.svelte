@@ -6,11 +6,12 @@
     import {clingo_remote_uuid} from "$lib/stores.js";
     import {Utils} from "$lib/utils.js";
 
-    const operation = "@dumbo/Casper";
+    const operation = "@dumbo/Pasta";
     export const default_extra_options = {
-        program_predicate: Option('__program__', "Predicate containing the Casper program (Base64 JSON)", "predicate_name"),
+        program_predicate: Option('__program__', "Predicate containing the Pasta.md program (Base64 JSON)", "predicate_name"),
         echo: Option(false, "Whether to include the original program in the output", "boolean"),
-        enumerate: Option(false, "Whether to enumerate multiple answer sets (if found)", "boolean"),
+        output_predicate: Option('__bounds__', "Predicate to use for the output bounds", "predicate_name"),
+        bound_multiplier: Option(0, "Number multiplied with lower and upper bounds before rounding to integer (0 for real values between 0 and 1)", "number"),
     };
 
     Recipe.register_operation_type(operation, async (input, options, index) => {
@@ -28,10 +29,11 @@
                     }
                     input_part.push(atom);
                 });
-                const json = await Dumbo.fetch("casper/", {
+                const json = await Dumbo.fetch("pasta/", {
                     uuid: get(clingo_remote_uuid),
                     program: program.join('\n'),
-                    enumerate: options.enumerate,
+                    output_predicate: options.output_predicate,
+                    bound_multiplier: options.bound_multiplier,
                     timeout: Utils.clingo_timeout,
                 });
                 const new_models = json.models.map(model => {
@@ -72,6 +74,21 @@
                on:input={edit}
         />
         <Button outline="{!options.echo}" on:click={() => { options.echo = !options.echo; edit(); }}>Echo</Button>
-        <Button outline="{!options.enumerate}" on:click={() => { options.enumerate = !options.enumerate; edit(); }}>Enumerate</Button>
+    </InputGroup>
+    <InputGroup>
+        <InputGroupText style="width: 8em;">Output</InputGroupText>
+        <Input type="text"
+               bind:value={options.output_predicate}
+               placeholder="output predicate"
+               on:input={edit}
+        />
+        <InputGroupText style="width: 8em;">Multiplier</InputGroupText>
+        <Input type="text"
+               bind:value={options.bound_multiplier}
+               min="0"
+               max="1000000"
+               on:input={edit}
+        />
+
     </InputGroup>
 </Operation>

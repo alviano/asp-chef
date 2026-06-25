@@ -8,7 +8,7 @@
 
     const operation = "@dumbo/PyQASP";
     export const default_extra_options = {
-        program_predicate: Option('__program__', "Predicate containing the Dumbo program (Base64 JSON)", "predicate_name"),
+        program_predicate: Option('__program__', "Predicate containing the Casper program (Base64 JSON)", "predicate_name"),
         echo: Option(false, "Whether to include the original program in the output", "boolean"),
         enumerate: Option(false, "Whether to enumerate multiple answer sets (if found)", "boolean"),
     };
