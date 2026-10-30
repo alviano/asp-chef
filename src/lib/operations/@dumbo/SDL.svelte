@@ -1,7 +1,6 @@
 <script context="module">
     import {Option, Recipe} from "$lib/recipe";
     import {Dumbo} from "$lib/operations/@dumbo/dumbo";
-    import {readable} from "$lib/operations/@dumbo/sdlDisplay";
     import {Base64} from "js-base64";
 
     const operation = "@dumbo/SDL";
@@ -27,9 +26,7 @@
                     program: program.join('\n'),
                     minizinc: !!options.minizinc,
                 });
-                const target = options.minizinc ? 'minizinc' : 'asp';
-                const displayProgram = readable(json.program ?? '', target);
-                input_part.push(Dumbo.encode_program(displayProgram, options.program_predicate));
+                input_part.push(Dumbo.encode_program(json.program, options.program_predicate));
                 res.push(input_part);
             } catch (error) {
                 Recipe.set_errors_at_index(index, error, res);

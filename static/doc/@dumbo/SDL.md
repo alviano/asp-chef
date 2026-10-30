@@ -15,8 +15,10 @@ The **SDL** ingredient acts as an automated compiler and translator within your 
 1. **Ingestion**: It extracts the SDL program from your model, where it is typically stored as a Base64-encoded string inside the `__program__` predicate.
 2. **Translation**: The program is sent to the Dumbo backend service, which parses the high-level structures.
 3. **Target Compilation**: By default, the service rewrites the logic into standard **ASP rules**. Alternatively, the operation can target **MiniZinc**.
-4. **Readable names**: Opaque compiler variables (UUID-style `X` + hex from the SDL translator, or quoted paths like `V'a1'node'id`) are rewritten per rule to short names (`X1`, `X2`, …).
-5. **Re-encoding**: The resulting target code is re-encoded into Base64 and injected back into the model, cleanly replacing the original SDL facts.
+4. **Re-encoding**: The resulting target code is re-encoded into Base64 and injected back into the model, cleanly replacing the original SDL facts.
+
+To preview short variable names (`X1`, `X2`, …) without changing the encoded program, use **Output Encoded Content** with **Readable** on.
+
 
 ---
 

@@ -15,6 +15,8 @@ It then decodes this string and displays it in a read-only code editor within th
 
 - **Height**: Adjust the height of the display container to accommodate long content.
 - **Echo**: If set to true, the original encoded atoms are kept in the model. If false (default), they are filtered out from the output model to keep it clean.
+- **Readable**: If set (default), opaque compiler variables in the decoded text (e.g. SDL UUID-style `X` + hex) are rewritten to short display names (`X1`, `X2`, …). Turn it off to see the original encoding. Does not change the atoms passed downstream.
+- **MiniZinc**: When **Readable** is on, use MiniZinc naming rules instead of ASP.
 
 #### Common Use Cases
 
